@@ -49,6 +49,11 @@ public class MultiFolderWatcher : IDisposable
         }
     }
 // --------------------------------------------------------------------------------------------------------------------------
+    public IEnumerable<KeyValuePair<string, string>> GetWatchedFolders()
+    {
+        return _watchers.Select(w => new KeyValuePair<string, string>(w.Key, w.Value.Filter));
+    }
+// --------------------------------------------------------------------------------------------------------------------------
     public void Dispose()
     {
         foreach (var watcher in _watchers.Values)
