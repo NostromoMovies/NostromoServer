@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Nostromo.Server.API
+namespace Nostromo.Server.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
