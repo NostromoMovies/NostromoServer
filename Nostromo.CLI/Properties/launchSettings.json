@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Nostromo.CLI": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
