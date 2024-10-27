@@ -9,5 +9,11 @@ namespace Nostromo.Server.Server
     public class NostromoServer
     {
         private static DateTime? _startTime;
+
+        public bool StartUpServer()
+        {
+            // startup stuff
+            return true;
+        }
     }
 }
