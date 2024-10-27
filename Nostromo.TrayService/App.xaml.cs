@@ -11,29 +11,37 @@ namespace Nostromo.TrayService
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            // Create the notifyicon (it's a resource declared in NotifyIconResources.xaml)
+            // Prevent shutdown when no windows are open
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
             _notifyIcon = new TaskbarIcon
             {
                 Icon = System.Drawing.Icon.ExtractAssociatedIcon(System.Reflection.Assembly.GetExecutingAssembly().Location),
                 ToolTipText = "Nostromo Server"
             };
 
-            // Create context menu
             _notifyIcon.ContextMenu = new System.Windows.Controls.ContextMenu
             {
                 Items =
+            {
+                new System.Windows.Controls.MenuItem
                 {
-                    new System.Windows.Controls.MenuItem
+                    Header = "Exit",
+                    Command = new RelayCommand(() =>
                     {
-                        Header = "Exit",
-                        Command = new RelayCommand(() =>
-                        {
-                            _notifyIcon.Dispose();
-                            Shutdown();
-                        })
-                    }
+                        _notifyIcon.Dispose();
+                        Shutdown();
+                    })
                 }
+            }
             };
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            // Make sure we clean up the tray icon when exiting
+            _notifyIcon?.Dispose();
+            base.OnExit(e);
         }
     }
 
