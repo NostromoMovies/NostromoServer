@@ -1,29 +1,38 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Nostromo.Server.Services;
 using Nostromo.Server.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Versioning;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Nostromo.Server.Server
+namespace Nostromo.Server.Server;
+
+public class Startup
 {
-    public class Startup
+    public static void ConfigureServices(IServiceCollection services)
     {
-        public Startup() { }
+        // Register existing services
+        services.AddSingleton<NostromoServer>();
+        services.AddSingleton<FileWatcherService>();
 
-        public async Task Start()
+        // Register file watcher services
+        //services.AddSingleton<MultiFolderWatcher>();
+        //services.Configure<WatcherSettings>(
+            //configuration.GetSection("Watcher"));
+        services.AddHostedService<FileWatcherService>();
+    }
+
+    public async Task Start()
+    {
+        try
         {
-            try
-            {
-                var nostromoServer = Utils.ServiceContainer.GetRequiredService<NostromoServer>();
-                Utils.NostromoServer = nostromoServer;
-            }
-            catch (Exception e)
-            {
-                //log exception
-            }
+            var nostromoServer = Utils.ServiceContainer.GetRequiredService<NostromoServer>();
+            Utils.NostromoServer = nostromoServer;
+
+            // Any additional startup logic
+        }
+        catch (Exception e)
+        {
+            //log exception
+            throw;
         }
     }
 }

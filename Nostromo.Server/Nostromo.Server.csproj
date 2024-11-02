@@ -22,12 +22,15 @@
 	
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="Quartz" Version="3.13.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
 	<PackageReference Include="NLog" Version="5.2.8" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="FileHelper\" />
+    <Folder Include="Settings\" />
+    <Folder Include="Scheduling\" />
   </ItemGroup>
 
 </Project>
