@@ -2,14 +2,17 @@
 using System.Data;
 using System.Windows;
 using Hardcodet.Wpf.TaskbarNotification;
+using Microsoft.Extensions.Logging;
+using Nostromo.Server.Server;
 
 namespace Nostromo.TrayService
 {
     public partial class App : Application
     {
         private TaskbarIcon? _notifyIcon;
+        private ILogger _logger = null;
 
-        private void Application_Startup(object sender, StartupEventArgs e)
+        private void OnStartup(object sender, StartupEventArgs e)
         {
             // Prevent shutdown when no windows are open
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
@@ -23,18 +26,29 @@ namespace Nostromo.TrayService
             _notifyIcon.ContextMenu = new System.Windows.Controls.ContextMenu
             {
                 Items =
-            {
-                new System.Windows.Controls.MenuItem
                 {
-                    Header = "Exit",
-                    Command = new RelayCommand(() =>
+                    new System.Windows.Controls.MenuItem
                     {
-                        _notifyIcon.Dispose();
-                        Shutdown();
-                    })
+                        Header = "Exit",
+                        Command = new RelayCommand(() =>
+                        {
+                            _notifyIcon.Dispose();
+                            Shutdown();
+                        })
+                    }
                 }
-            }
             };
+
+            try
+            {
+                var startup = new Startup();
+                startup.Start().ConfigureAwait(true).GetAwaiter().GetResult();
+            }
+            catch (Exception exception)
+            {
+                //_logger.LogCritical(exception, "Failed to start server");
+                Shutdown();
+            }
         }
 
         protected override void OnExit(ExitEventArgs e)

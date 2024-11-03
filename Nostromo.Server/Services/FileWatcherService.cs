@@ -24,8 +24,7 @@ public class FileWatcherService : IHostedService, IDisposable
     public FileWatcherService(
         IEnumerable<RecoveringFileSystemWatcher> watchers,
         ILogger<FileWatcherService> logger,
-        IOptions<WatcherSettings> settings,
-        ISchedulerFactory schedulerFactory)
+        IOptions<WatcherSettings> settings)
     {
         _watchers = watchers?.ToList() ?? throw new ArgumentNullException(nameof(watchers));
         if (!_watchers.Any()) throw new ArgumentException("At least one watcher must be provided", nameof(watchers));
