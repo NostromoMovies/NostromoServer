@@ -27,6 +27,7 @@ public class Startup
         // Add logging
         services.AddLogging(builder =>
         {
+            builder.AddConfiguration(_configuration.GetSection("Logging"));
             builder.AddConsole();
             builder.AddDebug();
         });

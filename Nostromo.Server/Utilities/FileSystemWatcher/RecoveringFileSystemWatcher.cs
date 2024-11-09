@@ -23,7 +23,7 @@ public class RecoveringFileSystemWatcher : IDisposable
     public void Start()
     {
         if (_watcher is { EnableRaisingEvents: true }) return;
-        //_watcher ??= InitWatcher();
+        _watcher ??= InitWatcher();
     }
     public void Dispose()
     {
@@ -43,6 +43,12 @@ public class RecoveringFileSystemWatcher : IDisposable
             IncludeSubdirectories = true,
             InternalBufferSize = 65536, //64KiB
         };
+
+        watcher.Created += (s, e) => FileAdded?.Invoke(this, e.FullPath);
+        watcher.Changed += (s, e) => FileAdded?.Invoke(this, e.FullPath);
+        watcher.Deleted += (s, e) => FileDeleted?.Invoke(this, e.FullPath);
+
+        watcher.EnableRaisingEvents = true;
 
         return watcher;
     }

@@ -38,7 +38,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="FileHelper\" />
     <Folder Include="Settings\" />
     <Folder Include="Scheduling\" />
   </ItemGroup>

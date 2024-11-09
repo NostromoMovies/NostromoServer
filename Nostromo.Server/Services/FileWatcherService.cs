@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Nostromo.Server.Utilities.FileSystemWatcher;
 using System.Collections.Concurrent;
 using Quartz;
+using Nostromo.Server.FileHelper;
 
 namespace Nostromo.Server.Services;
 
@@ -15,6 +16,7 @@ public class WatcherSettings
 public class FileWatcherService : IHostedService, IDisposable
 {
     private readonly List<RecoveringFileSystemWatcher> _watchers;
+    private readonly ConcurrentDictionary<string, Timer> _fileTimers = new();
     private readonly ILogger<FileWatcherService> _logger;
     private readonly WatcherSettings _settings;
     private readonly ConcurrentQueue<string> _changedFiles;
@@ -27,7 +29,7 @@ public class FileWatcherService : IHostedService, IDisposable
         IOptions<WatcherSettings> settings)
     {
         _watchers = watchers?.ToList() ?? throw new ArgumentNullException(nameof(watchers));
-        if (!_watchers.Any()) throw new ArgumentException("At least one watcher must be provided", nameof(watchers));
+        if (_watchers.Count == 0) throw new ArgumentException("At least one watcher must be provided", nameof(watchers));
 
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _settings = settings.Value;
@@ -92,14 +94,80 @@ public class FileWatcherService : IHostedService, IDisposable
 
     private void ProcessFile(string filePath)
     {
-        _logger.LogInformation("Processing file: {FilePath}", filePath);
+        _logger.LogInformation("ProcessFile called for: {FilePath}", filePath);
 
-        // TODO: Add your file processing logic here
-        // For example:
-        // 1. Validate the file is complete/not being written to
-        // 2. Move to processing directory
-        // 3. Update database
-        // 4. Trigger media processing
+        // If we're already processing this file, skip
+        if (_fileTimers.ContainsKey(filePath))
+        {
+            _logger.LogDebug("File already being processed: {FilePath}", filePath);
+            return;
+        }
+
+        _logger.LogInformation("Setting up timer for: {FilePath}", filePath);
+
+        var timer = new Timer(async (state) =>
+        {
+            try
+            {
+                _logger.LogDebug("Timer triggered for: {FilePath}", filePath);
+
+                if (!IsFileReady(filePath))
+                {
+                    _logger.LogDebug("File not ready yet: {FilePath}", filePath);
+                    return;
+                }
+
+                _logger.LogInformation("=== Starting hash calculation for {FilePath} ===", filePath);
+
+                var hashes = Hasher.CalculateHashes(filePath, (filename, progress) =>
+                {
+                    if (progress % 10 == 0) // Log every 10%
+                    {
+                        _logger.LogInformation("Hashing progress for {FileName}: {Progress}%", filename, progress);
+                    }
+                    return 0;
+                });
+
+                _logger.LogInformation(
+                    "=== Hash Results for {FilePath} ===\n" +
+                    "MD5:   {MD5}\n" +
+                    "SHA1:  {SHA1}\n" +
+                    "CRC32: {CRC32}",
+                    filePath, hashes.MD5, hashes.SHA1, hashes.CRC32
+                );
+
+                // Clean up timer
+                if (_fileTimers.TryRemove(filePath, out var oldTimer))
+                {
+                    _logger.LogDebug("Cleaned up timer for: {FilePath}", filePath);
+                    oldTimer.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing file: {FilePath}", filePath);
+
+                if (_fileTimers.TryRemove(filePath, out var oldTimer))
+                {
+                    oldTimer.Dispose();
+                }
+            }
+        }, null, TimeSpan.FromSeconds(1), Timeout.InfiniteTimeSpan);
+
+        _fileTimers[filePath] = timer;
+    }
+
+    private static bool IsFileReady(string filename)
+    {
+        try
+        {
+            using var inputStream = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.None);
+            return inputStream.Length > 0;
+        }
+        catch (IOException)
+        {
+            return false;
+        }
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
@@ -136,7 +204,6 @@ public class FileWatcherService : IHostedService, IDisposable
         Dispose(true);
         GC.SuppressFinalize(this);
     }
-
     protected virtual void Dispose(bool disposing)
     {
         if (_isDisposed)
@@ -149,6 +216,11 @@ public class FileWatcherService : IHostedService, IDisposable
             {
                 watcher.Dispose();
             }
+            foreach (var fileTimer in _fileTimers.Values)
+            {
+                fileTimer.Dispose();
+            }
+            _fileTimers.Clear();
         }
 
         _isDisposed = true;
