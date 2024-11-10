@@ -1,121 +1,177 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿//using System.Runtime.InteropServices;
+//using System.Text;
 
-namespace Nostromo.Server.FileHelper;
+//namespace Nostromo.Server.FileHelper;
 
-public class Hasher
-{
-    private static readonly Destructor Finalise = new();
+//public class Hasher
+//{
+//    public class HashResult
+//    {
+//        public string ED2K { get; set; }
+//        public string CRC32 { get; set; }
+//        public string MD5 { get; set; }
+//        public string SHA1 { get; set; }
+//    }
 
-    [DllImport("kernel32.dll")]
-    private static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hReservedNull, uint dwFlags);
+//    public delegate void OnHashProgress(string fileName, int progressPercent);
 
-    [DllImport("kernel32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool FreeLibrary(IntPtr hModule);
+//    public static HashResult CalculateHashes(string filePath, OnHashProgress progressCallback = null)
+//    {
+//        try
+//        {
+//            // Handle UNC paths
+//            var filename = filePath.StartsWith(@"\\") ? filePath : @"\\?\" + filePath;
 
-    // Callback delegate for hash progress
-    public delegate int OnHashProgress([MarshalAs(UnmanagedType.LPWStr)] string fileName, int progressPercent);
+//            var (ed2k, crc32, md5, sha1) = NativeHasher.GetHash(filename, true, true, true);
 
-    //[DllImport("hasher.dll", EntryPoint = "CalculateHashes_AsyncIO", CallingConvention = CallingConvention.Cdecl,
-    //    CharSet = CharSet.Unicode)]
-    private static extern int CalculateHashes_callback_dll(
-        [MarshalAs(UnmanagedType.LPWStr)] string fileName,
-        [MarshalAs(UnmanagedType.LPArray)] byte[] hash,
-        [MarshalAs(UnmanagedType.FunctionPtr)] OnHashProgress progressCallback,
-        [MarshalAs(UnmanagedType.Bool)] bool getCRC32,
-        [MarshalAs(UnmanagedType.Bool)] bool getMD5,
-        [MarshalAs(UnmanagedType.Bool)] bool getSHA1
-    );
+//            progressCallback?.Invoke(filePath, 100);
 
-    internal sealed class Destructor : IDisposable
-    {
-        public IntPtr ModuleHandle;
+//            return new HashResult
+//            {
+//                ED2K = ed2k,
+//                CRC32 = crc32,
+//                MD5 = md5,
+//                SHA1 = sha1
+//            };
+//        }
+//        catch (Exception ex)
+//        {
+//            throw new Exception($"Failed to calculate file hashes: {ex.Message}", ex);
+//        }
+//    }
+//}
 
-        ~Destructor()
-        {
-            if (ModuleHandle != IntPtr.Zero)
-            {
-                FreeLibrary(ModuleHandle);
-                ModuleHandle = IntPtr.Zero;
-            }
-        }
+//internal class OldNativeHasher
+//{
+//    public static (string e2dk, string crc32, string md5, string sha1) GetHash(string filename, bool hashCRC, bool hashMD5, bool hashSHA1)
+//    {
+//        var sb = new StringBuilder();
+//        Native.rhash_library_init();
+//        var ids = RHashIds.RHASH_ED2K;
+//        if (hashCRC) ids |= RHashIds.RHASH_CRC32;
+//        if (hashMD5) ids |= RHashIds.RHASH_MD5;
+//        if (hashSHA1) ids |= RHashIds.RHASH_SHA1;
+//        var ctx = Native.rhash_init(ids);
 
-        public void Dispose() { }
-    }
+//        using (Stream source = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+//        {
+//            var buffer = new byte[8192];
+//            int bytesRead;
+//            while ((bytesRead = source.Read(buffer, 0, buffer.Length)) > 0)
+//            {
+//                var buf = Marshal.AllocHGlobal(bytesRead);
+//                Marshal.Copy(buffer, 0, buf, bytesRead);
+//                Native.rhash_update(ctx, buf, bytesRead);
+//                Marshal.FreeHGlobal(buf);
+//            }
+//        }
 
-    static Hasher()
-    {
-        var fullexepath = Assembly.GetEntryAssembly()?.Location;
-        try
-        {
-            if (fullexepath != null)
-            {
-                var fi = new FileInfo(fullexepath);
-                fullexepath = Path.Combine(fi.Directory.FullName, Environment.Is64BitProcess ? "x64" : "x86",
-                    "librhash.dll");
-                Finalise.ModuleHandle = LoadLibraryEx(fullexepath, IntPtr.Zero, 0);
-            }
-        }
-        catch (Exception)
-        {
-            Finalise.ModuleHandle = IntPtr.Zero;
-        }
-    }
+//        var output = Marshal.AllocHGlobal(200);
 
-    public class HashResult
-    {
-        public string CRC32 { get; set; }
-        public string MD5 { get; set; }
-        public string SHA1 { get; set; }
-    }
+//        Native.rhash_print(output, ctx, RHashIds.RHASH_ED2K, RhashPrintSumFlags.RHPR_DEFAULT);
+//        var e2dk = Marshal.PtrToStringAnsi(output);
 
-    private static string HashToString(byte[] hash, int start, int length)
-    {
-        if (hash == null || hash.Length == 0) return string.Empty;
+//        Native.rhash_print(output, ctx, RHashIds.RHASH_CRC32, RhashPrintSumFlags.RHPR_DEFAULT);
+//        var crc32 = Marshal.PtrToStringAnsi(output);
 
-        var hex = new StringBuilder(length * 2);
-        for (var x = start; x < start + length; x++)
-        {
-            hex.AppendFormat("{0:x2}", hash[x]);
-        }
-        return hex.ToString().ToUpper();
-    }
+//        Native.rhash_print(output, ctx, RHashIds.RHASH_MD5, RhashPrintSumFlags.RHPR_DEFAULT);
+//        var md5 = Marshal.PtrToStringAnsi(output);
 
-    public static HashResult CalculateHashes(string filePath, OnHashProgress progressCallback = null)
-    {
-        var hash = new byte[56]; // Buffer for all hash types
-        var result = new HashResult();
+//        Native.rhash_print(output, ctx, RHashIds.RHASH_SHA1, RhashPrintSumFlags.RHPR_DEFAULT);
+//        var sha1 = Marshal.PtrToStringAnsi(output);
 
-        try
-        {
-            // Handle UNC paths
-            var filename = filePath.StartsWith(@"\\") ? filePath : @"\\?\" + filePath;
+//        Marshal.FreeHGlobal(output);
 
-            var status = CalculateHashes_callback_dll(
-                filename,
-                hash,
-                progressCallback,
-                true,  // CRC32
-                true,  // MD5
-                true   // SHA1
-            );
+//        Native.rhash_final(ctx, IntPtr.Zero);
+//        Native.rhash_free(ctx);
 
-            if (status == 0) // Success
-            {
-                result.CRC32 = HashToString(hash, 0, 4);
-                result.MD5 = HashToString(hash, 4, 16);
-                result.SHA1 = HashToString(hash, 20, 20);
-            }
-        }
-        catch (Exception ex)
-        {
-            throw new Exception($"Failed to calculate file hashes: {ex.Message}", ex);
-        }
+//        return (e2dk, crc32, md5, sha1);
+//    }
 
-        return result;
-    }
-}
+//    private static class Native
+//    {
+//        private const string Lib = "librhash";
+
+//        [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+//        internal static extern void rhash_library_init();
+
+//        [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+//        internal static extern IntPtr rhash_init(RHashIds ids);
+
+//        [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+//        internal static extern int rhash_update(IntPtr ctx, IntPtr data, int count);
+
+//        [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+//        internal static extern int rhash_final(IntPtr ctx, IntPtr result);
+
+//        [DllImport(Lib, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+//        internal static extern int rhash_print(IntPtr outStr, IntPtr ctx, RHashIds hashId, RhashPrintSumFlags flags);
+
+//        [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+//        internal static extern void rhash_free(IntPtr ctx);
+//    }
+
+//    [Flags]
+//    private enum RhashPrintSumFlags
+//    {
+//        /** print in a default format */
+//        RHPR_DEFAULT = 0x0,
+//        /** output as binary message digest */
+//        RHPR_RAW = 0x1,
+//        /** print as a hexadecimal string */
+//        RHPR_HEX = 0x2,
+//        /** print as a base32-encoded string */
+//        RHPR_BASE32 = 0x3,
+//        /** print as a base64-encoded string */
+//        RHPR_BASE64 = 0x4,
+//        /** Print as an uppercase string. Can be used for base32 or hexadecimal format only. */
+//        RHPR_UPPERCASE = 0x8,
+//        /** Reverse hash bytes. Can be used for GOST hash. */
+//        RHPR_REVERSE = 0x10,
+//        /** don't print 'magnet:?' prefix in rhash_print_magnet */
+//        RHPR_NO_MAGNET = 0x20,
+//        /** print file size in rhash_print_magnet */
+//        RHPR_FILESIZE = 0x40
+//    }
+
+//    [Flags]
+//    private enum RHashIds
+//    {
+//        RHASH_CRC32 = 0x01,
+//        RHASH_MD4 = 0x02,
+//        RHASH_MD5 = 0x04,
+//        RHASH_SHA1 = 0x08,
+//        RHASH_TIGER = 0x10,
+//        RHASH_TTH = 0x20,
+//        RHASH_BTIH = 0x40,
+//        RHASH_ED2K = 0x80,
+//        RHASH_AICH = 0x100,
+//        RHASH_WHIRLPOOL = 0x200,
+//        RHASH_RIPEMD160 = 0x400,
+//        RHASH_GOST = 0x800,
+//        RHASH_GOST_CRYPTOPRO = 0x1000,
+//        RHASH_HAS160 = 0x2000,
+//        RHASH_SNEFRU128 = 0x4000,
+//        RHASH_SNEFRU256 = 0x8000,
+//        RHASH_SHA224 = 0x10000,
+//        RHASH_SHA256 = 0x20000,
+//        RHASH_SHA384 = 0x40000,
+//        RHASH_SHA512 = 0x80000,
+//        RHASH_EDONR256 = 0x0100000,
+//        RHASH_EDONR512 = 0x0200000,
+//        RHASH_SHA3_224 = 0x0400000,
+//        RHASH_SHA3_256 = 0x0800000,
+//        RHASH_SHA3_384 = 0x1000000,
+//        RHASH_SHA3_512 = 0x2000000,
+
+//        RHASH_ALL_HASHES = RHASH_CRC32 | RHASH_MD4 | RHASH_MD5 | RHASH_ED2K | RHASH_SHA1 |
+//                          RHASH_TIGER | RHASH_TTH | RHASH_GOST | RHASH_GOST_CRYPTOPRO |
+//                          RHASH_BTIH | RHASH_AICH | RHASH_WHIRLPOOL | RHASH_RIPEMD160 |
+//                          RHASH_HAS160 | RHASH_SNEFRU128 | RHASH_SNEFRU256 |
+//                          RHASH_SHA224 | RHASH_SHA256 | RHASH_SHA384 | RHASH_SHA512 |
+//                          RHASH_SHA3_224 | RHASH_SHA3_256 | RHASH_SHA3_384 | RHASH_SHA3_512 |
+//                          RHASH_EDONR256 | RHASH_EDONR512,
+
+//        RHASH_HASH_COUNT = 26
+//    }
+//}

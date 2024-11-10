@@ -5,6 +5,7 @@ using Nostromo.Server.Utilities.FileSystemWatcher;
 using System.Collections.Concurrent;
 using Quartz;
 using Nostromo.Server.FileHelper;
+using System.Collections.Generic;
 
 namespace Nostromo.Server.Services;
 
@@ -16,12 +17,13 @@ public class WatcherSettings
 public class FileWatcherService : IHostedService, IDisposable
 {
     private readonly List<RecoveringFileSystemWatcher> _watchers;
-    private readonly ConcurrentDictionary<string, Timer> _fileTimers = new();
+    private readonly ConcurrentDictionary<string, CancellationTokenSource> _fileProcessing = new();
     private readonly ILogger<FileWatcherService> _logger;
     private readonly WatcherSettings _settings;
     private readonly ConcurrentQueue<string> _changedFiles;
     private Timer? _timer;
     private bool _isDisposed;
+    private readonly CancellationTokenSource _serviceCts = new();
 
     public FileWatcherService(
         IEnumerable<RecoveringFileSystemWatcher> watchers,
@@ -42,14 +44,9 @@ public class FileWatcherService : IHostedService, IDisposable
 
         foreach (var watcher in _watchers)
         {
-            // Subscribe to watcher events
             watcher.FileAdded += OnFileChanged;
             watcher.FileDeleted += OnFileDeleted;
-
-            // Start the watcher
             watcher.Start();
-
-            //_logger.LogInformation("Watching directory: {Directory}", watcher.WatchedDirectory);
         }
 
         _timer = new Timer(DoWork, null, TimeSpan.Zero,
@@ -67,7 +64,13 @@ public class FileWatcherService : IHostedService, IDisposable
     private void OnFileDeleted(object? sender, string filePath)
     {
         _logger.LogInformation("File deleted: {FilePath}", filePath);
-        // Handle deletions if needed
+
+        // Cancel any ongoing processing for the deleted file
+        if (_fileProcessing.TryRemove(filePath, out var cts))
+        {
+            cts.Cancel();
+            cts.Dispose();
+        }
     }
 
     private void DoWork(object? state)
@@ -78,7 +81,7 @@ public class FileWatcherService : IHostedService, IDisposable
             {
                 try
                 {
-                    ProcessFile(filePath);
+                    ProcessFileAsync(filePath).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -92,72 +95,67 @@ public class FileWatcherService : IHostedService, IDisposable
         }
     }
 
-    private void ProcessFile(string filePath)
+    private async Task ProcessFileAsync(string filePath)
     {
-        _logger.LogInformation("ProcessFile called for: {FilePath}", filePath);
-
         // If we're already processing this file, skip
-        if (_fileTimers.ContainsKey(filePath))
-        {
-            _logger.LogDebug("File already being processed: {FilePath}", filePath);
-            return;
-        }
+        if (_fileProcessing.ContainsKey(filePath)) return;
 
-        _logger.LogInformation("Setting up timer for: {FilePath}", filePath);
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(_serviceCts.Token);
+        _fileProcessing[filePath] = cts;
 
-        var timer = new Timer(async (state) =>
+        try
         {
-            try
+            // Wait for file to be ready with timeout
+            var readyCheckStart = DateTime.UtcNow;
+            while (!IsFileReady(filePath))
             {
-                _logger.LogDebug("Timer triggered for: {FilePath}", filePath);
-
-                if (!IsFileReady(filePath))
+                if (DateTime.UtcNow - readyCheckStart > TimeSpan.FromMinutes(5))
                 {
-                    _logger.LogDebug("File not ready yet: {FilePath}", filePath);
+                    _logger.LogWarning("Timed out waiting for file to be ready: {FilePath}", filePath);
                     return;
                 }
-
-                _logger.LogInformation("=== Starting hash calculation for {FilePath} ===", filePath);
-
-                var hashes = Hasher.CalculateHashes(filePath, (filename, progress) =>
-                {
-                    if (progress % 10 == 0) // Log every 10%
-                    {
-                        _logger.LogInformation("Hashing progress for {FileName}: {Progress}%", filename, progress);
-                    }
-                    return 0;
-                });
-
-                _logger.LogInformation(
-                    "=== Hash Results for {FilePath} ===\n" +
-                    "MD5:   {MD5}\n" +
-                    "SHA1:  {SHA1}\n" +
-                    "CRC32: {CRC32}",
-                    filePath, hashes.MD5, hashes.SHA1, hashes.CRC32
-                );
-
-                // Clean up timer
-                if (_fileTimers.TryRemove(filePath, out var oldTimer))
-                {
-                    _logger.LogDebug("Cleaned up timer for: {FilePath}", filePath);
-                    oldTimer.Dispose();
-                }
+                await Task.Delay(1000, cts.Token);
             }
-            catch (Exception ex)
+
+            _logger.LogInformation("Starting hash calculation for {FilePath}", filePath);
+
+            var result = await NativeHasher.CalculateHashesAsync(
+                filePath,
+                (filename, progress) =>
+                {
+                    _logger.LogDebug("Hashing progress for {FileName}: {Progress}%", filename, progress);
+                },
+                cts.Token
+            );
+
+            _logger.LogInformation(
+                "File hashed successfully: {FilePath}\nMD5: {MD5}\nSHA1: {SHA1}\nCRC32: {CRC32}\nED2K: {ED2K}\nTime: {Time:N2}s",
+                filePath,
+                result.MD5,
+                result.SHA1,
+                result.CRC32,
+                result.ED2K,
+                result.ProcessingTime.TotalSeconds
+            );
+        }
+        catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
+        {
+            _logger.LogInformation("Hash calculation cancelled for {FilePath}", filePath);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error hashing file: {FilePath}", filePath);
+        }
+        finally
+        {
+            if (_fileProcessing.TryRemove(filePath, out var token))
             {
-                _logger.LogError(ex, "Error processing file: {FilePath}", filePath);
-
-                if (_fileTimers.TryRemove(filePath, out var oldTimer))
-                {
-                    oldTimer.Dispose();
-                }
+                token.Dispose();
             }
-        }, null, TimeSpan.FromSeconds(1), Timeout.InfiniteTimeSpan);
-
-        _fileTimers[filePath] = timer;
+        }
     }
 
-    private static bool IsFileReady(string filename)
+    private bool IsFileReady(string filename)
     {
         try
         {
@@ -175,18 +173,19 @@ public class FileWatcherService : IHostedService, IDisposable
         _logger.LogInformation("File watcher service is stopping...");
 
         _timer?.Change(Timeout.Infinite, 0);
+        _serviceCts.Cancel();
 
-        // Process any remaining files
-        while (_changedFiles.TryDequeue(out string? filePath))
+        // Cancel all ongoing processing
+        foreach (var cts in _fileProcessing.Values)
         {
-            try
-            {
-                ProcessFile(filePath);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing remaining file: {FilePath}", filePath);
-            }
+            cts.Cancel();
+        }
+
+        // Wait for cancellation to complete with timeout
+        using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        while (_fileProcessing.Count > 0 && !timeoutCts.Token.IsCancellationRequested)
+        {
+            await Task.Delay(100, timeoutCts.Token);
         }
 
         // Unsubscribe from events and clean up watchers
@@ -195,8 +194,6 @@ public class FileWatcherService : IHostedService, IDisposable
             watcher.FileAdded -= OnFileChanged;
             watcher.FileDeleted -= OnFileDeleted;
         }
-
-        await Task.CompletedTask;
     }
 
     public void Dispose()
@@ -204,6 +201,7 @@ public class FileWatcherService : IHostedService, IDisposable
         Dispose(true);
         GC.SuppressFinalize(this);
     }
+
     protected virtual void Dispose(bool disposing)
     {
         if (_isDisposed)
@@ -212,15 +210,18 @@ public class FileWatcherService : IHostedService, IDisposable
         if (disposing)
         {
             _timer?.Dispose();
+            _serviceCts.Dispose();
+
             foreach (var watcher in _watchers)
             {
                 watcher.Dispose();
             }
-            foreach (var fileTimer in _fileTimers.Values)
+
+            foreach (var cts in _fileProcessing.Values)
             {
-                fileTimer.Dispose();
+                cts.Dispose();
             }
-            _fileTimers.Clear();
+            _fileProcessing.Clear();
         }
 
         _isDisposed = true;
