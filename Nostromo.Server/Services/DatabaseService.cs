@@ -42,6 +42,17 @@ public class DatabaseService{
                     FOREIGN KEY (GenreID) REFERENCES Genre(GenreID)
                 )
             ";
+            string createUserTable = @"
+                CREATE TABLE IF NOT EXISTS userTable(
+                    UserID        INT PRIMARY KEY AUTO_INCREMENT,
+                    username VARCHAR(50) NOT NULL,
+                    password VARCHAR(72) NOT NULL,
+                    first_name VARCHAR(72) NOT NULL,
+                    last_name VARCHAR(72) NOT NULL,
+                    byte VARBINARY(64) NOT NULL
+
+                )
+            ";
 
             using (var command = new SqliteCommand(createMovieTableQuery, conn)){
                 command.ExecuteNonQuery();
@@ -50,6 +61,10 @@ public class DatabaseService{
                 command.ExecuteNonQuery();
             }
             using (var command = new SqliteCommand(createMovieGenreTableQuery, conn)){
+                command.ExecuteNonQuery();
+            }
+            using (var command = new SqliteCommand(createUserTable, conn))
+            {
                 command.ExecuteNonQuery();
             }
         }
@@ -140,4 +155,35 @@ public class DatabaseService{
             }
         }
     }
-}
+    public void InsertUserLogin(User user)
+    {
+        using (var conn = new SqliteConnection(_connectionString))
+        {
+            conn.Open();
+
+            string insertGenreQuery = @"
+                INSERT OR REPLACE INTO userTable(
+                    username,
+                    password,
+                    first_name
+                    last_name,
+                    byte,
+                ) VALUES (
+                     @username, @password, @first_name, @last_name, @byte
+                )
+            ";
+
+            using (var command = new SqliteCommand(insertGenreQuery, conn))
+            {
+                //command.Parameters.AddWithValue("@UserID", user.UserID);
+                command.Parameters.AddWithValue("@username", user.Username);
+                command.Parameters.AddWithValue("@password", user.Password_Hash);
+                command.Parameters.AddWithValue("@first_name", user.First_Name);
+                command.Parameters.AddWithValue("@last_name", user.Last_Name);
+                command.Parameters.AddWithValue("@byte", user.Byte);
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+    }
