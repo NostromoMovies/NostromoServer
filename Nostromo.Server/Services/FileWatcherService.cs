@@ -5,6 +5,9 @@ using Nostromo.Server.Utilities.FileSystemWatcher;
 using System.Collections.Concurrent;
 using Quartz;
 using Nostromo.Server.Scheduling;
+using Nostromo.Server.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Quartz.Spi;
 
 namespace Nostromo.Server.Services;
 
@@ -18,6 +21,7 @@ public class FileWatcherService : IHostedService, IDisposable
     private readonly List<RecoveringFileSystemWatcher> _watchers;
     private readonly ILogger<FileWatcherService> _logger;
     private readonly WatcherSettings _settings;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ConcurrentQueue<string> _changedFiles;
     private readonly ISchedulerFactory _schedulerFactory;
     private IScheduler? _scheduler;
@@ -29,14 +33,14 @@ public class FileWatcherService : IHostedService, IDisposable
         IEnumerable<RecoveringFileSystemWatcher> watchers,
         ILogger<FileWatcherService> logger,
         IOptions<WatcherSettings> settings,
-        ISchedulerFactory schedulerFactory)
+        ISchedulerFactory schedulerFactory,
+        IServiceProvider serviceProvider)
     {
         _watchers = watchers?.ToList() ?? throw new ArgumentNullException(nameof(watchers));
-        if (_watchers.Count == 0) throw new ArgumentException("At least one watcher must be provided", nameof(watchers));
-
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _settings = settings.Value;
         _schedulerFactory = schedulerFactory ?? throw new ArgumentNullException(nameof(schedulerFactory));
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         _changedFiles = new ConcurrentQueue<string>();
     }
 
@@ -46,6 +50,10 @@ public class FileWatcherService : IHostedService, IDisposable
 
         // Initialize and start the Quartz scheduler
         _scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
+
+        // Set the job factory
+        _scheduler.JobFactory = _serviceProvider.GetRequiredService<IJobFactory>();
+
         await _scheduler.Start(cancellationToken);
 
         foreach (var watcher in _watchers)
