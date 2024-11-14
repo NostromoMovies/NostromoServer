@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Nostromo.Models;
+
 namespace Nostromo.Server.API.Controllers
 {
-
+    [ApiController]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-
         private readonly HttpClient _httpClient;
         private readonly DatabaseService _databaseService;
 
@@ -18,45 +19,51 @@ namespace Nostromo.Server.API.Controllers
         }
 
         [HttpPost("register")]
-         public IActions Register([FromBody] LoginRequest loginRequest)
+        public IActionResult Register([FromBody] RegisterRequest registerRequest)
         {
-            var salt = PasswordHelper.GenerateSalt();
-            var hashedPassword = _databaseService.HashPassword(loginRequest.Password, salt);
+            string salt = PasswordHelper.GenerateSalt();
+            string hashedPassword = PasswordHelper.HashPassword(registerRequest.password, salt);
 
-            var user = new User { Username = loginRequest.Username, Password = hashedPassword, First_name = loginRequest.First_Name, Last_Name = loginRequest.Last_Name }
-            _databaseService.InsertUser(user);
-            return Ok(new { Message = "User registered successfully" })
+            var user = new Users
+            {
+                username = registerRequest.username,
+                passwordHash = hashedPassword,
+                first_name = registerRequest.first_Name,
+                last_name = registerRequest.last_Name,
+                salt = salt
+            };
+
+            _databaseService.InsertUserLogin(user);
+            return Ok(new { Message = "User registered successfully" });
         }
-        [HttpPost("login")]
 
-        public IActions Login([FromBody] LoginRequest loginRequest)
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginRequest loginRequest)
         {
-          var user _databaseService.FindUserByUsername(loginRequest.Username);
-          if (user == null || !_databaseService.VerifyPassword(loginRequest.Password,user.Password))
+            var user = new Users();
+            user = _databaseService.FindUserByUsername(loginRequest.username);
+            string passwordHash = user.passwordHash.ToString();
+            string salt = user.salt.ToString();
+            if (user == null || ! PasswordHelper.VerifyPassword(loginRequest.password, passwordHash,salt))
             {
                 return Unauthorized(new { Message = "Invalid username or password" });
-
             }
-            return Ok(new { Message = | "User logged in successfully" });
 
-
+            return Ok(new { Message = "User logged in successfully" });
         }
-
     }
 
     public class RegisterRequest
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string First_Name { get; set; }
-        public string Last_Name { get; set; }
-
+        public string username { get; set; }
+        public string password { get; set; }
+        public string first_Name { get; set; }
+        public string last_Name { get; set; }
     }
 
     public class LoginRequest
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
-
-
+        public string username { get; set; }
+        public string password { get; set; }
     }
+}

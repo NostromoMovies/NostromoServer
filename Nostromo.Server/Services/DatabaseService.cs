@@ -1,11 +1,18 @@
+using System.Data;
+using System.Diagnostics.Tracing;
+using System.Security.Cryptography;
 using Microsoft.Data.Sqlite; // used for Sqlite
 using Nostromo.Models;
 
-public class DatabaseService{
+
+public class DatabaseService
+{
     private readonly string _connectionString = "Data Source=nostromo.db";
 
-    public DatabaseService(){
-        using (var conn = new SqliteConnection(_connectionString)){
+    public DatabaseService()
+    {
+        using (var conn = new SqliteConnection(_connectionString))
+        {
             conn.Open();
 
             string createMovieTableQuery = @"
@@ -49,18 +56,21 @@ public class DatabaseService{
                     password VARCHAR(72) NOT NULL,
                     first_name VARCHAR(72) NOT NULL,
                     last_name VARCHAR(72) NOT NULL,
-                    byte VARBINARY(64) NOT NULL
+                    salt VARCHAR(72) NOT NULL
 
                 )
             ";
 
-            using (var command = new SqliteCommand(createMovieTableQuery, conn)){
+            using (var command = new SqliteCommand(createMovieTableQuery, conn))
+            {
                 command.ExecuteNonQuery();
             }
-            using (var command = new SqliteCommand(createGenreTableQuery, conn)){
+            using (var command = new SqliteCommand(createGenreTableQuery, conn))
+            {
                 command.ExecuteNonQuery();
             }
-            using (var command = new SqliteCommand(createMovieGenreTableQuery, conn)){
+            using (var command = new SqliteCommand(createMovieGenreTableQuery, conn))
+            {
                 command.ExecuteNonQuery();
             }
             using (var command = new SqliteCommand(createUserTable, conn))
@@ -69,9 +79,11 @@ public class DatabaseService{
             }
         }
     }
-
-    public void InsertMovie(TmdbMovie movie){
-        using (var conn = new SqliteConnection(_connectionString)){
+     
+    public void InsertMovie(TmdbMovie movie)
+    {
+        using (var conn = new SqliteConnection(_connectionString))
+        {
             conn.Open();
 
             string insertMovieQuery = @"
@@ -95,7 +107,8 @@ public class DatabaseService{
                 )
             ";
 
-            using (var command = new SqliteCommand(insertMovieQuery, conn)){
+            using (var command = new SqliteCommand(insertMovieQuery, conn))
+            {
                 command.Parameters.AddWithValue("@PosterPath", movie.posterPath);
                 command.Parameters.AddWithValue("@Adult", movie.adult);
                 command.Parameters.AddWithValue("@Overview", movie.overview);
@@ -113,7 +126,8 @@ public class DatabaseService{
                 command.ExecuteNonQuery();
             }
 
-            if (movie.genreIds != null){
+            if (movie.genreIds != null)
+            {
                 string insertMovieGenreQuery = @"
                     INSERT OR REPLACE INTO MovieGenre(
                         MovieId,
@@ -122,9 +136,11 @@ public class DatabaseService{
                         @MovieID, @GenreID
                     )
                 ";
-                foreach (var genreId in movie.genreIds){
+                foreach (var genreId in movie.genreIds)
+                {
                     if (genreId == 0) continue;
-                    using (var command = new SqliteCommand(insertMovieGenreQuery, conn)){
+                    using (var command = new SqliteCommand(insertMovieGenreQuery, conn))
+                    {
                         command.Parameters.AddWithValue("@MovieId", movie.id);
                         command.Parameters.AddWithValue("@GenreId", genreId);
 
@@ -134,10 +150,12 @@ public class DatabaseService{
             }
         }
     }
-    public void InsertGenre(TmdbGenre genre){
-        using (var conn = new SqliteConnection(_connectionString)){
+    public void InsertGenre(TmdbGenre genre)
+    {
+        using (var conn = new SqliteConnection(_connectionString))
+        {
             conn.Open();
-            
+
             string insertGenreQuery = @"
                 INSERT OR REPLACE INTO Genre(
                     GenreID,
@@ -147,7 +165,8 @@ public class DatabaseService{
                 )
             ";
 
-            using (var command = new SqliteCommand(insertGenreQuery, conn)){
+            using (var command = new SqliteCommand(insertGenreQuery, conn))
+            {
                 command.Parameters.AddWithValue("@GenreID", genre.id);
                 command.Parameters.AddWithValue("@Name", genre.name);
 
@@ -155,35 +174,73 @@ public class DatabaseService{
             }
         }
     }
-    public void InsertUserLogin(User user)
+    public void InsertUserLogin(Users user)
     {
         using (var conn = new SqliteConnection(_connectionString))
         {
             conn.Open();
 
-            string insertGenreQuery = @"
+            string insertUserQuery = @"
                 INSERT OR REPLACE INTO userTable(
                     username,
                     password,
                     first_name
                     last_name,
-                    byte,
+                    salt,
                 ) VALUES (
-                     @username, @password, @first_name, @last_name, @byte
+                     @username, @password, @first_name, @last_name, @salt
                 )
             ";
 
-            using (var command = new SqliteCommand(insertGenreQuery, conn))
+            using (var command = new SqliteCommand(insertUserQuery, conn))
             {
                 //command.Parameters.AddWithValue("@UserID", user.UserID);
-                command.Parameters.AddWithValue("@username", user.Username);
-                command.Parameters.AddWithValue("@password", user.Password_Hash);
-                command.Parameters.AddWithValue("@first_name", user.First_Name);
-                command.Parameters.AddWithValue("@last_name", user.Last_Name);
-                command.Parameters.AddWithValue("@byte", user.Byte);
+                command.Parameters.AddWithValue("@username", user.username); 
+                command.Parameters.AddWithValue("@password", user.passwordHash);
+                command.Parameters.AddWithValue("@first_name", user.first_name);
+                command.Parameters.AddWithValue("@last_name", user.last_name);
+                command.Parameters.AddWithValue("@salt", user.salt);
 
                 command.ExecuteNonQuery();
             }
         }
 
     }
+    public Users FindUserByUsername(string username_login)
+    {
+        using (var conn = new SqliteConnection(_connectionString))
+        {
+            conn.Open();
+
+            string findUserName = @"
+                SELECT * FROM userTable 
+                WHERE username = @username_login
+            ";
+            using (var cmd = new SqliteCommand(findUserName, conn))
+            {
+                cmd.Parameters.AddWithValue("@username_login", username_login);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        var user = new Users()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            username = reader.GetString(reader.GetOrdinal("username")),
+                            passwordHash = reader.GetString(reader.GetOrdinal("password")),
+                            first_name = reader.GetString(reader.GetOrdinal("first_name")),
+                            last_name = reader.GetString(reader.GetOrdinal("last_name")),
+                            salt = reader.GetString(reader.GetOrdinal("salt"))
+                        };
+                        return user;
+                    }
+                   
+                }
+               
+            }
+            
+        }
+        return null;
+    }
+
+}
