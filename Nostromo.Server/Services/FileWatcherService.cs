@@ -4,8 +4,7 @@ using Microsoft.Extensions.Options;
 using Nostromo.Server.Utilities.FileSystemWatcher;
 using System.Collections.Concurrent;
 using Quartz;
-using Nostromo.Server.FileHelper;
-using System.Collections.Generic;
+using Nostromo.Server.Scheduling;
 
 namespace Nostromo.Server.Services;
 
@@ -17,10 +16,11 @@ public class WatcherSettings
 public class FileWatcherService : IHostedService, IDisposable
 {
     private readonly List<RecoveringFileSystemWatcher> _watchers;
-    private readonly ConcurrentDictionary<string, CancellationTokenSource> _fileProcessing = new();
     private readonly ILogger<FileWatcherService> _logger;
     private readonly WatcherSettings _settings;
     private readonly ConcurrentQueue<string> _changedFiles;
+    private readonly ISchedulerFactory _schedulerFactory;
+    private IScheduler? _scheduler;
     private Timer? _timer;
     private bool _isDisposed;
     private readonly CancellationTokenSource _serviceCts = new();
@@ -28,19 +28,25 @@ public class FileWatcherService : IHostedService, IDisposable
     public FileWatcherService(
         IEnumerable<RecoveringFileSystemWatcher> watchers,
         ILogger<FileWatcherService> logger,
-        IOptions<WatcherSettings> settings)
+        IOptions<WatcherSettings> settings,
+        ISchedulerFactory schedulerFactory)
     {
         _watchers = watchers?.ToList() ?? throw new ArgumentNullException(nameof(watchers));
         if (_watchers.Count == 0) throw new ArgumentException("At least one watcher must be provided", nameof(watchers));
 
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _settings = settings.Value;
+        _schedulerFactory = schedulerFactory ?? throw new ArgumentNullException(nameof(schedulerFactory));
         _changedFiles = new ConcurrentQueue<string>();
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("File watcher service is starting...");
+
+        // Initialize and start the Quartz scheduler
+        _scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
+        await _scheduler.Start(cancellationToken);
 
         foreach (var watcher in _watchers)
         {
@@ -51,8 +57,6 @@ public class FileWatcherService : IHostedService, IDisposable
 
         _timer = new Timer(DoWork, null, TimeSpan.Zero,
             TimeSpan.FromSeconds(_settings.ProcessingIntervalSeconds));
-
-        return Task.CompletedTask;
     }
 
     private void OnFileChanged(object? sender, string filePath)
@@ -65,23 +69,25 @@ public class FileWatcherService : IHostedService, IDisposable
     {
         _logger.LogInformation("File deleted: {FilePath}", filePath);
 
-        // Cancel any ongoing processing for the deleted file
-        if (_fileProcessing.TryRemove(filePath, out var cts))
+        // Try to cancel any scheduled job for this file
+        if (_scheduler != null)
         {
-            cts.Cancel();
-            cts.Dispose();
+            var jobKey = new JobKey($"HashJob_{filePath}", "FileHashing");
+            _scheduler.DeleteJob(jobKey, _serviceCts.Token).ConfigureAwait(false);
         }
     }
 
-    private void DoWork(object? state)
+    private async void DoWork(object? state)
     {
+        if (_scheduler == null) return;
+
         try
         {
             while (_changedFiles.TryDequeue(out string? filePath))
             {
                 try
                 {
-                    ProcessFileAsync(filePath).ConfigureAwait(false);
+                    await ProcessFileAsync(filePath);
                 }
                 catch (Exception ex)
                 {
@@ -97,62 +103,37 @@ public class FileWatcherService : IHostedService, IDisposable
 
     private async Task ProcessFileAsync(string filePath)
     {
-        // If we're already processing this file, skip
-        if (_fileProcessing.ContainsKey(filePath)) return;
+        if (_scheduler == null) return;
 
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(_serviceCts.Token);
-        _fileProcessing[filePath] = cts;
-
-        try
+        // Wait for file to be ready with timeout
+        var readyCheckStart = DateTime.UtcNow;
+        while (!IsFileReady(filePath))
         {
-            // Wait for file to be ready with timeout
-            var readyCheckStart = DateTime.UtcNow;
-            while (!IsFileReady(filePath))
+            if (DateTime.UtcNow - readyCheckStart > TimeSpan.FromMinutes(5))
             {
-                if (DateTime.UtcNow - readyCheckStart > TimeSpan.FromMinutes(5))
-                {
-                    _logger.LogWarning("Timed out waiting for file to be ready: {FilePath}", filePath);
-                    return;
-                }
-                await Task.Delay(1000, cts.Token);
+                _logger.LogWarning("Timed out waiting for file to be ready: {FilePath}", filePath);
+                return;
             }
+            await Task.Delay(1000, _serviceCts.Token);
+        }
 
-            _logger.LogInformation("Starting hash calculation for {FilePath}", filePath);
+        var jobKey = new JobKey($"HashJob_{filePath}", "FileHashing");
+        var triggerKey = new TriggerKey($"HashTrigger_{filePath}", "FileHashing");
 
-            var result = await NativeHasher.CalculateHashesAsync(
-                filePath,
-                (filename, progress) =>
-                {
-                    _logger.LogDebug("Hashing progress for {FileName}: {Progress}%", filename, progress);
-                },
-                cts.Token
-            );
+        // Create job detail
+        var jobDetail = JobBuilder.Create<HashFileJob>()
+            .WithIdentity(jobKey)
+            .UsingJobData(HashFileJob.FILE_PATH_KEY, filePath)
+            .Build();
 
-            _logger.LogInformation(
-                "File hashed successfully: {FilePath}\nMD5: {MD5}\nSHA1: {SHA1}\nCRC32: {CRC32}\nED2K: {ED2K}\nTime: {Time:N2}s",
-                filePath,
-                result.MD5,
-                result.SHA1,
-                result.CRC32,
-                result.ED2K,
-                result.ProcessingTime.TotalSeconds
-            );
-        }
-        catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
-        {
-            _logger.LogInformation("Hash calculation cancelled for {FilePath}", filePath);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error hashing file: {FilePath}", filePath);
-        }
-        finally
-        {
-            if (_fileProcessing.TryRemove(filePath, out var token))
-            {
-                token.Dispose();
-            }
-        }
+        // Create trigger
+        var trigger = TriggerBuilder.Create()
+            .WithIdentity(triggerKey)
+            .StartNow()
+            .Build();
+
+        // Schedule the job
+        await _scheduler.ScheduleJob(jobDetail, trigger, _serviceCts.Token);
     }
 
     private bool IsFileReady(string filename)
@@ -175,17 +156,10 @@ public class FileWatcherService : IHostedService, IDisposable
         _timer?.Change(Timeout.Infinite, 0);
         _serviceCts.Cancel();
 
-        // Cancel all ongoing processing
-        foreach (var cts in _fileProcessing.Values)
+        if (_scheduler != null)
         {
-            cts.Cancel();
-        }
-
-        // Wait for cancellation to complete with timeout
-        using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-        while (_fileProcessing.Count > 0 && !timeoutCts.Token.IsCancellationRequested)
-        {
-            await Task.Delay(100, timeoutCts.Token);
+            // Shutdown the scheduler
+            await _scheduler.Shutdown(true, cancellationToken);
         }
 
         // Unsubscribe from events and clean up watchers
@@ -216,12 +190,6 @@ public class FileWatcherService : IHostedService, IDisposable
             {
                 watcher.Dispose();
             }
-
-            foreach (var cts in _fileProcessing.Values)
-            {
-                cts.Dispose();
-            }
-            _fileProcessing.Clear();
         }
 
         _isDisposed = true;

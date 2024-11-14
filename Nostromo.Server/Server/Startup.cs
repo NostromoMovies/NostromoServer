@@ -5,6 +5,7 @@ using Nostromo.Server.Services;
 using Nostromo.Server.Utilities;
 using Nostromo.Server.Utilities.FileSystemWatcher;
 using Microsoft.Extensions.Hosting;
+using Nostromo.Server.Extensions;
 
 namespace Nostromo.Server.Server;
 
@@ -42,6 +43,9 @@ public class Startup
                 ?? throw new InvalidOperationException("Watch path not configured");
             return new RecoveringFileSystemWatcher(watchPath);
         });
+
+        // Add Quartz services
+        services.AddQuartzServices();
 
         // Register core services
         services.AddSingleton<FileWatcherService>();
