@@ -45,7 +45,7 @@ public class RecoveringFileSystemWatcher : IDisposable
         };
 
         watcher.Created += (s, e) => FileAdded?.Invoke(this, e.FullPath);
-        watcher.Changed += (s, e) => FileAdded?.Invoke(this, e.FullPath);
+        //watcher.Changed += (s, e) => FileAdded?.Invoke(this, e.FullPath);
         watcher.Deleted += (s, e) => FileDeleted?.Invoke(this, e.FullPath);
 
         watcher.EnableRaisingEvents = true;

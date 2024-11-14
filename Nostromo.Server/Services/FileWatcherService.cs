@@ -105,46 +105,102 @@ public class FileWatcherService : IHostedService, IDisposable
     {
         if (_scheduler == null) return;
 
-        // Wait for file to be ready with timeout
+        // Wait for file to be ready with timeout and retries
         var readyCheckStart = DateTime.UtcNow;
-        while (!IsFileReady(filePath))
+        var retryCount = 0;
+        const int maxRetries = 5;
+
+        while (true)
         {
-            if (DateTime.UtcNow - readyCheckStart > TimeSpan.FromMinutes(5))
+            try
             {
-                _logger.LogWarning("Timed out waiting for file to be ready: {FilePath}", filePath);
+                if (!File.Exists(filePath))
+                {
+                    _logger.LogWarning("File no longer exists: {FilePath}", filePath);
+                    return;
+                }
+
+                if (!IsFileReady(filePath))
+                {
+                    if (DateTime.UtcNow - readyCheckStart > TimeSpan.FromMinutes(5))
+                    {
+                        _logger.LogWarning("Timed out waiting for file to be ready: {FilePath}", filePath);
+                        return;
+                    }
+                    await Task.Delay(1000, _serviceCts.Token);
+                    continue;
+                }
+
+                // Get file info to ensure we can access the file
+                var fileInfo = new FileInfo(filePath);
+                if (!fileInfo.Exists || fileInfo.Length == 0)
+                {
+                    if (retryCount++ >= maxRetries)
+                    {
+                        _logger.LogWarning("Max retries reached waiting for file: {FilePath}", filePath);
+                        return;
+                    }
+                    await Task.Delay(2000, _serviceCts.Token); // Wait 2 seconds between retries
+                    continue;
+                }
+
+                var jobKey = new JobKey($"HashJob_{filePath}", "FileHashing");
+                var triggerKey = new TriggerKey($"HashTrigger_{filePath}", "FileHashing");
+
+                // Create job detail
+                var jobDetail = JobBuilder.Create<HashFileJob>()
+                    .WithIdentity(jobKey)
+                    .UsingJobData(HashFileJob.FILE_PATH_KEY, filePath)
+                    .Build();
+
+                // Create trigger
+                var trigger = TriggerBuilder.Create()
+                    .WithIdentity(triggerKey)
+                    .StartNow()
+                    .Build();
+
+                // Schedule the job
+                await _scheduler.ScheduleJob(jobDetail, trigger, _serviceCts.Token);
+                _logger.LogDebug("Successfully scheduled hash job for {FilePath}", filePath);
+                return; // Success - exit the method
+            }
+            catch (IOException ex)
+            {
+                if (retryCount++ >= maxRetries)
+                {
+                    _logger.LogError(ex, "Failed to access file after {RetryCount} retries: {FilePath}", retryCount, filePath);
+                    return;
+                }
+                _logger.LogDebug("File still locked, retry {RetryCount}: {FilePath}", retryCount, filePath);
+                await Task.Delay(2000, _serviceCts.Token); // Wait 2 seconds between retries
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error processing file: {FilePath}", filePath);
                 return;
             }
-            await Task.Delay(1000, _serviceCts.Token);
         }
-
-        var jobKey = new JobKey($"HashJob_{filePath}", "FileHashing");
-        var triggerKey = new TriggerKey($"HashTrigger_{filePath}", "FileHashing");
-
-        // Create job detail
-        var jobDetail = JobBuilder.Create<HashFileJob>()
-            .WithIdentity(jobKey)
-            .UsingJobData(HashFileJob.FILE_PATH_KEY, filePath)
-            .Build();
-
-        // Create trigger
-        var trigger = TriggerBuilder.Create()
-            .WithIdentity(triggerKey)
-            .StartNow()
-            .Build();
-
-        // Schedule the job
-        await _scheduler.ScheduleJob(jobDetail, trigger, _serviceCts.Token);
     }
 
     private bool IsFileReady(string filename)
     {
         try
         {
-            using var inputStream = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.None);
-            return inputStream.Length > 0;
+            // First check if the file exists
+            if (!File.Exists(filename))
+                return false;
+
+            // Attempt to open with FileShare.None to ensure file is not locked
+            using var stream = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+            return stream.Length > 0;
         }
         catch (IOException)
         {
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Unexpected error checking if file is ready: {FileName}", filename);
             return false;
         }
     }
