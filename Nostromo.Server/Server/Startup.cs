@@ -5,7 +5,7 @@ using Nostromo.Server.Services;
 using Nostromo.Server.Utilities;
 using Nostromo.Server.Utilities.FileSystemWatcher;
 using Microsoft.Extensions.Hosting;
-using Nostromo.Server.Extensions;
+using Nostromo.Server.Scheduling;
 
 namespace Nostromo.Server.Server;
 
@@ -37,6 +37,7 @@ public class Startup
         services.Configure<WatcherSettings>(_configuration.GetSection("WatcherSettings"));
 
         // Register FileSystemWatcher
+        //TODO: this needs to be multiple paths taken from configured Drop Folders
         services.AddSingleton<RecoveringFileSystemWatcher>(sp =>
         {
             var watchPath = _configuration.GetValue<string>("WatchSettings:Path")
