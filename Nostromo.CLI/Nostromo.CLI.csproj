@@ -10,6 +10,91 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <COMReference Include="MSDATASRC">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>0</VersionMinor>
+      <VersionMajor>1</VersionMajor>
+      <Guid>7c0ffab0-cd84-11d0-949a-00a0c91110ed</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="MDACVer">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>50</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>54af9343-1923-11d3-9ca4-00c04f72c514</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="ADOR">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>0</VersionMinor>
+      <VersionMajor>6</VersionMajor>
+      <Guid>00000300-0000-0010-8000-00aa006d2ea4</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="ADODB">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>1</VersionMinor>
+      <VersionMajor>6</VersionMajor>
+      <Guid>b691e011-1797-432e-907a-4d8c69339129</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="{00000200-0000-0010-8000-00aa006d2ea4}">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>0</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>00000200-0000-0010-8000-00aa006d2ea4</Guid>
+    </COMReference>
+    <COMReference Include="{00000201-0000-0010-8000-00aa006d2ea4}">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>1</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>00000201-0000-0010-8000-00aa006d2ea4</Guid>
+    </COMReference>
+    <COMReference Include="{00000205-0000-0010-8000-00aa006d2ea4}">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>5</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>00000205-0000-0010-8000-00aa006d2ea4</Guid>
+    </COMReference>
+    <COMReference Include="{00000206-0000-0010-8000-00aa006d2ea4}">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>6</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>00000206-0000-0010-8000-00aa006d2ea4</Guid>
+    </COMReference>
+    <COMReference Include="ADOMD">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>0</VersionMinor>
+      <VersionMajor>6</VersionMajor>
+      <Guid>22813728-8bd3-11d0-b4ef-00a0c9138ca4</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="{2a75196c-d9eb-4129-b803-931327f72d5c}">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>8</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>2a75196c-d9eb-4129-b803-931327f72d5c</Guid>
+    </COMReference>
+    <COMReference Include="{ef53050b-882e-4776-b643-eda472e8e3f2}">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>7</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>ef53050b-882e-4776-b643-eda472e8e3f2</Guid>
+    </COMReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.10" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 	<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
 	<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
