@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.Tracing;
+using System.Net;
 using System.Security.Cryptography;
 using Microsoft.Data.Sqlite; // used for Sqlite
 using Nostromo.Models;
@@ -79,7 +81,7 @@ public class DatabaseService
             }
         }
     }
-     
+
     public void InsertMovie(TmdbMovie movie)
     {
         using (var conn = new SqliteConnection(_connectionString))
@@ -195,7 +197,7 @@ public class DatabaseService
             using (var command = new SqliteCommand(insertUserQuery, conn))
             {
                 //command.Parameters.AddWithValue("@UserID", user.UserID);
-                command.Parameters.AddWithValue("@username", user.username); 
+                command.Parameters.AddWithValue("@username", user.username);
                 command.Parameters.AddWithValue("@password", user.passwordHash);
                 command.Parameters.AddWithValue("@first_name", user.first_name);
                 command.Parameters.AddWithValue("@last_name", user.last_name);
@@ -234,13 +236,45 @@ public class DatabaseService
                         };
                         return user;
                     }
-                   
+
                 }
-               
+
             }
-            
+
         }
         return null;
     }
+    // Search Bar Look up 
+    public async Task<List<TmdbMovie>> GetMediaListAsync(string title, List<TmdbMovie> movies)
+    {
+        
+        using (var conn = new SqliteConnection(_connectionString))
+        {
+            await conn.OpenAsync();
+            string query = @" SELECT * FROM Movie
+                            WHERE Title LIKE @title";
+            using (var cmd = new SqliteCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@title", title);
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var movie = new TmdbMovie()
+                        {
+                            id = reader.GetInt32(reader.GetOrdinal("MovieId")),
+                            title = reader.GetString(reader.GetOrdinal("Title")),
+                            posterPath = reader.GetString(reader.GetOrdinal("PosterPath"))
+                        };
+                        movies.Add(movie);
+                    }
+                }
 
+
+            }
+
+        }
+        return movies;
+
+    }
 }
