@@ -21,6 +21,7 @@
   </ItemGroup>
 	
   <ItemGroup>
+    <PackageReference Include="FluentNHibernate" Version="3.4.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
     <None Remove="appsettings.json" />
@@ -35,6 +36,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="NHibernate" Version="5.5.2" />
     <PackageReference Include="PasswordGenerator" Version="2.1.0" />
     <PackageReference Include="Quartz" Version="3.13.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
