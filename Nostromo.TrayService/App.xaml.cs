@@ -3,7 +3,11 @@ using System.Data;
 using System.Windows;
 using Hardcodet.Wpf.TaskbarNotification;
 using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using Nostromo.Server.Server;
+using Nostromo.Server.Utilities;
+using Nostromo.Server.Settings;
+using SettingsProvider = Nostromo.Server.Settings.SettingsProvider;
 
 namespace Nostromo.TrayService
 {
@@ -39,14 +43,19 @@ namespace Nostromo.TrayService
                 }
             };
 
+            var logFactory = LoggerFactory.Create( o => o.AddNLog() );
+            _logger = logFactory.CreateLogger("Main");
+
             try
             {
-                var startup = new Startup();
+                var settingsProvider = new SettingsProvider(logFactory.CreateLogger<SettingsProvider>());
+                Utils.SettingsProvider = settingsProvider;
+                var startup = new Startup(logFactory.CreateLogger<Startup>(), settingsProvider);
                 startup.Start().ConfigureAwait(true).GetAwaiter().GetResult();
             }
             catch (Exception exception)
             {
-                //_logger.LogCritical(exception, "Failed to start server");
+                _logger.LogCritical(exception, "Failed to start server");
                 Shutdown();
             }
         }
@@ -59,7 +68,6 @@ namespace Nostromo.TrayService
         }
     }
 
-    // Simple relay command implementation
     public class RelayCommand : System.Windows.Input.ICommand
     {
         private readonly Action _execute;

@@ -4,8 +4,9 @@ using Microsoft.Extensions.Logging;
 using Nostromo.Server.Services;
 using Nostromo.Server.Utilities;
 using Nostromo.Server.Utilities.FileSystemWatcher;
-using Microsoft.Extensions.Hosting;
 using Nostromo.Server.Scheduling;
+using Nostromo.Server.Settings;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Nostromo.Server.Server;
 
@@ -13,9 +14,15 @@ public class Startup
 {
     private IServiceProvider _serviceProvider;
     private readonly IConfiguration _configuration;
+    private readonly ILogger _logger;
+    private readonly ISettingsProvider _settingsProvider;
+    private IWebHost _webHost;
 
-    public Startup()
+    public Startup(ILogger<Startup> logger, ISettingsProvider settingsProvider)
     {
+        _logger = logger;
+        _settingsProvider = settingsProvider;
+
         // Build configuration
         _configuration = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)

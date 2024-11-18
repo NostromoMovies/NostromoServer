@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 namespace Nostromo.Server.Server
 {
     public class NostromoServer
+
+
     {
         private readonly FileWatcherService _fileWatcherService;
         private static DateTime? _startTime;
