@@ -15,15 +15,18 @@ public class RecoveringFileSystemWatcher : IDisposable
     public RecoveringFileSystemWatcher(string path)
     {
         ArgumentNullException.ThrowIfNull(path);
-        if (!Directory.Exists(path)) throw new ArgumentException(nameof(path) + $" must be a directory that exists: {path}");
-
         _path = path;
     }
 
     public void Start()
     {
         if (_watcher is { EnableRaisingEvents: true }) return;
-        _watcher ??= InitWatcher();
+
+        //HACK: Only try to initialize the watcher if the directory exists (temporary fix)
+        if (Directory.Exists(_path))
+        {
+            _watcher ??= InitWatcher();
+        }
     }
     public void Dispose()
     {
