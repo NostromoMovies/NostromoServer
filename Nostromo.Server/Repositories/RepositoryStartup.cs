@@ -1,9 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Nostromo.Server.Database;
 
 namespace Nostromo.Server.Repositories
 {
@@ -12,6 +8,8 @@ namespace Nostromo.Server.Repositories
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
             services.AddSingleton<DatabaseFactory>();
+
+            return services;
         }
     }
 }

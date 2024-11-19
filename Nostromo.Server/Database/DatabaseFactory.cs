@@ -1,22 +1,18 @@
-﻿using NHibernate;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Nostromo.Server.Utilities;
 
 namespace Nostromo.Server.Database;
 
 public class DatabaseFactory
 {
-    private readonly object _sessionLock = new();
-    private ISessionFactory _sessionFactory;
+    private readonly object _dbLock = new();
+    private readonly IServiceProvider _serviceProvider;
     private IDatabase _instance;
-    public ISessionFactory SessionFactory
+
+    public DatabaseFactory(IServiceProvider serviceProvider)
     {
-        get
-        {
-            lock(_sessionLock)
-            {
-                return _sessionFactory ??= Instance.CreateSessionFactory();
-            }
-        }
+        _serviceProvider = serviceProvider;
     }
 
     public IDatabase Instance
@@ -25,9 +21,16 @@ public class DatabaseFactory
         {
             if (_instance != null) return _instance;
 
-            _instance = new SQLite();
+            lock (_dbLock)
+            {
+                if (_instance == null)
+                {
+                    var dbContext = _serviceProvider.GetRequiredService<NostromoDbContext>();
 
-            return _instance;
+                    _instance = new SQLite(dbContext);
+                }
+                return _instance;
+            }
         }
     }
 }

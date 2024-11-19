@@ -1,23 +1,24 @@
-﻿using NHibernate;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Nostromo.Server.Database
 {
     public interface IDatabase
     {
-        ISessionFactory CreateSessionFactory();
-        bool DBExists();
-        void CreateDatabase();
-        void CreateAndUpdateSchema();
-        void BackupDatabase(string filename);
         string Name { get; }
-        int RequiredVersion { get; } // may not need yet
-        void PopulateInitialData();
+        int RequiredVersion { get; }
+
+        bool DBExists();
+        void BackupDatabase(string filename);
+
+        // Convert database operations to async
+        Task CreateDatabaseAsync();
+        Task CreateAndUpdateSchemaAsync();
+        Task PopulateInitialDataAsync();
+        Task<bool> TestConnectionAsync();
+
+        // Initialization can stay sync if it's just setting up properties
         void Init();
-        bool TestConnection();
     }
 }

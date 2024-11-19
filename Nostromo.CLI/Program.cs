@@ -8,8 +8,8 @@ public static class Program
     {
         try
         {
-            var startup = new Startup();
-            await startup.Start();
+            //var startup = new Startup();
+            //await startup.Start();
         }
         catch (Exception e)
         {

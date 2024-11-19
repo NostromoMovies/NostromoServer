@@ -1,14 +1,83 @@
-﻿using FluentNHibernate.Cfg.Db;
-using FluentNHibernate.Cfg;
-using Microsoft.Data.Sqlite;
-using NHibernate;
-using System.Reflection;
+﻿using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace Nostromo.Server.Database
 {
-    public class SQLite: BaseDatabase<SqliteConnection>
+    public class NostromoDbContext : DbContext
+    {
+        public NostromoDbContext(DbContextOptions<NostromoDbContext> options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Movie> Movies { get; set; }
+        public DbSet<Genre> Genres { get; set; }
+        public DbSet<User> Users { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TMDBMovie>()
+                .HasMany(m => m.Genres)
+                .WithMany(g => g.TMDBMovies)
+                .UsingEntity<MovieGenre>();
+        }
+    }
+
+    public class TMDBMovie
+    {
+        public int MovieID { get; set; }
+
+        public string Title { get; set; }
+
+        public string OriginalTitle { get; set; }
+
+        public string OriginalLanguage { get; set; }
+
+        public string Overview { get; set; }
+
+        public string PosterPath { get; set; }
+
+        public string Status { get; set; }
+
+        public bool Adult { get; set; }
+
+        public ICollection<Genre> Genres { get; set; }
+    }
+
+    public class Genre
+    {
+        public int GenreID { get; set; }
+        public string Name { get; set; }
+
+    }
+
+    public class MovieGenre
+    {
+        public int MovieID { get; set; }
+        public int GenreID { get; set; }
+
+        public Movie Movie { get; set; }
+        public Genre Genre { get; set; }
+    }
+
+    public class User
+    {
+        public int UserID { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Salt { get; set; }
+    }
+
+    public class SQLite : BaseDatabase<NostromoDbContext>, IDatabase
     {
         private static string _databasePath;
+
+        public SQLite(NostromoDbContext context) : base(context)
+        {
+        }
+
         public static string DatabasePath
         {
             get
@@ -16,122 +85,96 @@ namespace Nostromo.Server.Database
                 if (_databasePath != null)
                     return _databasePath;
 
-                var directoryPath = ""; // TODO: provide from settings
+                var directoryPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "Nostromo",
+                    "Database"
+                );
 
-                return directoryPath;
+                Directory.CreateDirectory(directoryPath);
+                _databasePath = Path.Combine(directoryPath, "nostromo.db");
+                return _databasePath;
             }
         }
 
-        private static string GetDatabaseFilePath()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string Name => throw new NotImplementedException();
-
-        public override int RequiredVersion => throw new NotImplementedException();
+        public override string Name => "SQLite";
+        public override int RequiredVersion => 1;
 
         public override void BackupDatabase(string filename)
         {
-            throw new NotImplementedException();
+            if (File.Exists(DatabasePath))
+            {
+                File.Copy(DatabasePath, filename, true);
+            }
         }
 
-        public override void CreateAndUpdateSchema()
+        public override async Task CreateAndUpdateSchema()
+        {
+            await _context.Database.MigrateAsync();
+        }
+
+        public Task CreateAndUpdateSchemaAsync()
         {
             throw new NotImplementedException();
         }
 
-        public override void CreateDatabase()
+        public override async Task CreateDatabase()
         {
-            throw new NotImplementedException();
+            await _context.Database.EnsureCreatedAsync();
         }
 
-        public override ISessionFactory CreateSessionFactory()
+        public Task CreateDatabaseAsync()
         {
-            return Fluently.Configure()
-                .Database(SQLiteConfiguration.Standard
-                .ConnectionString("Data Source=mydatabase.db;"))
-                .Mappings(m => m.FluentMappings.AddFromAssembly(Assembly.GetExecutingAssembly()))
-                .BuildSessionFactory();
+            throw new NotImplementedException();
         }
 
         public override bool DBExists()
         {
-            return File.Exists(GetDatabaseFilePath());
+            return File.Exists(DatabasePath);
         }
 
         public override void Init()
         {
-            throw new NotImplementedException();
+            // Any initialization logic
         }
 
-        public override void PopulateInitialData()
+        public override async Task PopulateInitialData()
+        {
+            if (!_context.Genres.Any())
+            {
+                var genres = new List<Genre>
+                {
+                    new Genre { Name = "Action" },
+                    new Genre { Name = "Comedy" },
+                    new Genre { Name = "Drama" },
+                    // Add more genres as needed
+                };
+
+                _context.Genres.AddRange(genres);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public Task PopulateInitialDataAsync()
         {
             throw new NotImplementedException();
         }
 
-        public override bool TestConnection()
+        public override async Task<bool> TestConnection()
+        {
+            try
+            {
+                return await _context.Database.CanConnectAsync();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public Task<bool> TestConnectionAsync()
         {
             throw new NotImplementedException();
         }
-
-        protected override void Execute(SqliteConnection connection, string command)
-        {
-            using var sqCommand = new SqliteCommand(command, connection);
-            sqCommand.CommandTimeout = 0;
-            sqCommand.ExecuteNonQuery();
-        }
-
-        private List<DatabaseCommand> createTables = new()
-        {
-            new DatabaseCommand(@"
-                CREATE TABLE IF NOT EXISTS Movie(
-                    PosterPath      TEXT,
-                    Adult           BOOLEAN,
-                    Overview        TEXT,
-                    ReleaseDate     VARCHAR(255),
-                    MovieID         INT PRIMARY KEY,
-                    OriginalTitle   VARCHAR(255),
-                    Title           VARCHAR(255),
-                    BackdropPath    TEXT,
-                    Popularity      DECIMAL(3, 2),
-                    VoteCount       INT,
-                    Video           BOOLEAN,
-                    VoteAverage     DECIMAL(3, 2),
-                    Runtime         INT
-                )
-            "),
-
-            new DatabaseCommand(@"
-                CREATE TABLE IF NOT EXISTS Genre(
-                    GenreID         INT PRIMARY KEY,
-                    Name            VARCHAR(255)
-                )
-            "),
-
-            new DatabaseCommand(@"
-                CREATE TABLE IF NOT EXISTS MovieGenre(
-                    MovieID         INT,
-                    GenreID         INT,
-                    PRIMARY KEY (MovieID, GenreID),
-                    FOREIGN KEY (MovieID) REFERENCES Movie(MovieID),
-                    FOREIGN KEY (GenreID) REFERENCES Genre(GenreID)
-                )
-            "),
-
-            new DatabaseCommand(@"
-                CREATE TABLE IF NOT EXISTS userTable(
-                    UserID        INT PRIMARY KEY AUTO_INCREMENT,
-                    username VARCHAR(50) NOT NULL,
-                    password VARCHAR(72) NOT NULL,
-                    first_name VARCHAR(72) NOT NULL,
-                    last_name VARCHAR(72) NOT NULL,
-                    salt VARCHAR(72) NOT NULL
-
-                )
-            ")
-        };
-
-        //private List<DatabaseCommand> 
     }
 }
