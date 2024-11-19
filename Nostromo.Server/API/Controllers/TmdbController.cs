@@ -5,95 +5,183 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Nostromo.Models;
+using Nostromo.Server.Services;
 
-[ApiController]
-[Route("api/[controller]")]
-public class TmdbController : ControllerBase
+namespace Nostromo.Server.API.Controllers
 {
-    private readonly HttpClient _httpClient;
-    private readonly DatabaseService _databaseService;
-    private readonly string _tmdbApiKey = "cbd64d95c4c66beed284bd12701769ec";
-
-    public TmdbController(HttpClient httpClient, DatabaseService databaseService)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class TmdbController : ControllerBase
     {
-        _httpClient = httpClient;
-        _databaseService = databaseService;
-    }
+        private readonly HttpClient _httpClient;
+        private readonly IDatabaseService _databaseService;
+        private readonly ILogger<TmdbController> _logger;
+        private readonly string _tmdbApiKey;
+        private readonly string _tmdbBaseUrl = "https://api.themoviedb.org/3";
 
-    // Method to fetch genre list and return as a dictionary
-    private async Task<Dictionary<int, string>> GetGenreDictionary()
-    {
-        var genreUrl = $"https://api.themoviedb.org/3/genre/movie/list?api_key={_tmdbApiKey}";
-        var genreResponse = await _httpClient.GetFromJsonAsync<GenreResponse>(genreUrl);
-
-        var genreDict = new Dictionary<int, string>();
-        if (genreResponse?.genres != null)
+        public TmdbController(
+            HttpClient httpClient,
+            IDatabaseService databaseService,
+            IConfiguration configuration,
+            ILogger<TmdbController> logger)
         {
-            foreach (var genre in genreResponse.genres)
-            {
-                genreDict[genre.id] = genre.name;
+            _httpClient = httpClient;
+            _databaseService = databaseService;
+            _logger = logger;
+            _tmdbApiKey = configuration["TMDB:ApiKey"]
+                ?? throw new ArgumentNullException("TMDB API key not configured");
 
-                // Save each genre to the database
-                _databaseService.InsertGenre(genre);
+            // Configure HttpClient
+            _httpClient.BaseAddress = new Uri(_tmdbBaseUrl);
+            _httpClient.DefaultRequestHeaders.Accept.Clear();
+            _httpClient.DefaultRequestHeaders.Accept.Add(
+                new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        }
+
+        private async Task<Dictionary<int, string>> GetGenreDictionary()
+        {
+            try
+            {
+                var genreUrl = $"/genre/movie/list?api_key={_tmdbApiKey}";
+                var genreResponse = await _httpClient.GetFromJsonAsync<GenreResponse>(genreUrl);
+                var genreDict = new Dictionary<int, string>();
+
+                if (genreResponse?.genres != null)
+                {
+                    foreach (var genre in genreResponse.genres)
+                    {
+                        genreDict[genre.id] = genre.name;
+                        await _databaseService.InsertGenreAsync(genre);
+                    }
+                    _logger.LogInformation("Successfully fetched and stored {Count} genres", genreResponse.genres.Count);
+                }
+                return genreDict;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching genre dictionary");
+                throw;
             }
         }
 
-        return genreDict;
-    }
-
-    // Method to fetch movie details to get the runtime
-    private async Task<int?> GetMovieRuntime(int movieId)
-    {
-        var movieDetailsUrl = $"https://api.themoviedb.org/3/movie/{movieId}?api_key={_tmdbApiKey}";
-        var movieDetails = await _httpClient.GetFromJsonAsync<TmdbMovie>(movieDetailsUrl);
-
-        return movieDetails?.runtime;
-    }
-
-    [HttpGet("search")]
-    public async Task<IActionResult> Get(string query = "Inception")
-    {
-        // TMDB API endpoint for searching movies
-        var tmdbUrl = $"https://api.themoviedb.org/3/search/movie?api_key={_tmdbApiKey}&query={query}";
-
-        try
+        private async Task<int?> GetMovieRuntime(int movieId)
         {
-            // Fetch the list of genres and save them to the database
-            var genreDict = await GetGenreDictionary();
-
-            // Send the request and get the response as TmdbResponse
-            var response = await _httpClient.GetFromJsonAsync<TmdbResponse>(tmdbUrl);
-
-            if (response != null && response.results.Count > 0)
+            try
             {
+                var movieDetailsUrl = $"/movie/{movieId}?api_key={_tmdbApiKey}";
+                var movieDetails = await _httpClient.GetFromJsonAsync<TmdbMovie>(movieDetailsUrl);
+                return movieDetails?.runtime;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching runtime for movie {MovieId}", movieId);
+                return null;
+            }
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<TmdbResponse>> SearchMovies(string query = "Inception")
+        {
+            try
+            {
+                _logger.LogInformation("Searching for movies with query: {Query}", query);
+
+                if (string.IsNullOrWhiteSpace(query))
+                {
+                    return BadRequest(new { Message = "Search query is required" });
+                }
+
+                // Fetch genres first
+                var genreDict = await GetGenreDictionary();
+
+                // Search movies
+                var tmdbUrl = $"/search/movie?api_key={_tmdbApiKey}&query={Uri.EscapeDataString(query)}";
+                var response = await _httpClient.GetFromJsonAsync<TmdbResponse>(tmdbUrl);
+
+                if (response?.results == null || !response.results.Any())
+                {
+                    _logger.LogInformation("No results found for query: {Query}", query);
+                    return Ok(new { Message = "No results found", Results = Array.Empty<TmdbMovie>() });
+                }
+
+                // Process each movie
                 foreach (var movie in response.results)
                 {
-                    // Fetch runtime for each movie using its ID
-                    movie.runtime = await GetMovieRuntime(movie.id);
+                    try
+                    {
+                        // Fetch runtime
+                        movie.runtime = await GetMovieRuntime(movie.id);
 
-                    // Map genre IDs to genre names
-                    var genres = movie.genreIds.Select(id => genreDict.ContainsKey(id) ? genreDict[id] : "Unknown").ToList();
+                        // Map genre names for logging
+                        var genres = movie.genreIds
+                            .Select(id => genreDict.ContainsKey(id) ? genreDict[id] : "Unknown")
+                            .ToList();
 
-                    // Log the movie information to the console
-                    Console.WriteLine($"Title: {movie.title}, Genres: {string.Join(", ", genres)}, Runtime: {movie.runtime} minutes, Release Date: {movie.releaseDate}");
+                        _logger.LogDebug(
+                            "Processing movie: {Title}, Genres: {Genres}, Runtime: {Runtime} minutes, Release Date: {ReleaseDate}",
+                            movie.title,
+                            string.Join(", ", genres),
+                            movie.runtime,
+                            movie.releaseDate);
 
-                    // Save the movie to the database
-                    _databaseService.InsertMovie(movie);
+                        // Save to database
+                        await _databaseService.InsertMovieAsync(movie);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error processing movie {Title} (ID: {Id})", movie.title, movie.id);
+                        // Continue processing other movies even if one fails
+                    }
                 }
-            }
-            else
-            {
-                Console.WriteLine("No results found.");
-            }
 
-            // Return the response as JSON
-            return Ok(response);
+                _logger.LogInformation("Successfully processed {Count} movies for query: {Query}",
+                    response.results.Count, query);
+
+                return Ok(new
+                {
+                    Message = $"Found {response.results.Count} results",
+                    Results = response.results
+                });
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "TMDB API request error for query: {Query}", query);
+                return StatusCode(500, new { Message = "Error contacting TMDB API" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error processing search query: {Query}", query);
+                return StatusCode(500, new { Message = "An unexpected error occurred" });
+            }
         }
-        catch (HttpRequestException e)
+
+        // You might want to add additional endpoints for other TMDB API features
+        [HttpGet("movie/{id}")]
+        public async Task<ActionResult<TmdbMovie>> GetMovie(int id)
         {
-            Console.WriteLine($"Request error: {e.Message}");
-            return StatusCode(500, "Error contacting TMDB API.");
+            try
+            {
+                var movieUrl = $"/movie/{id}?api_key={_tmdbApiKey}";
+                var movie = await _httpClient.GetFromJsonAsync<TmdbMovie>(movieUrl);
+
+                if (movie == null)
+                {
+                    return NotFound(new { Message = $"Movie with ID {id} not found" });
+                }
+
+                // Save to database
+                await _databaseService.InsertMovieAsync(movie);
+
+                return Ok(movie);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching movie details for ID: {MovieId}", id);
+                return StatusCode(500, new { Message = "Error fetching movie details" });
+            }
         }
     }
 }

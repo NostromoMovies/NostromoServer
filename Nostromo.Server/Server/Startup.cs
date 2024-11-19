@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿// Startup.cs
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nostromo.Server.Services;
@@ -7,6 +9,9 @@ using Nostromo.Server.Utilities.FileSystemWatcher;
 using Nostromo.Server.Scheduling;
 using Nostromo.Server.Settings;
 using Microsoft.AspNetCore.Hosting;
+using Nostromo.Server.Database;
+using Nostromo.Server.Database.Repositories;
+using System.IO;
 
 namespace Nostromo.Server.Server;
 
@@ -40,11 +45,20 @@ public class Startup
             builder.AddDebug();
         });
 
+        services.AddNostromoDatabase(_configuration);
+
+        services.AddControllers();
+
+        services.AddHttpClient();
+        services.AddScoped<IDatabaseService, DatabaseService>();
+
+        // Register DatabaseService
+        services.AddScoped<IDatabaseService, DatabaseService>();
+
         // Configure WatcherSettings from configuration
         services.Configure<WatcherSettings>(_configuration.GetSection("WatcherSettings"));
 
         // Register FileSystemWatcher
-        //TODO: this needs to be multiple paths taken from configured Drop Folders
         services.AddSingleton<RecoveringFileSystemWatcher>(sp =>
         {
             var watchPath = _configuration.GetValue<string>("WatchSettings:Path")
@@ -70,6 +84,13 @@ public class Startup
 
             // Build service provider
             _serviceProvider = services.BuildServiceProvider();
+
+            // Initialize database
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<NostromoDbContext>();
+                await dbContext.Database.MigrateAsync();
+            }
 
             // Set the static service provider (though this isn't ideal, keeping it for compatibility)
             Utils.ServiceContainer = _serviceProvider;

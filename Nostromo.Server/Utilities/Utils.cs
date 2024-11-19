@@ -27,7 +27,7 @@ public static class Utils
                 return _applicationPath;
 
             if (IsLinux)
-                return _applicationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".shoko",
+                return _applicationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nostromo",
                     DefaultInstance);
 
             return _applicationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
