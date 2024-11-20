@@ -186,5 +186,4 @@ namespace Nostromo.Server.API.Controllers
             }
         }
     }
->>>>>>> fea4bb2 (TmdbController/ServerSettings update)
 }
