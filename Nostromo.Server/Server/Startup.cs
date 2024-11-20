@@ -1,5 +1,4 @@
-﻿// Startup.cs
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -12,13 +11,38 @@ using Microsoft.AspNetCore.Hosting;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
 using System.IO;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
 
 namespace Nostromo.Server.Server;
+
+public class WebStartup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        // Web-specific service configuration
+        services.AddControllers();
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+
+        app.UseRouting();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+}
 
 public class Startup
 {
     private IServiceProvider _serviceProvider;
-    private readonly IConfiguration _configuration;
+    private IConfiguration _configuration;
     private readonly ILogger _logger;
     private readonly ISettingsProvider _settingsProvider;
     private IWebHost _webHost;
@@ -46,11 +70,7 @@ public class Startup
         });
 
         services.AddNostromoDatabase(_configuration);
-
-        services.AddControllers();
-
         services.AddHttpClient();
-        services.AddScoped<IDatabaseService, DatabaseService>();
 
         // Register DatabaseService
         services.AddScoped<IDatabaseService, DatabaseService>();
@@ -92,7 +112,13 @@ public class Startup
                 await dbContext.Database.MigrateAsync();
             }
 
-            // Set the static service provider (though this isn't ideal, keeping it for compatibility)
+            // Start web host
+            if (!await StartWebHost(_settingsProvider))
+            {
+                throw new Exception("Failed to start web host");
+            }
+
+            // Set the static service provider
             Utils.ServiceContainer = _serviceProvider;
 
             // Get and start the server
@@ -107,12 +133,73 @@ public class Startup
             {
                 throw new Exception("Failed to start Nostromo server");
             }
+
+            _logger.LogInformation("Nostromo server started successfully");
         }
         catch (Exception e)
         {
-            var logger = _serviceProvider?.GetService<ILogger<Startup>>();
-            logger?.LogError(e, "Failed to start application");
+            _logger.LogError(e, "Failed to start application: {Error}", e.Message);
             throw;
         }
+    }
+
+    private async Task<bool> StartWebHost(ISettingsProvider settingsProvider)
+    {
+        try
+        {
+            _webHost ??= InitWebHost(settingsProvider);
+            await _webHost.StartAsync();
+            _logger.LogInformation("Web host started successfully on port {Port}", settingsProvider.GetSettings().ServerPort);
+            return true;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to start web host: {Error}", e.Message);
+            await StopHost();
+            return false;
+        }
+    }
+
+    private IWebHost InitWebHost(ISettingsProvider settingsProvider)
+    {
+        if (_webHost != null) return _webHost;
+
+        var settings = settingsProvider.GetSettings();
+
+        var builder = new WebHostBuilder()
+            .UseKestrel(options =>
+            {
+                options.ListenAnyIP(settings.ServerPort);
+            })
+            .ConfigureServices(services =>
+            {
+                // Share the configuration
+                services.AddSingleton(_configuration);
+                // Share the settings provider
+                services.AddSingleton(settingsProvider);
+                // Share other core services
+                ConfigureServices(services);
+            })
+            .UseStartup<WebStartup>();
+
+        var result = builder.Build();
+
+        Utils.SettingsProvider = result.Services.GetRequiredService<ISettingsProvider>();
+        Utils.ServiceContainer = result.Services;
+
+        return result;
+    }
+
+    private async Task StopHost()
+    {
+        if (_webHost is IAsyncDisposable disp)
+        {
+            await disp.DisposeAsync();
+        }
+        else
+        {
+            _webHost?.Dispose();
+        }
+        _webHost = null;
     }
 }

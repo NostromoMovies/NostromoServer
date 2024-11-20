@@ -38,7 +38,7 @@ public class SettingsProvider : ISettingsProvider
             Instance = new ServerSettings();
     }
 
-    public void SaveSettings()
+    public void SaveSettings(IServerSettings settings)
     {
         if (Instance == null)
         {
@@ -70,5 +70,15 @@ public class SettingsProvider : ISettingsProvider
             Converters = new List<JsonConverter> { new StringEnumConverter() }
         };
         return JsonConvert.SerializeObject(obj, serializerSettings);
+    }
+
+    public void SaveSettings()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void DebugSettingsToLog()
+    {
+        throw new NotImplementedException();
     }
 }
