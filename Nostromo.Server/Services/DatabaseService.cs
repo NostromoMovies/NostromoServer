@@ -151,5 +151,13 @@ namespace Nostromo.Server.Services
                 throw;
             }
         }
+        public async Task<List<MovieDashboard>> getUserhMoviesAsync(int userID)
+        {
+            var results = new List<MovieDashboard>();
+
+
+            return results
+
+        }
     }
 }

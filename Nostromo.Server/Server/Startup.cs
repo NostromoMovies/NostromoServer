@@ -40,7 +40,7 @@ public class WebStartup
                 Description = "API endpoints for Nostromo Server"
             });
         });
-
+        
         // CORS if needed for development
         services.AddCors(options =>
         {
