@@ -16,12 +16,41 @@ using Microsoft.Extensions.Hosting;
 
 namespace Nostromo.Server.Server;
 
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+
 public class WebStartup
 {
     public void ConfigureServices(IServiceCollection services)
     {
-        // Web-specific service configuration
+        // API Controllers
         services.AddControllers();
+
+        // Swagger documentation
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Nostromo API",
+                Version = "v1",
+                Description = "API endpoints for Nostromo Server"
+            });
+        });
+
+        // CORS if needed for development
+        services.AddCors(options =>
+        {
+            options.AddPolicy("Development", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            });
+        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -29,12 +58,31 @@ public class WebStartup
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
+            app.UseCors("Development");
         }
 
+        // Swagger at /swagger
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Nostromo API V1");
+            // Set swagger at /swagger instead of root
+            c.RoutePrefix = "swagger";
+        });
+
         app.UseRouting();
+
+        // Serve static files for your UI
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+
         app.UseEndpoints(endpoints =>
         {
+            // API routes
             endpoints.MapControllers();
+
+            // Fallback to index.html for SPA routing
+            endpoints.MapFallbackToFile("index.html");
         });
     }
 }
