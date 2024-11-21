@@ -11,6 +11,10 @@ public class TmdbMovie{
     public string overview{get; set;}
     [JsonPropertyName("release_date")]
     public string releaseDate{get; set;}
+
+    [JsonPropertyName("original_language")]
+    public string OriginalLanguage { get; set; }
+
     [JsonPropertyName("genre_ids")]
     public List<int> genreIds{get; set;}
     [JsonPropertyName("id")]

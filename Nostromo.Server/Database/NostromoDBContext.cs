@@ -69,7 +69,8 @@ namespace Nostromo.Server.Database
         public int MovieID { get; set; }
         public string Title { get; set; }
         public string OriginalTitle { get; set; }
-        public string OriginalLanguage { get; set; }
+
+        public string? OriginalLanguage { get; set; }
         public string Overview { get; set; }
         public string PosterPath { get; set; }
         public string BackdropPath { get; set; }
