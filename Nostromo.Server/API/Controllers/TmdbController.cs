@@ -176,6 +176,7 @@ namespace Nostromo.Server.API.Controllers
 
                 // Save to database
                 await _databaseService.InsertMovieAsync(movie);
+                // schedule job here
 
                 return Ok(movie);
             }
