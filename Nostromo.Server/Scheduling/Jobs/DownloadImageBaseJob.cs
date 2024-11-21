@@ -13,6 +13,13 @@ namespace Nostromo.Server.Scheduling.Jobs
         public string? ParentName { get; set; }
         public int ImageId { get; set; }
 
+        public virtual string RemoteURL { get; set; }
+
+        public virtual string RemotePath { get; set; }
+
+        public virtual string SavePath { get; set; }
+
+
         public DownloadImageBaseJob(ILogger<DownloadImageBaseJob> logger)
         {
             _logger = logger;

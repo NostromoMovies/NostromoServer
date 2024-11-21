@@ -1,13 +1,16 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using Nostromo.Server.Scheduling;
 using Nostromo.Server.Scheduling.Jobs;
 using Quartz;
 using Quartz.Spi;
+using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 public class JobFactory : IJobFactory
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<JobFactory> _logger;
 
     public JobFactory(IServiceProvider serviceProvider, ILogger<JobFactory> logger)
@@ -25,7 +28,7 @@ public class JobFactory : IJobFactory
 
             if (job is BaseJob baseJob)
             {
-                baseJob._logger = _serviceProvider.GetRequiredService<ILogger<HashFileJob>>();
+                baseJob._logger = _loggerFactory.CreateLogger(bundle.JobDetail.Key.Name.Replace(".", "․"));
             }
 
             return job;

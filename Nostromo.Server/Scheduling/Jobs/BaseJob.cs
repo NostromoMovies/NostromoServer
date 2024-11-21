@@ -5,7 +5,7 @@ namespace Nostromo.Server.Scheduling.Jobs;
 
 public abstract class BaseJob : IJob
 {
-    public ILogger _logger;
+    public ILogger? _logger;
     public abstract string Name { get; }
     public abstract string Type { get; }
 

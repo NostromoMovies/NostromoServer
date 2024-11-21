@@ -9,6 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nostromo.Models;
+using Nostromo.Server.API.Models;
+using Nostromo.Server.Scheduling.Jobs;
 using Nostromo.Server.Services;
 using Nostromo.Server.Settings;
 
@@ -184,6 +186,29 @@ namespace Nostromo.Server.API.Controllers
             {
                 _logger.LogError(ex, "Error fetching movie details for ID: {MovieId}", id);
                 return StatusCode(500, new { Message = "Error fetching movie details" });
+            }
+        }
+
+
+        [HttpGet("movie/{id}/images")]
+        public async Task<ActionResult<TmdbImageCollection>> GetMovieImages(int id)
+        {
+            try
+            {
+                var imageUrl = $"movie/{id}/images?api_key={_tmdbApiKey}";
+                var images = await _httpClient.GetFromJsonAsync<TmdbImageCollection>(imageUrl);
+
+                if (images == null)
+                {
+                    return NotFound(new { Message = $"Images for movie ID {id} not found" });
+                }
+
+                return Ok(images);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching movie images for ID: {MovieId}", id);
+                return StatusCode(500, new { Message = "Error fetching movie images" });
             }
         }
     }
