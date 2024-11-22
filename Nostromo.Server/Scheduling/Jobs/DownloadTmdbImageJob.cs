@@ -3,12 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nostromo.Server.API.Models;
 using Nostromo.Server.Settings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
+using Quartz;
 
 namespace Nostromo.Server.Scheduling.Jobs
 {
@@ -17,6 +13,8 @@ namespace Nostromo.Server.Scheduling.Jobs
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISettingsProvider _settingsProvider;
+
+        public static readonly string movieId;
 
         public override string Type => "DownloadingImage";
         public override string RemoteURL => "https://image.tmdb.org/t/p/original";

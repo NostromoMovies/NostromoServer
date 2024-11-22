@@ -33,8 +33,8 @@ namespace Nostromo.Server.API.Controllers
                 // Create job detail
                 var jobDetail = JobBuilder.Create<DownloadTmdbImageJob>()
                     .WithIdentity(jobKey)
-                    .UsingJobData("MovieId", movieId)
-                    .UsingJobData("SavePath", Path.Combine("Images", "Posters", $"{movieId}_poster.jpg"))
+                    .UsingJobData(DownloadTmdbImageJob.movieId, movieId)
+                    //.UsingJobData("SavePath", Path.Combine("Images", "Posters", $"{movieId}_poster.jpg"))
                     .Build();
 
                 // Create trigger
