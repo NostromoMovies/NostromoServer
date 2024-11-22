@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nostromo.Server.API.Models;
+using Nostromo.Server.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +15,8 @@ namespace Nostromo.Server.Scheduling.Jobs
     public class DownloadTmdbImageJob : DownloadImageBaseJob
     {
         private readonly HttpClient _httpClient;
-        private readonly string _apiBaseUrl;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ISettingsProvider _settingsProvider;
 
         public override string Type => "DownloadingImage";
         public override string RemoteURL => "https://image.tmdb.org/t/p/original";
@@ -21,18 +24,23 @@ namespace Nostromo.Server.Scheduling.Jobs
         public DownloadTmdbImageJob(
             ILogger<DownloadTmdbImageJob> logger,
             IHttpClientFactory httpClientFactory,
-            IConfiguration configuration)
+            ISettingsProvider settingsProvider,
+            IHttpContextAccessor httpContextAccessor)
             : base(logger)
         {
             _httpClient = httpClientFactory.CreateClient();
-            _apiBaseUrl = configuration["ApiBaseUrl"] ?? "http://localhost:5000/api/tmdb";
+            _settingsProvider = settingsProvider;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public override async Task ProcessJob()
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<TmdbImageCollection>($"{_apiBaseUrl}/movie/{ImageId}/images");
+                var settings = _settingsProvider.GetSettings();
+                var baseUrl = $"http://localhost:{settings.ServerPort}/api/tmdb";
+                //TODO: var request = _httpContextAccessor.HttpContext.Request;
+                var response = await _httpClient.GetFromJsonAsync<TmdbImageCollection>($"{baseUrl}/movie/{ImageId}/images");
 
                 if (response?.Posters == null || !response.Posters.Any())
                 {

@@ -121,6 +121,7 @@ public class Startup
 
         services.AddNostromoDatabase(_configuration);
         services.AddHttpClient();
+        services.AddHttpContextAccessor();
 
         // Register DatabaseService
         services.AddScoped<IDatabaseService, DatabaseService>();
@@ -140,6 +141,7 @@ public class Startup
         services.AddQuartzServices();
 
         // Register core services
+        services.AddSingleton<ISettingsProvider>(_settingsProvider);
         services.AddSingleton<FileWatcherService>();
         services.AddSingleton<NostromoServer>();
     }
