@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using NHibernate.Linq.Functions;
 using NHibernate.Mapping;
+using System.IO;
 
 namespace Nostromo.Server.Settings
 {
@@ -21,6 +22,7 @@ namespace Nostromo.Server.Settings
         public ushort ServerPort { get; set; } = 8112;
         public string TmdbApiKey { get; set; } = "cbd64d95c4c66beed284bd12701769ec";
         public bool FirstRun { get; set; } = true;
-        public string IndexPath { get; set; } = "..\\..\\..\\..\\Nostromo.WebUI\\dist";
+        public string IndexPath { get; set; } = Path.Combine("..", "..", "..", "..", "Nostromo.WebUI", "dist");
+
     }
 }
