@@ -13,9 +13,10 @@ public class JobFactory : IJobFactory
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<JobFactory> _logger;
 
-    public JobFactory(IServiceProvider serviceProvider, ILogger<JobFactory> logger)
+    public JobFactory(IServiceProvider serviceProvider, ILogger<JobFactory> logger, ILoggerFactory loggerFactory)
     {
         _serviceProvider = serviceProvider;
+        _loggerFactory = loggerFactory;
         _logger = logger;
     }
 

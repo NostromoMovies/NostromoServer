@@ -16,6 +16,7 @@ public static class QuartzExtensions
 
         // Register jobs
         services.AddTransient<HashFileJob>();
+        services.AddTransient<DownloadTmdbImageJob>();
 
         return services;
     }

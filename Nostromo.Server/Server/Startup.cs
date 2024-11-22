@@ -117,6 +117,8 @@ public class Startup
             builder.AddDebug();
         });
 
+        services.AddSingleton(_configuration);
+
         services.AddNostromoDatabase(_configuration);
         services.AddHttpClient();
 
