@@ -3,8 +3,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nostromo.Server.API.Models;
 using Nostromo.Server.Settings;
-using System.Net.Http.Json;
+using Newtonsoft.Json;
 using Quartz;
+using Nostromo.Server.Utilities;
 
 namespace Nostromo.Server.Scheduling.Jobs
 {
@@ -39,7 +40,9 @@ namespace Nostromo.Server.Scheduling.Jobs
                 var settings = _settingsProvider.GetSettings();
                 var baseUrl = $"http://localhost:{settings.ServerPort}/api/tmdb";
                 //TODO: var request = _httpContextAccessor.HttpContext.Request;
-                var response = await _httpClient.GetFromJsonAsync<TmdbImageCollection>($"{baseUrl}/movie/{ImageId}/images");
+                //var response = await _httpClient.GetFromJsonAsync<TmdbImageCollection>($"{baseUrl}/movie/{ImageId}/images");
+                var json = await _httpClient.GetStringAsync($"{baseUrl}/movie/{ImageId}/images");
+                var response = JsonConvert.DeserializeObject<TmdbImageCollection>(json);
 
                 if (response?.Posters == null || !response.Posters.Any())
                 {
@@ -48,10 +51,20 @@ namespace Nostromo.Server.Scheduling.Jobs
 
                 // Get the first poster
                 var poster = response.Posters.First();
-                RemotePath = poster.FilePath;
+                RemotePath = poster.file_path;
+
+                Console.WriteLine("Printing Path: ", RemotePath);
+
+                var posterDirectory = Path.Combine(Utils.ApplicationPath, "posters");
+                Directory.CreateDirectory(posterDirectory);
+                SavePath = Path.Combine(posterDirectory, $"{ImageId}_poster.jpg");
+
 
                 _logger.LogInformation($"Starting download of TMDB poster {ImageId} from path {RemotePath}");
-                await base.ProcessJob();
+
+                var posterBytes = await _httpClient.GetByteArrayAsync($"{RemoteURL}/{RemotePath.TrimStart('/')}");
+                await File.WriteAllBytesAsync(SavePath, posterBytes);
+
                 _logger.LogInformation($"Successfully downloaded TMDB poster {ImageId} to {SavePath}");
             }
             catch (Exception ex)

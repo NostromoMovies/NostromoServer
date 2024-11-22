@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using Newtonsoft.Json;
 namespace Nostromo.Server.API.Models
 {
     public class TmdbImage
     {
-        public double AspectRatio { get; set; }
-        public int Height { get; set; }
-        public string? Iso_639_1 { get; set; }
-        public string FilePath { get; set; } = string.Empty;
-        public double VoteAverage { get; set; }
-        public int VoteCount { get; set; }
-        public int Width { get; set; }
+        public double aspect_ratio { get; set; }
+        public int height { get; set; }
+        public string? iso_639_1 { get; set; }
+        public string? file_path { get; set; }
+        public double vote_average { get; set; }
+        public int vote_count { get; set; }
+        public int width { get; set; }
     }
 }
