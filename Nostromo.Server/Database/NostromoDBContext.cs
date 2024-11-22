@@ -14,6 +14,7 @@ namespace Nostromo.Server.Database
         public DbSet<TMDBMovie> Movies { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Video> Videos { get; set; }  // Added Videos DbSet
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,6 +45,16 @@ namespace Nostromo.Server.Database
                 entity.HasKey(e => e.UserID);
                 entity.Property(e => e.Username).IsRequired();
                 entity.Property(e => e.PasswordHash).IsRequired();
+            });
+
+            modelBuilder.Entity<Video>(entity =>
+            {
+                entity.HasKey(e => e.VideoID);
+                entity.Property(e => e.FileName).IsRequired();
+                entity.Property(e => e.ED2K).IsRequired();
+                entity.Property(e => e.CRC32).IsRequired();
+                entity.Property(e => e.MD5).IsRequired();
+                entity.Property(e => e.SHA1).IsRequired();
             });
         }
     }
@@ -106,5 +117,19 @@ namespace Nostromo.Server.Database
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Salt { get; set; }
+    }
+
+    public class Video
+    {
+        public int VideoID { get; set; }
+        public string FileName { get; set; }
+
+        public string ED2K { get; set; }
+
+        public string CRC32 { get; set; }
+
+        public string MD5 { get; set; }
+
+        public string SHA1 { get; set; }
     }
 }
