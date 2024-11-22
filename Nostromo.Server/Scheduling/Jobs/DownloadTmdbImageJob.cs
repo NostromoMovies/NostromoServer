@@ -14,7 +14,7 @@ namespace Nostromo.Server.Scheduling.Jobs
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISettingsProvider _settingsProvider;
 
-        public static readonly string movieId;
+        public const string MOVIE_ID_KEY = "MovieId"; 
 
         public override string Type => "DownloadingImage";
         public override string RemoteURL => "https://image.tmdb.org/t/p/original";
@@ -35,6 +35,7 @@ namespace Nostromo.Server.Scheduling.Jobs
         {
             try
             {
+                ImageId = Context.JobDetail.JobDataMap.GetInt(MOVIE_ID_KEY);
                 var settings = _settingsProvider.GetSettings();
                 var baseUrl = $"http://localhost:{settings.ServerPort}/api/tmdb";
                 //TODO: var request = _httpContextAccessor.HttpContext.Request;

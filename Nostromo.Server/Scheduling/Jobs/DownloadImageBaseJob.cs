@@ -1,16 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
-using NLog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Quartz;
 
 namespace Nostromo.Server.Scheduling.Jobs
 {
     public abstract class DownloadImageBaseJob : BaseJob, IImageDownloadJob
     {
         public string? ParentName { get; set; }
+
         public int ImageId { get; set; }
 
         public virtual string RemoteURL { get; set; }
