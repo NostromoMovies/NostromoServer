@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nostromo.Server.API.Models;
 using Nostromo.Server.Settings;
 using System.Net.Http.Json;  // Add this for GetFromJsonAsync
-using Quartz;
 using Nostromo.Server.Utilities;
 
 namespace Nostromo.Server.Scheduling.Jobs
