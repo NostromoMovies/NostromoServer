@@ -1,16 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nostromo.Models;
 using Nostromo.Server.API.Models;
-using Nostromo.Server.Scheduling.Jobs;
 using Nostromo.Server.Services;
 using Nostromo.Server.Settings;
 

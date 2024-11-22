@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nostromo.Server.API.Models;
 using Nostromo.Server.Settings;
-using Newtonsoft.Json;
+using System.Net.Http.Json;  // Add this for GetFromJsonAsync
 using Quartz;
 using Nostromo.Server.Utilities;
 
@@ -14,9 +14,7 @@ namespace Nostromo.Server.Scheduling.Jobs
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISettingsProvider _settingsProvider;
-
-        public const string MOVIE_ID_KEY = "MovieId"; 
-
+        public const string MOVIE_ID_KEY = "MovieId";
         public override string Type => "DownloadingImage";
         public override string RemoteURL => "https://image.tmdb.org/t/p/original";
 
@@ -40,31 +38,22 @@ namespace Nostromo.Server.Scheduling.Jobs
                 var settings = _settingsProvider.GetSettings();
                 var baseUrl = $"http://localhost:{settings.ServerPort}/api/tmdb";
                 //TODO: var request = _httpContextAccessor.HttpContext.Request;
-                //var response = await _httpClient.GetFromJsonAsync<TmdbImageCollection>($"{baseUrl}/movie/{ImageId}/images");
-                var json = await _httpClient.GetStringAsync($"{baseUrl}/movie/{ImageId}/images");
-                var response = JsonConvert.DeserializeObject<TmdbImageCollection>(json);
+                var response = await _httpClient.GetFromJsonAsync<TmdbImageCollection>($"{baseUrl}/movie/{ImageId}/images");
 
                 if (response?.Posters == null || !response.Posters.Any())
                 {
                     throw new Exception($"No posters found for movie {ImageId}");
                 }
-
                 // Get the first poster
                 var poster = response.Posters.First();
-                RemotePath = poster.file_path;
-
+                RemotePath = poster.FilePath;
                 Console.WriteLine("Printing Path: ", RemotePath);
-
                 var posterDirectory = Path.Combine(Utils.ApplicationPath, "posters");
                 Directory.CreateDirectory(posterDirectory);
                 SavePath = Path.Combine(posterDirectory, $"{ImageId}_poster.jpg");
-
-
                 _logger.LogInformation($"Starting download of TMDB poster {ImageId} from path {RemotePath}");
-
                 var posterBytes = await _httpClient.GetByteArrayAsync($"{RemoteURL}/{RemotePath.TrimStart('/')}");
                 await File.WriteAllBytesAsync(SavePath, posterBytes);
-
                 _logger.LogInformation($"Successfully downloaded TMDB poster {ImageId} to {SavePath}");
             }
             catch (Exception ex)
