@@ -19,6 +19,7 @@ namespace Nostromo.Server.Server;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
@@ -46,7 +47,7 @@ public class WebStartup
         {
             options.AddPolicy("Development", builder =>
             {
-                builder.AllowAnyOrigin()
+                builder.WithOrigins("http://localhost:5173")
                        .AllowAnyMethod()
                        .AllowAnyHeader();
             });
@@ -72,6 +73,13 @@ public class WebStartup
 
         app.UseRouting();
 
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "webui")),
+            RequestPath = "/webui"
+        });
+
         // Serve static files for your UI
         app.UseDefaultFiles();
         app.UseStaticFiles();
@@ -82,7 +90,7 @@ public class WebStartup
             endpoints.MapControllers();
 
             // Fallback to index.html for SPA routing
-            endpoints.MapFallbackToFile("index.html");
+            endpoints.MapFallbackToFile("/webui/{**path}", "webui/index.html");
         });
     }
 }
