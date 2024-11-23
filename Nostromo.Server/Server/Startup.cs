@@ -74,8 +74,6 @@ public class WebStartup
             c.RoutePrefix = "swagger";
         });
 
-        app.UseRouting();
-
         string _serverProjectPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../..", "Nostromo.Server"));
         var webuiPath = Path.Combine(_serverProjectPath, "webui");
 
@@ -90,6 +88,9 @@ public class WebStartup
                 Console.WriteLine($"Attempting to serve static file: {ctx.File.PhysicalPath}");
             }
         });
+
+        app.UseRouting();
+
 
         app.UseEndpoints(endpoints =>
         {
