@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nostromo.Server.Services;
@@ -7,17 +6,14 @@ using Nostromo.Server.Utilities;
 using Nostromo.Server.Utilities.FileSystemWatcher;
 using Nostromo.Server.Scheduling;
 using Nostromo.Server.Settings;
-using Microsoft.AspNetCore.Hosting;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
-using System.IO;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
 
 namespace Nostromo.Server.Server;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
@@ -25,10 +21,19 @@ using Microsoft.OpenApi.Models;
 
 public class WebStartup
 {
+    private readonly IWebHostEnvironment _env;
+
+    public WebStartup(IWebHostEnvironment env)
+    {
+        _env = env;
+    }
     public void ConfigureServices(IServiceCollection services)
     {
+
+
         // API Controllers
         services.AddControllers();
+
 
         // Swagger documentation
         services.AddEndpointsApiExplorer();
@@ -62,35 +67,39 @@ public class WebStartup
             app.UseCors("Development");
         }
 
-        // Swagger at /swagger
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "Nostromo API V1");
-            // Set swagger at /swagger instead of root
             c.RoutePrefix = "swagger";
         });
 
         app.UseRouting();
 
+        string _serverProjectPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../..", "Nostromo.Server"));
+        var webuiPath = Path.Combine(_serverProjectPath, "webui");
+
+        // Move the static files middleware BEFORE routing
         app.UseStaticFiles(new StaticFileOptions
         {
-            FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "webui")),
-            RequestPath = "/webui"
+            FileProvider = new PhysicalFileProvider(webuiPath),
+            RequestPath = "/webui",
+            ServeUnknownFileTypes = true,
+            OnPrepareResponse = ctx =>
+            {
+                Console.WriteLine($"Attempting to serve static file: {ctx.File.PhysicalPath}");
+            }
         });
-
-        // Serve static files for your UI
-        app.UseDefaultFiles();
-        app.UseStaticFiles();
 
         app.UseEndpoints(endpoints =>
         {
-            // API routes
             endpoints.MapControllers();
 
-            // Fallback to index.html for SPA routing
-            endpoints.MapFallbackToFile("/webui/{**path}", "webui/index.html");
+            // Only use fallback for non-file routes
+            endpoints.MapFallbackToFile("/webui/{**path}", "/index.html", new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(webuiPath)
+            });
         });
     }
 }
@@ -225,12 +234,14 @@ public class Startup
         if (_webHost != null) return _webHost;
 
         var settings = settingsProvider.GetSettings();
+        var serverProjectPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../..", "Nostromo.Server"));
 
         var builder = new WebHostBuilder()
             .UseKestrel(options =>
             {
                 options.ListenAnyIP(settings.ServerPort);
             })
+            .UseWebRoot(Path.Combine(serverProjectPath, "webui"))  // Add this line
             .ConfigureServices(services =>
             {
                 // Share the configuration
