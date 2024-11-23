@@ -1,277 +1,277 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Nostromo.Server.Services;
-using Nostromo.Server.Utilities;
-using Nostromo.Server.Utilities.FileSystemWatcher;
-using Nostromo.Server.Scheduling;
-using Nostromo.Server.Settings;
-using Nostromo.Server.Database;
-using Nostromo.Server.Database.Repositories;
+﻿//using Microsoft.EntityFrameworkCore;
+//using Microsoft.Extensions.Configuration;
+//using Microsoft.Extensions.Logging;
+//using Nostromo.Server.Services;
+//using Nostromo.Server.Utilities;
+//using Nostromo.Server.Utilities.FileSystemWatcher;
+//using Nostromo.Server.Scheduling;
+//using Nostromo.Server.Settings;
+//using Nostromo.Server.Database;
+//using Nostromo.Server.Database.Repositories;
 
-namespace Nostromo.Server.Server;
+//namespace Nostromo.Server.Server;
 
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
+//using Microsoft.AspNetCore.Builder;
+//using Microsoft.AspNetCore.Hosting;
+//using Microsoft.AspNetCore.Http;
+//using Microsoft.Extensions.DependencyInjection;
+//using Microsoft.Extensions.FileProviders;
+//using Microsoft.Extensions.Hosting;
+//using Microsoft.OpenApi.Models;
 
-public class WebStartup
-{
-    private readonly IWebHostEnvironment _env;
+//public class WebStartup
+//{
+//    private readonly IWebHostEnvironment _env;
 
-    public WebStartup(IWebHostEnvironment env)
-    {
-        _env = env;
-    }
-    public void ConfigureServices(IServiceCollection services)
-    {
-
-
-        // API Controllers
-        services.AddControllers();
+//    public WebStartup(IWebHostEnvironment env)
+//    {
+//        _env = env;
+//    }
+//    public void ConfigureServices(IServiceCollection services)
+//    {
 
 
-        // Swagger documentation
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Title = "Nostromo API",
-                Version = "v1",
-                Description = "API endpoints for Nostromo Server"
-            });
-        });
-
-        // CORS if needed for development
-        services.AddCors(options =>
-        {
-            options.AddPolicy("Development", builder =>
-            {
-                builder.WithOrigins("http://localhost:5173")
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
-            });
-        });
-    }
-
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-        if (env.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-            app.UseCors("Development");
-        }
-
-        app.UseSwagger();
-        app.UseSwaggerUI(c =>
-        {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Nostromo API V1");
-            c.RoutePrefix = "swagger";
-        });
-
-        string _serverProjectPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../..", "Nostromo.Server"));
-        var webuiPath = Path.Combine(_serverProjectPath, "webui");
-
-        // Move the static files middleware BEFORE routing
-        app.UseStaticFiles(new StaticFileOptions
-        {
-            FileProvider = new PhysicalFileProvider(webuiPath),
-            RequestPath = "/webui",
-            ServeUnknownFileTypes = true,
-            OnPrepareResponse = ctx =>
-            {
-                Console.WriteLine($"Attempting to serve static file: {ctx.File.PhysicalPath}");
-            }
-        });
-
-        app.UseRouting();
+//        // API Controllers
+//        services.AddControllers();
 
 
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
+//        // Swagger documentation
+//        services.AddEndpointsApiExplorer();
+//        services.AddSwaggerGen(c =>
+//        {
+//            c.SwaggerDoc("v1", new OpenApiInfo
+//            {
+//                Title = "Nostromo API",
+//                Version = "v1",
+//                Description = "API endpoints for Nostromo Server"
+//            });
+//        });
 
-            // Only use fallback for non-file routes
-            endpoints.MapFallbackToFile("/webui/{**path}", "/index.html", new StaticFileOptions
-            {
-                FileProvider = new PhysicalFileProvider(webuiPath)
-            });
-        });
-    }
-}
+//        // CORS if needed for development
+//        services.AddCors(options =>
+//        {
+//            options.AddPolicy("Development", builder =>
+//            {
+//                builder.WithOrigins("http://localhost:5173")
+//                       .AllowAnyMethod()
+//                       .AllowAnyHeader();
+//            });
+//        });
+//    }
 
-public class Startup
-{
-    private IServiceProvider _serviceProvider;
-    private IConfiguration _configuration;
-    private readonly ILogger _logger;
-    private readonly ISettingsProvider _settingsProvider;
-    private IWebHost _webHost;
+//    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+//    {
+//        if (env.IsDevelopment())
+//        {
+//            app.UseDeveloperExceptionPage();
+//            app.UseCors("Development");
+//        }
 
-    public Startup(ILogger<Startup> logger, ISettingsProvider settingsProvider)
-    {
-        _logger = logger;
-        _settingsProvider = settingsProvider;
+//        app.UseSwagger();
+//        app.UseSwaggerUI(c =>
+//        {
+//            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Nostromo API V1");
+//            c.RoutePrefix = "swagger";
+//        });
 
-        // Build configuration
-        _configuration = new ConfigurationBuilder()
-            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: false)
-            .Build();
-    }
+//        string _serverProjectPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../..", "Nostromo.Server"));
+//        var webuiPath = Path.Combine(_serverProjectPath, "webui");
 
-    private void ConfigureServices(IServiceCollection services)
-    {
-        // Add logging
-        services.AddLogging(builder =>
-        {
-            builder.AddConfiguration(_configuration.GetSection("Logging"));
-            builder.AddConsole();
-            builder.AddDebug();
-        });
+//        // Move the static files middleware BEFORE routing
+//        app.UseStaticFiles(new StaticFileOptions
+//        {
+//            FileProvider = new PhysicalFileProvider(webuiPath),
+//            RequestPath = "/webui",
+//            ServeUnknownFileTypes = true,
+//            OnPrepareResponse = ctx =>
+//            {
+//                Console.WriteLine($"Attempting to serve static file: {ctx.File.PhysicalPath}");
+//            }
+//        });
 
-        services.AddSingleton(_configuration);
+//        app.UseRouting();
 
-        services.AddNostromoDatabase(_configuration);
-        services.AddHttpClient();
-        services.AddHttpContextAccessor();
 
-        // Register DatabaseService
-        services.AddScoped<IDatabaseService, DatabaseService>();
+//        app.UseEndpoints(endpoints =>
+//        {
+//            endpoints.MapControllers();
 
-        // Configure WatcherSettings from configuration
-        services.Configure<WatcherSettings>(_configuration.GetSection("WatcherSettings"));
+//            // Only use fallback for non-file routes
+//            endpoints.MapFallbackToFile("/webui/{**path}", "/index.html", new StaticFileOptions
+//            {
+//                FileProvider = new PhysicalFileProvider(webuiPath)
+//            });
+//        });
+//    }
+//}
 
-        // Register FileSystemWatcher
-        services.AddSingleton<RecoveringFileSystemWatcher>(sp =>
-        {
-            var watchPath = _configuration.GetValue<string>("WatchSettings:Path")
-                ?? throw new InvalidOperationException("Watch path not configured");
-            return new RecoveringFileSystemWatcher(watchPath);
-        });
+//public class Startup
+//{
+//    private IServiceProvider _serviceProvider;
+//    private IConfiguration _configuration;
+//    private readonly ILogger _logger;
+//    private readonly ISettingsProvider _settingsProvider;
+//    private IWebHost _webHost;
 
-        // Add Quartz services
-        services.AddQuartzServices();
+//    public Startup(ILogger<Startup> logger, ISettingsProvider settingsProvider)
+//    {
+//        _logger = logger;
+//        _settingsProvider = settingsProvider;
 
-        // Register core services
-        services.AddSingleton<ISettingsProvider>(_settingsProvider);
-        services.AddSingleton<FileWatcherService>();
-        services.AddSingleton<NostromoServer>();
-    }
+//        // Build configuration
+//        _configuration = new ConfigurationBuilder()
+//            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+//            .AddJsonFile("appsettings.json", optional: false)
+//            .Build();
+//    }
 
-    public async Task Start()
-    {
-        try
-        {
-            // Create service collection
-            var services = new ServiceCollection();
-            ConfigureServices(services);
+//    private void ConfigureServices(IServiceCollection services)
+//    {
+//        // Add logging
+//        services.AddLogging(builder =>
+//        {
+//            builder.AddConfiguration(_configuration.GetSection("Logging"));
+//            builder.AddConsole();
+//            builder.AddDebug();
+//        });
 
-            // Build service provider
-            _serviceProvider = services.BuildServiceProvider();
+//        services.AddSingleton(_configuration);
 
-            // Initialize database
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<NostromoDbContext>();
-                await dbContext.Database.MigrateAsync();
-            }
+//        services.AddNostromoDatabase(_configuration);
+//        services.AddHttpClient();
+//        services.AddHttpContextAccessor();
 
-            // Start web host
-            if (!await StartWebHost(_settingsProvider))
-            {
-                throw new Exception("Failed to start web host");
-            }
+//        // Register DatabaseService
+//        services.AddScoped<IDatabaseService, DatabaseService>();
 
-            // Set the static service provider
-            Utils.ServiceContainer = _serviceProvider;
+//        // Configure WatcherSettings from configuration
+//        services.Configure<WatcherSettings>(_configuration.GetSection("WatcherSettings"));
 
-            // Get and start the server
-            var nostromoServer = _serviceProvider.GetRequiredService<NostromoServer>();
-            Utils.NostromoServer = nostromoServer;
+//        // Register FileSystemWatcher
+//        services.AddSingleton<RecoveringFileSystemWatcher>(sp =>
+//        {
+//            var watchPath = _configuration.GetValue<string>("WatchSettings:Path")
+//                ?? throw new InvalidOperationException("Watch path not configured");
+//            return new RecoveringFileSystemWatcher(watchPath);
+//        });
 
-            // Start the file watcher service
-            var fileWatcherService = _serviceProvider.GetRequiredService<FileWatcherService>();
-            await fileWatcherService.StartAsync(CancellationToken.None);
+//        // Add Quartz services
+//        services.AddQuartzServices();
 
-            if (!nostromoServer.StartUpServer())
-            {
-                throw new Exception("Failed to start Nostromo server");
-            }
+//        // Register core services
+//        services.AddSingleton<ISettingsProvider>(_settingsProvider);
+//        services.AddSingleton<FileWatcherService>();
+//        services.AddSingleton<NostromoServer>();
+//    }
 
-            _logger.LogInformation("Nostromo server started successfully");
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Failed to start application: {Error}", e.Message);
-            throw;
-        }
-    }
+//    public async Task Start()
+//    {
+//        try
+//        {
+//            // Create service collection
+//            var services = new ServiceCollection();
+//            ConfigureServices(services);
 
-    private async Task<bool> StartWebHost(ISettingsProvider settingsProvider)
-    {
-        try
-        {
-            _webHost ??= InitWebHost(settingsProvider);
-            await _webHost.StartAsync();
-            _logger.LogInformation("Web host started successfully on port {Port}", settingsProvider.GetSettings().ServerPort);
-            return true;
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Failed to start web host: {Error}", e.Message);
-            await StopHost();
-            return false;
-        }
-    }
+//            // Build service provider
+//            _serviceProvider = services.BuildServiceProvider();
 
-    private IWebHost InitWebHost(ISettingsProvider settingsProvider)
-    {
-        if (_webHost != null) return _webHost;
+//            // Initialize database
+//            using (var scope = _serviceProvider.CreateScope())
+//            {
+//                var dbContext = scope.ServiceProvider.GetRequiredService<NostromoDbContext>();
+//                await dbContext.Database.MigrateAsync();
+//            }
 
-        var settings = settingsProvider.GetSettings();
-        var serverProjectPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../..", "Nostromo.Server"));
+//            // Start web host
+//            if (!await StartWebHost(_settingsProvider))
+//            {
+//                throw new Exception("Failed to start web host");
+//            }
 
-        var builder = new WebHostBuilder()
-            .UseKestrel(options =>
-            {
-                options.ListenAnyIP(settings.ServerPort);
-            })
-            .UseWebRoot(Path.Combine(serverProjectPath, "webui"))  // Add this line
-            .ConfigureServices(services =>
-            {
-                // Share the configuration
-                services.AddSingleton(_configuration);
-                // Share the settings provider
-                services.AddSingleton(settingsProvider);
-                // Share other core services
-                ConfigureServices(services);
-            })
-            .UseStartup<WebStartup>();
+//            // Set the static service provider
+//            Utils.ServiceContainer = _serviceProvider;
 
-        var result = builder.Build();
+//            // Get and start the server
+//            var nostromoServer = _serviceProvider.GetRequiredService<NostromoServer>();
+//            Utils.NostromoServer = nostromoServer;
 
-        Utils.SettingsProvider = result.Services.GetRequiredService<ISettingsProvider>();
-        Utils.ServiceContainer = result.Services;
+//            // Start the file watcher service
+//            var fileWatcherService = _serviceProvider.GetRequiredService<FileWatcherService>();
+//            await fileWatcherService.StartAsync(CancellationToken.None);
 
-        return result;
-    }
+//            if (!nostromoServer.StartUpServer())
+//            {
+//                throw new Exception("Failed to start Nostromo server");
+//            }
 
-    private async Task StopHost()
-    {
-        if (_webHost is IAsyncDisposable disp)
-        {
-            await disp.DisposeAsync();
-        }
-        else
-        {
-            _webHost?.Dispose();
-        }
-        _webHost = null;
-    }
-}
+//            _logger.LogInformation("Nostromo server started successfully");
+//        }
+//        catch (Exception e)
+//        {
+//            _logger.LogError(e, "Failed to start application: {Error}", e.Message);
+//            throw;
+//        }
+//    }
+
+//    private async Task<bool> StartWebHost(ISettingsProvider settingsProvider)
+//    {
+//        try
+//        {
+//            _webHost ??= InitWebHost(settingsProvider);
+//            await _webHost.StartAsync();
+//            _logger.LogInformation("Web host started successfully on port {Port}", settingsProvider.GetSettings().ServerPort);
+//            return true;
+//        }
+//        catch (Exception e)
+//        {
+//            _logger.LogError(e, "Failed to start web host: {Error}", e.Message);
+//            await StopHost();
+//            return false;
+//        }
+//    }
+
+//    private IWebHost InitWebHost(ISettingsProvider settingsProvider)
+//    {
+//        if (_webHost != null) return _webHost;
+
+//        var settings = settingsProvider.GetSettings();
+//        var serverProjectPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../..", "Nostromo.Server"));
+
+//        var builder = new WebHostBuilder()
+//            .UseKestrel(options =>
+//            {
+//                options.ListenAnyIP(settings.ServerPort);
+//            })
+//            .UseWebRoot(Path.Combine(serverProjectPath, "webui"))  // Add this line
+//            .ConfigureServices(services =>
+//            {
+//                // Share the configuration
+//                services.AddSingleton(_configuration);
+//                // Share the settings provider
+//                services.AddSingleton(settingsProvider);
+//                // Share other core services
+//                ConfigureServices(services);
+//            })
+//            .UseStartup<WebStartup>();
+
+//        var result = builder.Build();
+
+//        Utils.SettingsProvider = result.Services.GetRequiredService<ISettingsProvider>();
+//        Utils.ServiceContainer = result.Services;
+
+//        return result;
+//    }
+
+//    private async Task StopHost()
+//    {
+//        if (_webHost is IAsyncDisposable disp)
+//        {
+//            await disp.DisposeAsync();
+//        }
+//        else
+//        {
+//            _webHost?.Dispose();
+//        }
+//        _webHost = null;
+//    }
+//}

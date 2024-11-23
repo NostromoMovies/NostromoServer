@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Nostromo.Server.Database;
 using Nostromo.Server.Utilities;
 
+namespace Nostromo.Server.API.Controllers;
+
 [ApiController]
 [Route("api/[controller]")]
 public class MoviesController : ControllerBase
