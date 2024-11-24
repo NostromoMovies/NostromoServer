@@ -1,5 +1,4 @@
-﻿// NostromoDBContext.cs
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Nostromo.Server.Utilities;
 
@@ -14,14 +13,37 @@ namespace Nostromo.Server.Database
         public DbSet<TMDBMovie> Movies { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<Video> Videos { get; set; }  // Added Videos DbSet
+        public DbSet<Video> Videos { get; set; }
+        public DbSet<VideoPlace> VideoPlaces { get; set; }
+        public DbSet<ImportFolder> ImportFolders { get; set; }
+        public DbSet<DuplicateFile> DuplicateFiles { get; set; }
+        public DbSet<TMDBMovieCast> MovieCasts { get; set; }
+        public DbSet<TMDBPerson> People { get; set; }
+        public DbSet<CrossRefVideoTMDBMovie> CrossRefVideoTMDBMovies { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TMDBMovie>(entity =>
             {
                 entity.HasKey(e => e.MovieID);
+                entity.Property(e => e.MovieID).HasColumnName("TMDBMovieID");
+                entity.Property(e => e.TMDBID).IsRequired();
+                entity.Property(e => e.TMDBCollectionID);
                 entity.Property(e => e.Title).IsRequired();
+                entity.Property(e => e.OriginalTitle);
+                entity.Property(e => e.OriginalLanguage);
+                entity.Property(e => e.IsAdult);
+                entity.Property(e => e.IsVideo);
+                entity.Property(e => e.Overview);
+                entity.Property(e => e.Runtime);
+                entity.Property(e => e.UserRating).HasColumnType("real");
+                entity.Property(e => e.UserVotes);
+                entity.Property(e => e.ReleaseDate);
+                entity.Property(e => e.PosterPath);
+                entity.Property(e => e.BackdropPath);
+                entity.Property(e => e.CreatedAt);
+                entity.Property(e => e.LastUpdatedAt);
+
                 entity.HasMany(e => e.Genres)
                       .WithMany(e => e.Movies)
                       .UsingEntity<MovieGenre>(
@@ -45,6 +67,8 @@ namespace Nostromo.Server.Database
                 entity.HasKey(e => e.UserID);
                 entity.Property(e => e.Username).IsRequired();
                 entity.Property(e => e.PasswordHash).IsRequired();
+                entity.Property(e => e.IsAdmin);
+                entity.Property(e => e.CreatedAt);
             });
 
             modelBuilder.Entity<Video>(entity =>
@@ -55,6 +79,77 @@ namespace Nostromo.Server.Database
                 entity.Property(e => e.CRC32).IsRequired();
                 entity.Property(e => e.MD5).IsRequired();
                 entity.Property(e => e.SHA1).IsRequired();
+                entity.Property(e => e.FileSize);
+                entity.Property(e => e.CreatedAt);
+                entity.Property(e => e.UpdatedAt);
+            });
+
+            modelBuilder.Entity<VideoPlace>(entity =>
+            {
+                entity.HasKey(e => e.VideoPlaceID);
+                entity.Property(e => e.FilePath).IsRequired();
+                entity.Property(e => e.ImportFolderID).IsRequired();
+                entity.Property(e => e.ImportFolderType).IsRequired();
+
+                entity.HasOne(e => e.Video)
+                      .WithMany()
+                      .HasForeignKey(e => e.VideoID);
+            });
+
+            modelBuilder.Entity<ImportFolder>(entity =>
+            {
+                entity.HasKey(e => e.ImportFolderID);
+                entity.Property(e => e.ImportFolderType);
+                entity.Property(e => e.FolderLocation).HasColumnName("ImportFolderLocation");
+                entity.Property(e => e.IsDropSource);
+                entity.Property(e => e.IsDropDestination);
+                entity.Property(e => e.IsWatched);
+            });
+
+            modelBuilder.Entity<DuplicateFile>(entity =>
+            {
+                entity.HasKey(e => e.DuplicateFileID);
+                entity.Property(e => e.FilePath1).IsRequired();
+                entity.Property(e => e.FilePath2).IsRequired();
+                entity.Property(e => e.ImportFolderID);
+                entity.Property(e => e.ImportFolderType);
+            });
+
+            modelBuilder.Entity<TMDBMovieCast>(entity =>
+            {
+                entity.HasKey(e => e.TMDBMovieCastID);
+                entity.Property(e => e.TMDBPersonID);
+                entity.Property(e => e.TMDBCreditID);
+                entity.Property(e => e.CharacterName);
+                entity.Property(e => e.Ordering);
+            });
+
+            modelBuilder.Entity<TMDBPerson>(entity =>
+            {
+                entity.HasKey(e => e.TMDBPersonID);
+                entity.Property(e => e.TMDBID);
+                entity.Property(e => e.EnglishName);
+                entity.Property(e => e.EnglishBio);
+                entity.Property(e => e.Alias).HasColumnName("Aliases");
+                entity.Property(e => e.Gender);
+                entity.Property(e => e.IsRestricted);
+                entity.Property(e => e.BirthDay);
+                entity.Property(e => e.PlaceOfBirth);
+                entity.Property(e => e.CreatedAt);
+                entity.Property(e => e.LastUpdatedAt);
+            });
+
+            modelBuilder.Entity<CrossRefVideoTMDBMovie>(entity =>
+            {
+                entity.HasKey(e => e.CrossRefVideoTMDBMovieID);
+
+                entity.HasOne(e => e.Video)
+                      .WithMany()
+                      .HasForeignKey(e => e.VideoID);
+
+                entity.HasOne(e => e.TMDBMovie)
+                      .WithMany()
+                      .HasForeignKey(e => e.TMDBMovieID);
             });
         }
     }
@@ -78,19 +173,25 @@ namespace Nostromo.Server.Database
     public class TMDBMovie
     {
         public int MovieID { get; set; }
+        public int TMDBID { get; set; }
+        public int? TMDBCollectionID { get; set; }
         public string Title { get; set; }
-        public string OriginalTitle { get; set; }
-
-        public string? OriginalLanguage { get; set; }
         public string Overview { get; set; }
+        public string OriginalTitle { get; set; }
+        public string OriginalLanguage { get; set; }
+        public bool IsAdult { get; set; }
+        public bool IsVideo { get; set; }
+        public float Popularity { get; set; }
+        public float VoteAverage { get; set; }
+        public int VoteCount { get; set; }
+        public int Runtime { get; set; }
+        public decimal UserRating { get; set; }
+        public int UserVotes { get; set; }
+        public string ReleaseDate { get; set; }
         public string PosterPath { get; set; }
         public string BackdropPath { get; set; }
-        public string ReleaseDate { get; set; }
-        public bool Adult { get; set; }
-        public decimal Popularity { get; set; }
-        public int VoteCount { get; set; }
-        public decimal VoteAverage { get; set; }
-        public int Runtime { get; set; }
+        public int CreatedAt { get; set; }
+        public DateTime LastUpdatedAt { get; set; }
         public virtual ICollection<Genre> Genres { get; set; } = new List<Genre>();
     }
 
@@ -113,23 +214,84 @@ namespace Nostromo.Server.Database
     {
         public int UserID { get; set; }
         public string Username { get; set; }
-        public string PasswordHash { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
         public string Salt { get; set; }
+        public string PasswordHash { get; set; }
+        public bool IsAdmin { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 
     public class Video
     {
         public int VideoID { get; set; }
         public string FileName { get; set; }
-
         public string ED2K { get; set; }
-
         public string CRC32 { get; set; }
-
         public string MD5 { get; set; }
-
         public string SHA1 { get; set; }
+        public long FileSize { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class VideoPlace
+    {
+        public int VideoPlaceID { get; set; }
+        public int VideoID { get; set; }
+        public string FilePath { get; set; }
+        public int ImportFolderID { get; set; }
+        public int ImportFolderType { get; set; }
+        public virtual Video Video { get; set; }
+    }
+
+    public class DuplicateFile
+    {
+        public int DuplicateFileID { get; set; }
+        public string FilePath1 { get; set; }
+        public string FilePath2 { get; set; }
+        public int ImportFolderID { get; set; }
+        public int ImportFolderType { get; set; }
+    }
+
+    public class TMDBMovieCast
+    {
+        public int TMDBMovieCastID { get; set; }
+        public int TMDBPersonID { get; set; }
+        public int TMDBCreditID { get; set; }
+        public string CharacterName { get; set; }
+        public int Ordering { get; set; }
+    }
+
+    public class TMDBPerson
+    {
+        public int TMDBPersonID { get; set; }
+        public int TMDBID { get; set; }
+        public string EnglishName { get; set; }
+        public string EnglishBio { get; set; }
+        public string Alias { get; set; }
+        public int Gender { get; set; }
+        public bool IsRestricted { get; set; }
+        public DateTime? BirthDay { get; set; }
+        public string PlaceOfBirth { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime LastUpdatedAt { get; set; }
+    }
+
+    public class ImportFolder
+    {
+        public int ImportFolderID { get; set; }
+        public int ImportFolderType { get; set; }
+        public string FolderLocation { get; set; }
+        public int IsDropSource { get; set; }
+        public int IsDropDestination { get; set; }
+        public int IsWatched { get; set; }
+    }
+
+    public class CrossRefVideoTMDBMovie
+    {
+        public int CrossRefVideoTMDBMovieID { get; set; }
+        public int VideoID { get; set; }
+        public int TMDBMovieID { get; set; }
+        public virtual Video Video { get; set; }
+        public virtual TMDBMovie TMDBMovie { get; set; }
     }
 }

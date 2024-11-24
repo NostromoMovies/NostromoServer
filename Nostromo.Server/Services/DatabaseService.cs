@@ -50,14 +50,15 @@ namespace Nostromo.Server.Services
                     MovieID = movieModel.id,
                     Title = movieModel.title,
                     OriginalTitle = movieModel.originalTitle,
+                    OriginalLanguage = movieModel.OriginalLanguage,
                     Overview = movieModel.overview,
                     PosterPath = movieModel.posterPath,
                     BackdropPath = movieModel.backdropPath,
                     ReleaseDate = movieModel.releaseDate,
-                    Adult = movieModel.adult,
-                    Popularity = Convert.ToDecimal(movieModel.popularity), // Fixed float to decimal conversion
+                    IsAdult = movieModel.adult,
+                    Popularity = movieModel.popularity, // Fixed float to decimal conversion
                     VoteCount = movieModel.voteCount,
-                    VoteAverage = Convert.ToDecimal(movieModel.voteAverage), // Fixed float to decimal conversion
+                    VoteAverage = movieModel.voteAverage, // Fixed float to decimal conversion
                     Runtime = movieModel.runtime ?? 0 // Fixed nullable int conversion with default value
                 };
 
@@ -123,8 +124,6 @@ namespace Nostromo.Server.Services
                 {
                     Username = userModel.username,
                     PasswordHash = userModel.passwordHash,
-                    FirstName = userModel.first_name,
-                    LastName = userModel.last_name,
                     Salt = userModel.salt
                 };
 

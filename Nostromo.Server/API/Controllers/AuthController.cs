@@ -104,8 +104,6 @@ namespace Nostromo.Server.API.Controllers
                     User = new
                     {
                         Username = user.Username,
-                        FirstName = user.FirstName,
-                        LastName = user.LastName
                     }
                 });
             }
