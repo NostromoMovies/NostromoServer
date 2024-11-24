@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<IsTestProject>true</IsTestProject>
+                <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
+                <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	</PropertyGroup>
+	<ItemGroup>
+	  <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
+	  <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+	  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+	  <PackageReference Include="Microsoft.TestPlatform" Version="17.12.0" />
+	  <PackageReference Include="Moq" Version="4.20.72" />
+	  <PackageReference Include="MSTest.TestAdapter" Version="3.6.3" />
+	  <PackageReference Include="MSTest.TestFramework" Version="3.6.3" />
+	  <PackageReference Include="Quartz" Version="3.13.1" />
+	  <PackageReference Include="System.Runtime" Version="4.3.1" />
+	  <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Nostromo.Server\Nostromo.Server.csproj" />
+		<Reference Include="Antlr3.Runtime">
+			<HintPath>$(NuGetPackageRoot)\antlr3.runtime\3.5.1\lib\netstandard1.1\Antlr3.Runtime.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+</Project>

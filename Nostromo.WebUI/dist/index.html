@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vite App</title>
+  </head>
+  <body>
+    <div id="app" class="container mt-5">
+      <!-- Display a message to verify the page loads -->
+      <h1 class="text-center">Vite App is Running!</h1>
+      <p class="text-center text-muted">
+        If you can see this, your <code>index.html</code> is being served correctly.
+      </p>
+    </div>
+    <script>
+      // Optional: Dynamically update the page to show that the script is working
+      const appDiv = document.getElementById('app');
+      const message = document.createElement('p');
+      message.className = 'text-center text-success';
+      message.textContent = 'JavaScript is working!';
+      appDiv.appendChild(message);
+    </script>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
