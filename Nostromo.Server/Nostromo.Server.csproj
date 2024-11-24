@@ -10,7 +10,7 @@
   </PropertyGroup>
 	
   <ItemGroup>
-		<Content Include="..\Dependencies\**\*" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="$(MSBuildThisFileDirectory)..\Dependencies\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 	
   <ItemGroup>
