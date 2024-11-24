@@ -6,11 +6,11 @@ using Nostromo.Server.Scheduling.Jobs;
 
 namespace Nostromo.Server.Scheduling
 {
-    public class ConsolidateJob : BaseJob
+    public class ProcessVideoJob : BaseJob
     {
-        private readonly ILogger<ConsolidateJob> _logger;
+        private readonly ILogger<ProcessVideoJob> _logger;
 
-        public ConsolidateJob(ILogger<ConsolidateJob> logger)
+        public ProcessVideoJob(ILogger<ProcessVideoJob> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -29,7 +29,7 @@ namespace Nostromo.Server.Scheduling
                 return;
             }
 
-            _logger.LogInformation("Starting ConsolidateJob for file: {FilePath}", filePath);
+            _logger.LogInformation("Starting ProcessVideoJob for file: {FilePath}", filePath);
 
             var jobs = GetJobs(filePath);
             foreach (var (jobDetail, trigger) in jobs)
