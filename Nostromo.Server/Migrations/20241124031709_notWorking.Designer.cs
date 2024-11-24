@@ -10,8 +10,8 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    [Migration("20241122071232_AddVideo")]
-    partial class AddVideo
+    [Migration("20241124031709_notWorking")]
+    partial class notWorking
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

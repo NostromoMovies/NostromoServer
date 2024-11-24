@@ -5,7 +5,7 @@
 namespace Nostromo.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class notWorking : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,7 +31,7 @@ namespace Nostromo.Server.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Title = table.Column<string>(type: "TEXT", nullable: false),
                     OriginalTitle = table.Column<string>(type: "TEXT", nullable: false),
-                    OriginalLanguage = table.Column<string>(type: "TEXT", nullable: false),
+                    OriginalLanguage = table.Column<string>(type: "TEXT", nullable: true),
                     Overview = table.Column<string>(type: "TEXT", nullable: false),
                     PosterPath = table.Column<string>(type: "TEXT", nullable: false),
                     BackdropPath = table.Column<string>(type: "TEXT", nullable: false),
@@ -62,6 +62,23 @@ namespace Nostromo.Server.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.UserID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Videos",
+                columns: table => new
+                {
+                    VideoID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    FileName = table.Column<string>(type: "TEXT", nullable: false),
+                    ED2K = table.Column<string>(type: "TEXT", nullable: false),
+                    CRC32 = table.Column<string>(type: "TEXT", nullable: false),
+                    MD5 = table.Column<string>(type: "TEXT", nullable: false),
+                    SHA1 = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Videos", x => x.VideoID);
                 });
 
             migrationBuilder.CreateTable(
@@ -102,6 +119,9 @@ namespace Nostromo.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Videos");
 
             migrationBuilder.DropTable(
                 name: "Genres");
