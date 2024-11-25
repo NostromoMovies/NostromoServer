@@ -63,6 +63,37 @@ namespace Nostromo.Server.Migrations
                     b.ToTable("DuplicateFiles");
                 });
 
+            modelBuilder.Entity("Nostromo.Server.Database.ExampleHash", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ED2K")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TmdbId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ExampleHash");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ED2K = "5d886780825db91bbc390f10f1b6c95c",
+                            Title = "Alien",
+                            TmdbId = 348
+                        });
+                });
+
             modelBuilder.Entity("Nostromo.Server.Database.Genre", b =>
                 {
                     b.Property<int>("GenreID")

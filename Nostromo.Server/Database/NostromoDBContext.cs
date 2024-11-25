@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Nostromo.Server.Utilities;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace Nostromo.Server.Database
 {
@@ -151,6 +153,19 @@ namespace Nostromo.Server.Database
                       .WithMany()
                       .HasForeignKey(e => e.TMDBMovieID);
             });
+
+            modelBuilder.Entity<ExampleHash>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.TmdbId);
+                entity.Property(e => e.Title);
+                entity.Property(e => e.ED2K);
+
+                //SEED DATA
+                entity.HasData(
+                    new ExampleHash {Id = 1, Title = "Alien", TmdbId = 348, ED2K = "5d886780825db91bbc390f10f1b6c95c" }
+                );
+            });
         }
     }
 
@@ -293,5 +308,17 @@ namespace Nostromo.Server.Database
         public int TMDBMovieID { get; set; }
         public virtual Video Video { get; set; }
         public virtual TMDBMovie TMDBMovie { get; set; }
+    }
+
+    public class ExampleHash
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        public int TmdbId { get; set; }
+
+        public string Title { get; set; }
+
+        public string ED2K { get; set; }
     }
 }

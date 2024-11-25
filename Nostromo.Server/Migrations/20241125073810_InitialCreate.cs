@@ -28,6 +28,21 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ExampleHash",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    TmdbId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Title = table.Column<string>(type: "TEXT", nullable: false),
+                    ED2K = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExampleHash", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Genres",
                 columns: table => new
                 {
@@ -235,6 +250,11 @@ namespace Nostromo.Server.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "ExampleHash",
+                columns: new[] { "Id", "ED2K", "Title", "TmdbId" },
+                values: new object[] { 1, "5d886780825db91bbc390f10f1b6c95c", "Alien", 348 });
+
             migrationBuilder.CreateIndex(
                 name: "IX_CrossRefVideoTMDBMovies_TMDBMovieID",
                 table: "CrossRefVideoTMDBMovies",
@@ -264,6 +284,9 @@ namespace Nostromo.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "DuplicateFiles");
+
+            migrationBuilder.DropTable(
+                name: "ExampleHash");
 
             migrationBuilder.DropTable(
                 name: "ImportFolders");
