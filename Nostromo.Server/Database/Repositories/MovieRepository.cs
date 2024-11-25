@@ -25,6 +25,15 @@ public class MovieRepository : IMovieRepository
             .Where(m => m.Title.Contains(searchTerm))
             .ToListAsync();
     }
+    public async Task<IEnumerable<TMDBMovie>> SearchGenreAsync(List<int> genreIds)
+    {
+       
+
+        return await _context.Movies
+            .Include(m => m.Genres) 
+            .Where(m => m.Genres != null && m.Genres.Any(g => genreIds.Contains(g.GenreID)))
+            .ToListAsync(); 
+    }
 
     public async Task AddAsync(TMDBMovie movie)
     {
@@ -46,5 +55,17 @@ public class MovieRepository : IMovieRepository
             _context.Movies.Remove(movie);
             await _context.SaveChangesAsync();
         }
+    }
+    public async Task<IEnumerable<TMDBMovie>> SortMovieByRatings()
+    {
+
+       var movies = await _context.Movies
+             .OrderByDescending(m => m.VoteAverage)
+             .ToListAsync();
+
+
+        return movies;
+
+
     }
 }
