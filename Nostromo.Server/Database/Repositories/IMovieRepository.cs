@@ -1,12 +1,9 @@
-﻿// IMovieRepository.cs
+﻿using Nostromo.Server.Database.Repositories;
 
 namespace Nostromo.Server.Database.Repositories;
-
-public interface IMovieRepository
+public interface IMovieRepository : IRepository<TMDBMovie>
 {
-    Task<TMDBMovie> GetByIdAsync(int id);
+    // Only need to declare methods unique to movies
     Task<IEnumerable<TMDBMovie>> SearchAsync(string searchTerm);
-    Task AddAsync(TMDBMovie movie);
-    Task UpdateAsync(TMDBMovie movie);
-    Task DeleteAsync(int id);
+    // No need to redeclare GetByIdAsync, AddAsync etc - we get those from IRepository<TMDBMovie>
 }

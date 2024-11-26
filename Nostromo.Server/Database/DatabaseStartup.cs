@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nostromo.Server.Database.Repositories;
 using Nostromo.Server.Utilities;
 
-namespace Nostromo.Server.Database.Repositories;
+namespace Nostromo.Server.Database;
 
 public static class DatabaseStartup
 {

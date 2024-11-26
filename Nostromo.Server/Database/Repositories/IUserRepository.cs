@@ -1,13 +1,7 @@
-﻿// IUserRepository.cs
-using System.Threading.Tasks;
+﻿namespace Nostromo.Server.Database.Repositories;
 
-namespace Nostromo.Server.Database.Repositories;
-
-public interface IUserRepository
+public interface IUserRepository : IRepository<User>
 {
     Task<User> FindByUsernameAsync(string username);
-    Task<User> GetByIdAsync(int id);
-    Task CreateUserAsync(User user);
-    Task UpdateUserAsync(User user);
-    Task DeleteUserAsync(int id);
+    // No need to declare CRUD methods - they come from IRepository<User>
 }

@@ -116,6 +116,7 @@ namespace Nostromo.Server.Services
             return await _userRepository.FindByUsernameAsync(username);
         }
 
+        // IF MERGE CONFLICT ACCEPT THIS ONE
         public async Task CreateUserAsync(Users userModel)
         {
             try
@@ -126,8 +127,7 @@ namespace Nostromo.Server.Services
                     PasswordHash = userModel.passwordHash,
                     Salt = userModel.salt
                 };
-
-                await _userRepository.CreateUserAsync(user);
+                await _userRepository.AddAsync(user);  // Changed from CreateUserAsync to AddAsync
                 _logger.LogInformation("Successfully created user: {Username}", user.Username);
             }
             catch (Exception ex)

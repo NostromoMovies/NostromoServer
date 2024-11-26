@@ -1,48 +1,26 @@
-﻿using Nostromo.Server.Database.Repositories;
-using Nostromo.Server.Database;
+﻿namespace Nostromo.Server.Database.Repositories;
+
 using Microsoft.EntityFrameworkCore;
 
-namespace Nostromo.Server.Database.Repositories;
-
-public class UserRepository : IUserRepository
+public class UserRepository : Repository<User>, IUserRepository
 {
-    private readonly NostromoDbContext _context;
-
-    public UserRepository(NostromoDbContext context)
+    public UserRepository(NostromoDbContext context) : base(context)
     {
-        _context = context;
     }
 
     public async Task<User> FindByUsernameAsync(string username)
     {
-        return await _context.Users
+        return await Query()
             .FirstOrDefaultAsync(u => u.Username == username);
     }
 
-    public async Task<User> GetByIdAsync(int id)
-    {
-        return await _context.Users.FindAsync(id);
-    }
+    // Note: no need to implement CRUD operations - they come from Repository<User>
 
-    public async Task CreateUserAsync(User user)
+    public override async Task<User> AddAsync(User user)
     {
-        await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateUserAsync(User user)
-    {
-        _context.Users.Update(user);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteUserAsync(int id)
-    {
-        var user = await _context.Users.FindAsync(id);
-        if (user != null)
-        {
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-        }
+        // If you need special behavior when creating users
+        // For example, setting CreatedAt
+        user.CreatedAt = DateTime.UtcNow;
+        return await base.AddAsync(user);
     }
 }
