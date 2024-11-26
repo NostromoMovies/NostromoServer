@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System.Net.Http.Headers;
 
 public class WebStartup
 {
@@ -160,6 +161,14 @@ public class Startup
 
         // Register core services
         services.AddSingleton<ISettingsProvider>(_settingsProvider);
+
+        services.AddHttpClient<ITmdbService, TmdbService>(client => {
+            // This configures the HttpClient that will be injected
+            client.BaseAddress = new Uri("https://api.themoviedb.org/3/");
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+        });
+
         services.AddSingleton<FileWatcherService>();
         services.AddSingleton<NostromoServer>();
     }
