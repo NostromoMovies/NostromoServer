@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Nostromo.Server.Database;
 using Nostromo.Server.Utilities;
 
+namespace Nostromo.Server.API.Controllers;
+
 [ApiController]
 [Route("api/[controller]")]
 public class MoviesController : ControllerBase
@@ -17,7 +19,7 @@ public class MoviesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TMDBMovie>>> GetMovies()
     {
-        return await _context.Movies.ToListAsync();  
+        return await _context.Movies.ToListAsync();
     }
 
     [HttpGet("{id}/poster")]
