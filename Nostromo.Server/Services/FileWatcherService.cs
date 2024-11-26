@@ -9,6 +9,7 @@ using Nostromo.Server.Scheduling.Jobs;
 using Nostromo.Server.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz.Spi;
+using System.IO;
 
 namespace Nostromo.Server.Services;
 
@@ -59,6 +60,7 @@ public class FileWatcherService : IHostedService, IDisposable
 
         foreach (var watcher in _watchers)
         {
+            _logger.LogInformation("Starting watcher for directory: {Path}", watcher.Path);
             watcher.FileAdded += OnFileChanged;
             watcher.FileDeleted += OnFileDeleted;
             watcher.Start();
@@ -70,7 +72,7 @@ public class FileWatcherService : IHostedService, IDisposable
 
     private void OnFileChanged(object? sender, string filePath)
     {
-        _logger.LogDebug("File change detected: {FilePath}", filePath);
+        _logger.LogInformation("File change detected: {FilePath}", filePath);
         _changedFiles.Enqueue(filePath);
     }
 
@@ -94,6 +96,7 @@ public class FileWatcherService : IHostedService, IDisposable
         {
             while (_changedFiles.TryDequeue(out string? filePath))
             {
+                _logger.LogInformation("Processing file from queue: {FilePath}", filePath);
                 try
                 {
                     await ProcessFileAsync(filePath);
@@ -113,6 +116,8 @@ public class FileWatcherService : IHostedService, IDisposable
     private async Task ProcessFileAsync(string filePath)
     {
         if (_scheduler == null) return;
+
+        _logger.LogInformation("Preparing to process file: {FilePath}", filePath);
 
         // Wait for file to be ready with timeout and retries
         var readyCheckStart = DateTime.UtcNow;
@@ -136,6 +141,7 @@ public class FileWatcherService : IHostedService, IDisposable
                         _logger.LogWarning("Timed out waiting for file to be ready: {FilePath}", filePath);
                         return;
                     }
+                    _logger.LogDebug("File is not ready yet: {FilePath}", filePath);
                     await Task.Delay(1000, _serviceCts.Token);
                     continue;
                 }
@@ -149,6 +155,7 @@ public class FileWatcherService : IHostedService, IDisposable
                         _logger.LogWarning("Max retries reached waiting for file: {FilePath}", filePath);
                         return;
                     }
+                    _logger.LogDebug("Retrying for file: {FilePath}", filePath);
                     await Task.Delay(2000, _serviceCts.Token); // Wait 2 seconds between retries
                     continue;
                 }
@@ -170,7 +177,7 @@ public class FileWatcherService : IHostedService, IDisposable
 
                 // Schedule the job
                 await _scheduler.ScheduleJob(jobDetail, trigger, _serviceCts.Token);
-                _logger.LogDebug("Successfully scheduled ProcessVideoJob for {FilePath}", filePath);
+                _logger.LogInformation("Successfully scheduled ProcessVideoJob for {FilePath}", filePath);
                 return; // Success - exit the method
             }
             catch (IOException ex)

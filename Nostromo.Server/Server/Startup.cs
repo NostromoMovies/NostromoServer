@@ -8,6 +8,11 @@ using Nostromo.Server.Scheduling;
 using Nostromo.Server.Settings;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
+using Nostromo.Server.Scheduling.Jobs;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
+
 
 namespace Nostromo.Server.Server;
 
@@ -156,7 +161,26 @@ public class Startup
         });
 
         // Add Quartz services
-        services.AddQuartzServices();
+        services.AddQuartz();
+
+        // Add Download Movie Metadata service
+        var tmdbApiKey = _configuration.GetValue<string>("TMDB:ApiKey", "cbd64d95c4c66beed284bd12701769ec");
+        var tmdbBaseUrl = _configuration.GetValue<string>("TMDB:BaseUrl", "https://api.themoviedb.org/3");
+
+        if (tmdbApiKey == "cbd64d95c4c66beed284bd12701769ec" || tmdbBaseUrl == "https://api.themoviedb.org/3")
+        {
+            _logger.LogWarning("TMDB configuration is using default values. Ensure appsettings.json is correctly configured.");
+        }
+
+        // Register DownloadMovieMetadataJob with the required parameters
+        services.AddTransient(sp => new DownloadMovieMetadataJob(
+            sp.GetRequiredService<ILogger<DownloadMovieMetadataJob>>(),
+            sp.GetRequiredService<HttpClient>(),
+            sp.GetRequiredService<IDatabaseService>(),
+            tmdbApiKey,
+            tmdbBaseUrl
+        ));
+
 
         // Register core services
         services.AddSingleton<ISettingsProvider>(_settingsProvider);

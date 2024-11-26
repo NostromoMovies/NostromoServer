@@ -15,6 +15,7 @@ namespace Nostromo.Server.Services
         Task<User> FindUserByUsernameAsync(string username);
         Task CreateUserAsync(Users userModel);
         Task<List<TMDBMovie>> SearchMoviesAsync(string title);
+        Task<int?> GetMovieIdByHashAsync(string hash);
     }
 
     public class DatabaseService : IDatabaseService
@@ -35,6 +36,32 @@ namespace Nostromo.Server.Services
             _context = context;
             _logger = logger;
         }
+
+        public async Task<int?> GetMovieIdByHashAsync(string hash)
+        {
+            // Log the input hash
+            _logger.LogInformation("Searching for MovieID with hash: {InputHash}", hash);
+
+            // Query the ExampleHashes table to find the corresponding MovieID
+            var exampleHash = await _context.ExampleHash
+                .FirstOrDefaultAsync(eh => eh.ED2K == hash);
+
+            if (exampleHash != null)
+            {
+                // Log the found hash and MovieID
+                _logger.LogInformation("Found matching hash: {DatabaseHash} with MovieID: {MovieID}", exampleHash.ED2K, exampleHash.TmdbId);
+            }
+            else
+            {
+                // Log that no match was found
+                _logger.LogWarning("No matching hash found for: {InputHash}", hash);
+            }
+
+            return exampleHash?.TmdbId; // Return null if not found
+        }
+
+
+
 
         public async Task<TMDBMovie> GetMovieAsync(int id)
         {

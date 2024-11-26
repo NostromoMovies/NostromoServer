@@ -23,6 +23,9 @@
 	<PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
 	<PackageReference Include="NLog" Version="5.3.4" />
 	<PackageReference Include="NLog.Extensions.Logging" Version="5.3.14" />
+	<PackageReference Include="Quartz" Version="3.13.1" />
+	<PackageReference Include="Quartz.AspNetCore" Version="3.13.1" />
+	<PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.13.1" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,63 +1,130 @@
 using Microsoft.Extensions.Logging;
 using Quartz;
-using System.Collections.Generic;
-using System.Linq;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using Nostromo.Server.Scheduling.Jobs;
+using Nostromo.Server.Database;
+using Microsoft.EntityFrameworkCore;
 
-namespace Nostromo.Server.Scheduling
+
+namespace Nostromo.Server.Scheduling;
+
+public class ProcessVideoJob : BaseJob
 {
-    public class ProcessVideoJob : BaseJob
+    private readonly ILogger<ProcessVideoJob> _logger;
+    private readonly NostromoDbContext _dbContext;
+
+    public ProcessVideoJob(ILogger<ProcessVideoJob> logger, NostromoDbContext dbContext)
     {
-        private readonly ILogger<ProcessVideoJob> _logger;
-
-        public ProcessVideoJob(ILogger<ProcessVideoJob> logger)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
-
-        public override string Name => "Consolidate Job";
-        public override string Type => "Workflow Orchestration";
-
-        public override async Task ProcessJob()
-        {
-            var jobDataMap = Context.MergedJobDataMap;
-            var filePath = jobDataMap.GetString("FilePath");
-
-            if (string.IsNullOrWhiteSpace(filePath))
-            {
-                _logger.LogError("FilePath is missing in job data map.");
-                return;
-            }
-
-            _logger.LogInformation("Starting ProcessVideoJob for file: {FilePath}", filePath);
-
-            var jobs = GetJobs(filePath);
-            foreach (var (jobDetail, trigger) in jobs)
-            {
-                await Context.Scheduler.ScheduleJob(jobDetail, trigger);
-                _logger.LogInformation("Scheduled job: {JobKey}", jobDetail.Key);
-            }
-
-            _logger.LogInformation("Consolidate job workflow for file {FilePath} is complete.", filePath);
-        }
-
-        private List<(IJobDetail JobDetail, ITrigger Trigger)> GetJobs(string filePath)
-        {
-            var jobs = new List<(IJobDetail, ITrigger)>();
-
-            var hashJob = JobBuilder.Create<HashFileJob>()
-                .UsingJobData(HashFileJob.FILE_PATH_KEY, filePath)
-                .WithIdentity(new JobKey($"HashJob_{filePath}", "ConsolidateGroup"))
-                .Build();
-
-            var hashTrigger = TriggerBuilder.Create()
-                .StartNow()
-                .WithIdentity(new TriggerKey($"HashTrigger_{filePath}", "ConsolidateGroup"))
-                .Build();
-
-            jobs.Add((hashJob, hashTrigger));
-
-            return jobs;
-        }
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
+
+    public override string Name => "Process Video Job";
+    public override string Type => "Workflow Orchestration";
+
+    public override async Task ProcessJob()
+    {
+        var jobDataMap = Context.MergedJobDataMap;
+        var filePath = jobDataMap.GetString("FilePath");
+
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            _logger.LogError("FilePath is missing in job data map.");
+            return;
+        }
+
+        _logger.LogInformation("Starting ProcessVideoJob for file: {FilePath}", filePath);
+
+        // Wait for the hash job to finish and retrieve the computed hash
+        var computedHash = await ComputeHashAndScheduleMetadataJob(filePath);
+        if (string.IsNullOrWhiteSpace(computedHash))
+        {
+            _logger.LogError("Failed to compute hash for file: {FilePath}. Aborting metadata job scheduling.", filePath);
+            return;
+        }
+
+        _logger.LogInformation("Process video job workflow for file {FilePath} is complete.", filePath);
+    }
+
+    private async Task<string> ComputeHashAndScheduleMetadataJob(string filePath)
+    {
+        // Schedule HashFileJob
+        var hashJobKey = new JobKey($"HashJob_{filePath}", "ConsolidateGroup");
+        var hashJob = JobBuilder.Create<HashFileJob>()
+            .UsingJobData(HashFileJob.FILE_PATH_KEY, filePath)
+            .WithIdentity(hashJobKey)
+            .Build();
+
+        var hashTrigger = TriggerBuilder.Create()
+            .StartNow()
+            .WithIdentity(new TriggerKey($"HashTrigger_{filePath}", "ConsolidateGroup"))
+            .Build();
+
+        await Context.Scheduler.ScheduleJob(hashJob, hashTrigger);
+
+        _logger.LogInformation("Scheduled HashFileJob for file: {FilePath}", filePath);
+
+        // Wait for the hash to be computed
+        string computedHash = await WaitForHashCompletion(filePath);
+
+        if (string.IsNullOrWhiteSpace(computedHash))
+        {
+            _logger.LogError("Hash computation failed for file: {FilePath}", filePath);
+            return null;
+        }
+
+        _logger.LogInformation("Computed hash for file {FilePath}: {Hash}", filePath, computedHash);
+
+        // Schedule DownloadMovieMetadataJob with the computed hash
+        var metadataJobKey = new JobKey($"MetadataJob_{computedHash}", "ConsolidateGroup");
+        var metadataJob = JobBuilder.Create<DownloadMovieMetadataJob>()
+            .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, computedHash) // Pass the computed hash
+            .WithIdentity(metadataJobKey)
+            .Build();
+
+        var metadataTrigger = TriggerBuilder.Create()
+            .StartNow()
+            .WithIdentity(new TriggerKey($"MetadataTrigger_{computedHash}", "ConsolidateGroup"))
+            .Build();
+
+        await Context.Scheduler.ScheduleJob(metadataJob, metadataTrigger);
+
+        _logger.LogInformation("Scheduled DownloadMovieMetadataJob for hash: {Hash}", computedHash);
+
+        return computedHash;
+    }
+
+    private async Task<string> WaitForHashCompletion(string filePath)
+    {
+        string computedHash = null;
+        int retries = 30; // Allow up to 30 retries
+        int delay = 2000; // 2 seconds delay between retries
+
+        var fileName = Path.GetFileName(filePath);
+
+        while (retries > 0)
+        {
+            // Query the database for the computed hash
+            var video = await _dbContext.Videos
+                .AsNoTracking() // Prevent EF from tracking the entity, as we just need to read
+                .FirstOrDefaultAsync(v => v.FileName == fileName, Context.CancellationToken);
+
+            if (video != null && !string.IsNullOrWhiteSpace(video.ED2K))
+            {
+                computedHash = video.ED2K;
+                _logger.LogInformation("Hash found in database for {FilePath}: {Hash}", filePath, computedHash);
+                return computedHash;
+            }
+
+            retries--;
+            _logger.LogDebug("Hash not found for {FilePath}. Retrying in {Delay}ms...", filePath, delay);
+            await Task.Delay(delay);
+        }
+
+        _logger.LogError("Failed to retrieve hash for {FilePath} after multiple retries.", filePath);
+        return null;
+    }
+
 }

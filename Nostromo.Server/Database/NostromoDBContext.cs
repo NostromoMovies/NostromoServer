@@ -22,6 +22,7 @@ namespace Nostromo.Server.Database
         public DbSet<TMDBMovieCast> MovieCasts { get; set; }
         public DbSet<TMDBPerson> People { get; set; }
         public DbSet<CrossRefVideoTMDBMovie> CrossRefVideoTMDBMovies { get; set; }
+        public DbSet<ExampleHash> ExampleHash { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
