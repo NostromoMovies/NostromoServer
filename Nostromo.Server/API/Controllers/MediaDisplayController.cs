@@ -120,7 +120,7 @@ namespace Nostromo.Server.API.Controllers
                 return StatusCode(500, new { Message = "An error occurred while retrieving the movie" });
             }
         }
-        [HttpGet("{id}")]
+       
    
         [HttpGet("filtered-genre")]
         public async Task<ActionResult<List<TmdbMovie>>> GetFilteredGenre([FromQuery] List<int> genres)
@@ -164,7 +164,7 @@ namespace Nostromo.Server.API.Controllers
             }
         }
         [HttpGet("filtered-highestRatings")]
-        public async Task<ActionResult<List<TmdbMovie>>> highestRatings()
+        public async Task<ActionResult<List<TmdbMovie>>> HighestRatings()
         {
 
             try
