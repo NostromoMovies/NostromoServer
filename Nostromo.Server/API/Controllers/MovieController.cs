@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nostromo.Server.Database;
+using Nostromo.Server.Database.Repositories;
 using Nostromo.Server.Utilities;
 
 namespace Nostromo.Server.API.Controllers;
@@ -9,31 +10,27 @@ namespace Nostromo.Server.API.Controllers;
 [Route("api/[controller]")]
 public class MoviesController : ControllerBase
 {
-    private readonly NostromoDbContext _context;
+    private readonly IMovieRepository _movieRepository;
 
-    public MoviesController(NostromoDbContext context)
+    public MoviesController(IMovieRepository movieRepository)
     {
-        _context = context;
+        _movieRepository = movieRepository;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TMDBMovie>>> GetMovies()
     {
-        return await _context.Movies.ToListAsync();
+        var movies = await _movieRepository.GetAllAsync();
+        return Ok(movies);
     }
 
     [HttpGet("{id}/poster")]
     public async Task<IActionResult> GetPoster(int id)
     {
-        var movie = await _context.Movies.FindAsync(id);
-        if (movie == null)
+        var (exists, path) = await _movieRepository.GetPosterPathAsync(id);
+        if (!exists)
             return NotFound();
 
-        var imagePath = Path.Combine(Utils.ApplicationPath, $"posters/{id}_poster.jpg");
-
-        if (!System.IO.File.Exists(imagePath))
-            return NotFound();
-
-        return PhysicalFile(imagePath, "image/jpeg"); // context
+        return PhysicalFile(path, "image/jpeg");
     }
 }

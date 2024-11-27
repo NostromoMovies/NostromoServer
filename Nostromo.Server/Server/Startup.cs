@@ -250,14 +250,10 @@ public class Startup
             {
                 options.ListenAnyIP(settings.ServerPort);
             })
-            .UseWebRoot(Path.Combine(serverProjectPath, "webui"))  // Add this line
+            .UseWebRoot(Path.Combine(serverProjectPath, "webui"))
             .ConfigureServices(services =>
             {
-                // Share the configuration
-                services.AddSingleton(_configuration);
-                // Share the settings provider
-                services.AddSingleton(settingsProvider);
-                // Share other core services
+                // We DO need to configure all services here
                 ConfigureServices(services);
             })
             .UseStartup<WebStartup>();
