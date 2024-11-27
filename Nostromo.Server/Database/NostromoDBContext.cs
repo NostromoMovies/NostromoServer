@@ -71,6 +71,7 @@ namespace Nostromo.Server.Database
                 entity.HasKey(e => e.UserID);
                 entity.Property(e => e.Username).IsRequired();
                 entity.Property(e => e.PasswordHash).IsRequired();
+                entity.Property(e => e.Salt).IsRequired();
                 entity.Property(e => e.IsAdmin);
                 entity.Property(e => e.CreatedAt);
             });

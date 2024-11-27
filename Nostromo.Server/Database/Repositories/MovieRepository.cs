@@ -1,3 +1,7 @@
+﻿using Nostromo.Server.Database.Repositories;
+using Nostromo.Server.Database;
+using Microsoft.EntityFrameworkCore;
+
 ﻿using Microsoft.EntityFrameworkCore;
 using Nostromo.Server.Utilities;
 
@@ -35,4 +39,28 @@ public class MovieRepository : Repository<TMDBMovie>, IMovieRepository
 
         return (File.Exists(imagePath), imagePath);
     }
+
+    
+    public async Task<IEnumerable<TMDBMovie>> SortMovieByRatings()
+    {
+
+        var movies = await _context.Movies
+            .OrderByDescending(m => m.VoteAverage)
+            .ToListAsync();
+
+
+        return movies;
+
+
+    }
+    public async Task<IEnumerable<TMDBMovie>> SearchGenreAsync(List<int> genreIds)
+    {
+       
+
+        return await _context.Movies
+            .Include(m => m.Genres) 
+            .Where(m => m.Genres != null && m.Genres.Any(g => genreIds.Contains(g.GenreID)))
+            .ToListAsync(); 
+    }
+
 }

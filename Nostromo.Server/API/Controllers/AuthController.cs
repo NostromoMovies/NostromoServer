@@ -42,7 +42,8 @@ namespace Nostromo.Server.API.Controllers
                 }
 
                 // Check if user already exists
-                var existingUser = await _databaseService.FindUserByUsernameAsync(registerRequest.username);
+                var existingUser = await userRepository.FindByUsernameAsync(
+                    registerRequest.username);
                 if (existingUser != null)
                 {
                     return Conflict(new { Message = "Username already exists" });
@@ -51,18 +52,19 @@ namespace Nostromo.Server.API.Controllers
                 string salt = PasswordHelper.GenerateSalt();
                 string hashedPassword = PasswordHelper.HashPassword(registerRequest.password, salt);
 
-                var user = new Users
+                var user = new User
                 {
-                    username = registerRequest.username,
-                    passwordHash = hashedPassword,
-                    first_name = registerRequest.first_Name,
-                    last_name = registerRequest.last_Name,
-                    salt = salt
+                    
+                    Username = registerRequest.username,
+                    PasswordHash = hashedPassword,
+                    Salt = salt,
+                    IsAdmin = registerRequest.isAdmin
                 };
+                await userRepository.AddAsync(user);
+                
+               
 
-                await _databaseService.CreateUserAsync(user);
-
-                _logger.LogInformation("User registered successfully: {Username}", user.username);
+                _logger.LogInformation("User registered successfully: {Username}", user.Username);
                 return Ok(new { Message = "User registered successfully" });
             }
             catch (Exception ex)
@@ -84,7 +86,7 @@ namespace Nostromo.Server.API.Controllers
                     return BadRequest(new { Message = "Username and password are required" });
                 }
 
-                var user = await _databaseService.FindUserByUsernameAsync(loginRequest.username);
+                var user =  await userRepository.FindByUsernameAsync(loginRequest.username);
 
                 if (user == null)
                 {
@@ -101,13 +103,14 @@ namespace Nostromo.Server.API.Controllers
                 }
 
                 _logger.LogInformation("User logged in successfully: {Username}", user.Username);
+                var token = authTokenRepository.CreateToken(user);
+                
                 return Ok(new
                 {
+                    
                     Message = "User logged in successfully",
-                    User = new
-                    {
-                        Username = user.Username,
-                    }
+                    token = token
+                    
                 });
             }
             catch (Exception ex)
@@ -124,6 +127,7 @@ namespace Nostromo.Server.API.Controllers
         public string password { get; set; }
         public string first_Name { get; set; }
         public string last_Name { get; set; }
+        public bool isAdmin { get; set; }
     }
 
     public class LoginRequest

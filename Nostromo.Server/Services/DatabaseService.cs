@@ -18,6 +18,8 @@ namespace Nostromo.Server.Services
         Task<int?> GetMovieIdByHashAsync(string hash);
         Task<int?> GetVideoIdByHashAsync(string fileHash);
         Task InsertCrossRefAsync(CrossRefVideoTMDBMovie crossRefModel);
+        Task<List<TMDBMovie>> GetFilterMediaGenre(List<int> genresID);
+        Task<List<TMDBMovie>> movieRatingsSorted();
     }
 
     public class DatabaseService : IDatabaseService
@@ -207,6 +209,47 @@ namespace Nostromo.Server.Services
                 _logger.LogError(ex, "Error searching movies with title: {Title}", title);
                 throw;
             }
+        }
+        public async Task<List<TMDBMovie>> GetFilterMediaGenre(List<int> genresID)
+        {
+            try
+            {
+            
+                var allMovies = await _movieRepository.SearchGenreAsync(genresID);
+
+                // Filter duplicates based on TMDBID
+                var filteredMovies = allMovies
+                    .GroupBy(movie => movie.TMDBID)
+                    .Select(group => group.First())
+                    .ToList();
+
+                return filteredMovies;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while filtering movies by genres.");
+                throw; 
+            }
+        }
+        public async Task<List<TMDBMovie>> movieRatingsSorted()
+        {
+
+            try
+            {
+
+                var allMovies = await _movieRepository.SortMovieByRatings();
+
+
+                return allMovies.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while grabbing movie ratings.");
+                throw;
+            }
+
+
+
         }
     }
 }

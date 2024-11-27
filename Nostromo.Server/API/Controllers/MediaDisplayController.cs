@@ -120,5 +120,69 @@ namespace Nostromo.Server.API.Controllers
                 return StatusCode(500, new { Message = "An error occurred while retrieving the movie" });
             }
         }
+        [HttpGet("{id}")]
+   
+        [HttpGet("filtered-genre")]
+        public async Task<ActionResult<List<TmdbMovie>>> GetFilteredGenre([FromQuery] List<int> genres)
+        {
+            try
+            {
+                var movies = await _databaseService.GetFilterMediaGenre(genres);
+                if (movies == null)
+                {
+                    return NotFound(new { Message = $"Movie with genreID {genres} not found" });
+                }
+                List<TmdbMovie> tmbdMovie = new List<TmdbMovie>();
+                foreach (var movie in movies)
+                {
+                    var result = new TmdbMovie
+                    {
+                        id = movie.MovieID,
+                        title = movie.Title,
+                        originalTitle = movie.OriginalTitle,
+                        overview = movie.Overview,
+                        posterPath = movie.PosterPath,
+                        backdropPath = movie.BackdropPath,
+                        releaseDate = movie.ReleaseDate,
+                        adult = movie.IsAdult,
+                        popularity = Convert.ToSingle(movie.Popularity),
+                        voteCount = movie.VoteCount,
+                        voteAverage = Convert.ToSingle(movie.VoteAverage),
+                        runtime = movie.Runtime,
+                        genreIds = movie.Genres?.Select(g => g.GenreID).ToList() ?? new List<int>()
+                    };
+                    tmbdMovie.Add(result);
+                }
+
+
+                return Ok(tmbdMovie);
+            }
+            catch (Exception ex)
+            {
+                
+                return StatusCode(500, new { Message = "An error occurred while retrieving the movie" });
+            }
+        }
+        [HttpGet("filtered-highestRatings")]
+        public async Task<ActionResult<List<TmdbMovie>>> highestRatings()
+        {
+
+            try
+            {
+                List<TMDBMovie> tmbdMovie = new List<TMDBMovie>();
+                tmbdMovie = await _databaseService.movieRatingsSorted();
+             
+                
+
+
+                return Ok(tmbdMovie);
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, new { Message = "An error occurred while retrieving the movie" });
+            }
+
+        }
     }
 }
