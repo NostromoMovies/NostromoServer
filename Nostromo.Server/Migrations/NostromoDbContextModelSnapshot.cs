@@ -17,6 +17,30 @@ namespace Nostromo.Server.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
 
+            modelBuilder.Entity("Nostromo.Server.Database.AuthToken", b =>
+                {
+                    b.Property<int>("AuthId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DeviceName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("AuthId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AuthTokens");
+                });
+
             modelBuilder.Entity("Nostromo.Server.Database.CrossRefVideoTMDBMovie", b =>
                 {
                     b.Property<int>("CrossRefVideoTMDBMovieID")
@@ -391,6 +415,17 @@ namespace Nostromo.Server.Migrations
                     b.HasIndex("VideoID");
 
                     b.ToTable("VideoPlaces");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.AuthToken", b =>
+                {
+                    b.HasOne("Nostromo.Server.Database.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.CrossRefVideoTMDBMovie", b =>

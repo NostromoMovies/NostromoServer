@@ -15,6 +15,7 @@ namespace Nostromo.Server.Database
         public DbSet<TMDBMovie> Movies { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<AuthToken> AuthTokens { get; set; }
         public DbSet<Video> Videos { get; set; }
         public DbSet<VideoPlace> VideoPlaces { get; set; }
         public DbSet<ImportFolder> ImportFolders { get; set; }
@@ -72,6 +73,18 @@ namespace Nostromo.Server.Database
                 entity.Property(e => e.PasswordHash).IsRequired();
                 entity.Property(e => e.IsAdmin);
                 entity.Property(e => e.CreatedAt);
+            });
+
+            modelBuilder.Entity<AuthToken>(entity =>
+            {
+                entity.HasKey(e => e.AuthId);
+                entity.Property(e => e.Token).IsRequired();
+                entity.Property(e => e.UserId).IsRequired();
+                entity.Property(e => e.DeviceName);
+
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId);
             });
 
             modelBuilder.Entity<Video>(entity =>
@@ -237,6 +250,15 @@ namespace Nostromo.Server.Database
         public string PasswordHash { get; set; }
         public bool IsAdmin { get; set; }
         public DateTime CreatedAt { get; set; }
+    }
+
+    public class AuthToken
+    {
+        public int AuthId { get; set; }
+        public int UserId { get; set; }
+        public string DeviceName { get; set; }
+        public string Token { get; set; }
+        public virtual User User { get; set; }
     }
 
     public class Video
