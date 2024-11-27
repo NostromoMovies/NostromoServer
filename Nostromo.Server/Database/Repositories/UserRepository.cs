@@ -13,7 +13,7 @@ public class UserRepository : Repository<User>, IUserRepository
         return await Query()
             .FirstOrDefaultAsync(u => u.Username == username);
     }
-
+    // example
     // Note: no need to implement CRUD operations - they come from Repository<User>
 
     public override async Task<User> AddAsync(User user)
