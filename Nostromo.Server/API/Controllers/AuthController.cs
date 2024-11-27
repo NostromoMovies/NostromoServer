@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Nostromo.Models;
 using Nostromo.Server.Services;
 using Nostromo.Server.Database;
+using Nostromo.Server.Database.Repositories;
 
 namespace Nostromo.Server.API.Controllers
 {
@@ -15,6 +16,8 @@ namespace Nostromo.Server.API.Controllers
         private readonly HttpClient _httpClient;
         private readonly IDatabaseService _databaseService;
         private readonly ILogger<AuthController> _logger;
+        private readonly AuthTokenRepository authTokenRepository;
+        private readonly UserRepository userRepository;
 
         public AuthController(
             HttpClient httpClient,
