@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 
 namespace Nostromo.Server.Utilities.FileSystemWatcher;
-// --------------------------------------------------------------------------------------------------------------------------
+
 public class RecoveringFileSystemWatcher : IDisposable
 {
     private System.IO.FileSystemWatcher _watcher;
@@ -11,6 +11,9 @@ public class RecoveringFileSystemWatcher : IDisposable
 
     public event EventHandler<string> FileAdded;
     public event EventHandler<string> FileDeleted;
+
+    // Expose the path via a public property
+    public string Path => _path;
 
     public RecoveringFileSystemWatcher(string path)
     {
@@ -28,11 +31,11 @@ public class RecoveringFileSystemWatcher : IDisposable
             _watcher ??= InitWatcher();
         }
     }
+
     public void Dispose()
     {
         if (_watcher != null)
         {
-            //process watcher
             _watcher.Dispose();
         }
     }
@@ -48,7 +51,6 @@ public class RecoveringFileSystemWatcher : IDisposable
         };
 
         watcher.Created += (s, e) => FileAdded?.Invoke(this, e.FullPath);
-        //watcher.Changed += (s, e) => FileAdded?.Invoke(this, e.FullPath);
         watcher.Deleted += (s, e) => FileDeleted?.Invoke(this, e.FullPath);
 
         watcher.EnableRaisingEvents = true;

@@ -31,8 +31,23 @@ public class HashFileJob : BaseJob
 
         try
         {
+            _logger.LogInformation("HashFileJob started for {FilePath}", filePath);
+
+            // Check if file exists
+            if (!File.Exists(filePath))
+            {
+                _logger.LogWarning("File not found: {FilePath}. Skipping job.", filePath);
+                return;
+            }
+
+            // Log file details
+            var fileInfo = new FileInfo(filePath);
+            _logger.LogDebug("File details - Name: {FileName}, Size: {FileSize} bytes, LastModified: {LastModified}",
+                fileInfo.Name, fileInfo.Length, fileInfo.LastWriteTime);
+
             _logger.LogInformation("Starting hash calculation for {FilePath}", filePath);
 
+            // Hashing process
             var result = await NativeHasher.CalculateHashesAsync(
                 filePath,
                 (filename, progress) =>
@@ -42,18 +57,25 @@ public class HashFileJob : BaseJob
                 Context.CancellationToken
             );
 
-            // Check if we already have this file in the database
+            _logger.LogInformation(
+                "Hash calculation completed for {FilePath}. MD5: {MD5}, SHA1: {SHA1}, CRC32: {CRC32}, ED2K: {ED2K}",
+                filePath, result.MD5, result.SHA1, result.CRC32, result.ED2K);
+
+            // Check if file already exists in the database
+            _logger.LogDebug("Checking database for existing entry for {FilePath}", filePath);
             var fileName = Path.GetFileName(filePath);
             var existingVideo = await _dbContext.Videos
                 .FirstOrDefaultAsync(v => v.FileName == fileName &&
-                                        v.ED2K == result.ED2K &&
-                                        v.MD5 == result.MD5 &&
-                                        v.SHA1 == result.SHA1 &&
-                                        v.CRC32 == result.CRC32,
-                                   Context.CancellationToken);
+                                          v.ED2K == result.ED2K &&
+                                          v.MD5 == result.MD5 &&
+                                          v.SHA1 == result.SHA1 &&
+                                          v.CRC32 == result.CRC32,
+                                      Context.CancellationToken);
 
             if (existingVideo == null)
             {
+                _logger.LogInformation("No existing database entry found for {FilePath}. Adding new entry.", filePath);
+
                 // Create new video entry
                 var video = new Video
                 {
@@ -68,7 +90,7 @@ public class HashFileJob : BaseJob
                 await _dbContext.SaveChangesAsync(Context.CancellationToken);
 
                 _logger.LogInformation(
-                    "File hashed and saved to database: {FilePath}\nMD5: {MD5}\nSHA1: {SHA1}\nCRC32: {CRC32}\nED2K: {ED2K}\nTime: {Time:N2}s",
+                    "File successfully hashed and saved to database: {FilePath}\nMD5: {MD5}\nSHA1: {SHA1}\nCRC32: {CRC32}\nED2K: {ED2K}\nTime: {Time:N2}s",
                     filePath,
                     result.MD5,
                     result.SHA1,
@@ -80,19 +102,19 @@ public class HashFileJob : BaseJob
             else
             {
                 _logger.LogInformation(
-                    "File hash already exists in database: {FilePath}",
+                    "File hash already exists in the database for {FilePath}. Skipping save.",
                     filePath
                 );
             }
         }
         catch (OperationCanceledException) when (Context.CancellationToken.IsCancellationRequested)
         {
-            _logger.LogInformation("Hash calculation cancelled for {FilePath}", filePath);
+            _logger.LogWarning("Hash calculation was cancelled for {FilePath}", filePath);
             throw;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing file: {FilePath}", filePath);
+            _logger.LogError(ex, "An error occurred while processing file: {FilePath}", filePath);
             throw;
         }
     }

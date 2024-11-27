@@ -22,6 +22,7 @@ namespace Nostromo.Server.Database
         public DbSet<TMDBMovieCast> MovieCasts { get; set; }
         public DbSet<TMDBPerson> People { get; set; }
         public DbSet<CrossRefVideoTMDBMovie> CrossRefVideoTMDBMovies { get; set; }
+        public DbSet<ExampleHash> ExampleHash { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -146,13 +147,16 @@ namespace Nostromo.Server.Database
                 entity.HasKey(e => e.CrossRefVideoTMDBMovieID);
 
                 entity.HasOne(e => e.Video)
-                      .WithMany()
-                      .HasForeignKey(e => e.VideoID);
+                      .WithMany() // Assuming no navigation property in Video
+                      .HasForeignKey(e => e.VideoID)
+                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(e => e.TMDBMovie)
-                      .WithMany()
-                      .HasForeignKey(e => e.TMDBMovieID);
+                      .WithMany() // Assuming no navigation property in TMDBMovie
+                      .HasForeignKey(e => e.TMDBMovieID)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
+
 
             modelBuilder.Entity<ExampleHash>(entity =>
             {
