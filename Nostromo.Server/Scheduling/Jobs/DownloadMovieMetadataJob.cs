@@ -6,6 +6,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Nostromo.Server.Services;
 using Nostromo.Models;
+using Nostromo.Server.Database;
 
 namespace Nostromo.Server.Scheduling.Jobs
 {
@@ -39,7 +40,6 @@ namespace Nostromo.Server.Scheduling.Jobs
 
         public override async Task ProcessJob()
         {
-            // Retrieve the hash from the JobDataMap
             var fileHash = Context.JobDetail.JobDataMap.GetString(HASH_KEY);
             if (string.IsNullOrWhiteSpace(fileHash))
             {
@@ -51,7 +51,17 @@ namespace Nostromo.Server.Scheduling.Jobs
 
             try
             {
-                // Step 1: Check the hash in the ExampleHashes table
+                // Step 1: Retrieve VideoID from hash
+                var videoId = await _databaseService.GetVideoIdByHashAsync(fileHash);
+                if (videoId == null)
+                {
+                    _logger.LogWarning("No video found in Videos table for hash: {FileHash}", fileHash);
+                    return;
+                }
+
+                _logger.LogInformation("Found VideoID {VideoID} for hash: {FileHash}", videoId, fileHash);
+
+                // Step 2: Retrieve MovieID from hash
                 var movieId = await _databaseService.GetMovieIdByHashAsync(fileHash);
                 if (movieId == null)
                 {
@@ -61,7 +71,7 @@ namespace Nostromo.Server.Scheduling.Jobs
 
                 _logger.LogInformation("Found MovieID {MovieID} for hash: {FileHash}", movieId, fileHash);
 
-                // Step 2: Fetch metadata from TMDB
+                // Step 3: Fetch metadata from TMDB
                 var movieUrl = $"{_tmdbBaseUrl}/movie/{movieId}?api_key={_tmdbApiKey}";
                 var movie = await _httpClient.GetFromJsonAsync<TmdbMovie>(movieUrl);
 
@@ -71,15 +81,40 @@ namespace Nostromo.Server.Scheduling.Jobs
                     return;
                 }
 
-                // Step 3: Save movie details to the database
-                await _databaseService.InsertMovieAsync(movie);
-                _logger.LogInformation("Movie metadata saved to database for MovieID: {MovieID}", movieId);
+                // Step 4: Save movie metadata to the database
+                try
+                {
+                    await _databaseService.InsertMovieAsync(movie);
+                    _logger.LogInformation("Movie metadata saved to database for MovieID: {MovieID}", movieId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error inserting movie metadata into database for MovieID: {MovieID}", movieId);
+                    return;
+                }
+
+                // Step 5: Save cross-reference entry
+                try
+                {
+                    var crossRef = new CrossRefVideoTMDBMovie
+                    {
+                        TMDBMovieID = movieId.Value,
+                        VideoID = videoId.Value
+                    };
+
+                    await _databaseService.InsertCrossRefAsync(crossRef);
+                    _logger.LogInformation("Linked TMDBMovieID {TMDBMovieID} to VideoID {VideoID}", movieId, videoId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating cross-reference for TMDBMovieID: {TMDBMovieID} and VideoID: {VideoID}", movieId, videoId);
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing metadata for file hash: {FileHash}", fileHash);
-                throw;
+                _logger.LogError(ex, "Unhandled error processing metadata for file hash: {FileHash}", fileHash);
             }
         }
+
     }
 }

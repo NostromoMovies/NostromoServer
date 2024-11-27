@@ -147,13 +147,16 @@ namespace Nostromo.Server.Database
                 entity.HasKey(e => e.CrossRefVideoTMDBMovieID);
 
                 entity.HasOne(e => e.Video)
-                      .WithMany()
-                      .HasForeignKey(e => e.VideoID);
+                      .WithMany() // Assuming no navigation property in Video
+                      .HasForeignKey(e => e.VideoID)
+                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(e => e.TMDBMovie)
-                      .WithMany()
-                      .HasForeignKey(e => e.TMDBMovieID);
+                      .WithMany() // Assuming no navigation property in TMDBMovie
+                      .HasForeignKey(e => e.TMDBMovieID)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
+
 
             modelBuilder.Entity<ExampleHash>(entity =>
             {

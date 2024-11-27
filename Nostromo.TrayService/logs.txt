@@ -1,126 +1,17 @@
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj : warning NU1504: Duplicate 'PackageReference' items found. Remove the duplicate items or use the Update functionality to ensure a consistent restore behavior. The duplicate 'PackageReference' items are: Quartz.Extensions.DependencyInjection 3.13.1, Quartz.Extensions.DependencyInjection 3.13.1; Quartz 3.13.1, Quartz 3.13.1.
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj : warning NU1903: Package 'System.Formats.Asn1' 5.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-447r-wph3-92pm [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.TrayService\Nostromo.TrayService.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.TrayService\Nostromo.TrayService.csproj : warning NU1903: Package 'System.Formats.Asn1' 5.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-447r-wph3-92pm
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.TrayService\Nostromo.TrayService.csproj : warning NU1903: Package 'System.Net.Http' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7jgj-8wvc-jh57
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj : warning NU1903: Package 'System.Net.Http' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7jgj-8wvc-jh57 [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.TrayService\Nostromo.TrayService.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.TrayService\Nostromo.TrayService.csproj : warning NU1903: Package 'System.Text.RegularExpressions' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-cmhx-cq75-c4mj
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj : warning NU1903: Package 'System.Text.RegularExpressions' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-cmhx-cq75-c4mj [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.TrayService\Nostromo.TrayService.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.TrayService\Nostromo.TrayService.csproj : warning NU1903: Package 'System.Formats.Asn1' 5.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-447r-wph3-92pm
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.TrayService\Nostromo.TrayService.csproj : warning NU1903: Package 'System.Net.Http' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7jgj-8wvc-jh57
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.TrayService\Nostromo.TrayService.csproj : warning NU1903: Package 'System.Text.RegularExpressions' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-cmhx-cq75-c4mj
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj : warning NU1504: Duplicate 'PackageReference' items found. Remove the duplicate items or use the Update functionality to ensure a consistent restore behavior. The duplicate 'PackageReference' items are: Quartz.Extensions.DependencyInjection 3.13.1, Quartz.Extensions.DependencyInjection 3.13.1; Quartz 3.13.1, Quartz 3.13.1.
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj : warning NU1903: Package 'System.Formats.Asn1' 5.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-447r-wph3-92pm
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj : warning NU1903: Package 'System.Net.Http' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7jgj-8wvc-jh57
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj : warning NU1903: Package 'System.Text.RegularExpressions' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-cmhx-cq75-c4mj
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\HashFileJob.cs(15,43): warning CS0108: 'HashFileJob._logger' hides inherited member 'BaseJob._logger'. Use the new keyword if hiding was intended. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\ProcessVideoJob.cs(15,47): warning CS0108: 'ProcessVideoJob._logger' hides inherited member 'BaseJob._logger'. Use the new keyword if hiding was intended. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\DownloadMovieMetadataJob.cs(15,60): warning CS0108: 'DownloadMovieMetadataJob._logger' hides inherited member 'BaseJob._logger'. Use the new keyword if hiding was intended. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\FileHelper\NativeHasher.cs(187,43): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\TmdbGenre.cs(5,19): warning CS8618: Non-nullable property 'name' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\AuthModels.cs(5,23): warning CS8618: Non-nullable property 'Username' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\AuthModels.cs(6,23): warning CS8618: Non-nullable property 'Password' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\AuthModels.cs(24,23): warning CS8618: Non-nullable property 'Username' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(321,23): warning CS8618: Non-nullable property 'Title' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(323,23): warning CS8618: Non-nullable property 'ED2K' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\AuthModels.cs(11,23): warning CS8618: Non-nullable property 'Username' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\AuthModels.cs(12,23): warning CS8618: Non-nullable property 'Password' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\AuthModels.cs(17,23): warning CS8618: Non-nullable property 'Token' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\AuthModels.cs(18,24): warning CS8618: Non-nullable property 'User' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\Users.cs(8,19): warning CS8618: Non-nullable property 'first_name' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\Users.cs(9,19): warning CS8618: Non-nullable property 'last_name' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\Users.cs(10,19): warning CS8618: Non-nullable property 'username' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\Users.cs(11,19): warning CS8618: Non-nullable property 'passwordHash' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\Users.cs(12,19): warning CS8618: Non-nullable property 'salt' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(217,23): warning CS8618: Non-nullable property 'Name' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(310,30): warning CS8618: Non-nullable property 'Video' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(311,34): warning CS8618: Non-nullable property 'TMDBMovie' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(225,34): warning CS8618: Non-nullable property 'Movie' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(226,30): warning CS8618: Non-nullable property 'Genre' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(232,23): warning CS8618: Non-nullable property 'Username' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(233,23): warning CS8618: Non-nullable property 'Salt' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(234,23): warning CS8618: Non-nullable property 'PasswordHash' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\TmdbMovie.cs(7,19): warning CS8618: Non-nullable property 'posterPath' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\TmdbMovie.cs(11,19): warning CS8618: Non-nullable property 'overview' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\TmdbMovie.cs(13,19): warning CS8618: Non-nullable property 'releaseDate' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\TmdbMovie.cs(16,19): warning CS8618: Non-nullable property 'OriginalLanguage' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\TmdbMovie.cs(19,22): warning CS8618: Non-nullable property 'genreIds' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\TmdbMovie.cs(23,19): warning CS8618: Non-nullable property 'originalTitle' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\TmdbMovie.cs(25,19): warning CS8618: Non-nullable property 'title' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Models\TmdbMovie.cs(27,19): warning CS8618: Non-nullable property 'backdropPath' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Controllers\AuthController.cs(120,23): warning CS8618: Non-nullable property 'username' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Controllers\AuthController.cs(121,23): warning CS8618: Non-nullable property 'password' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Controllers\AuthController.cs(122,23): warning CS8618: Non-nullable property 'first_Name' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Controllers\AuthController.cs(123,23): warning CS8618: Non-nullable property 'last_Name' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(299,23): warning CS8618: Non-nullable property 'FolderLocation' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Controllers\AuthController.cs(128,23): warning CS8618: Non-nullable property 'username' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\API\Controllers\AuthController.cs(129,23): warning CS8618: Non-nullable property 'password' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(256,23): warning CS8618: Non-nullable property 'FilePath' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(259,30): warning CS8618: Non-nullable property 'Video' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(194,23): warning CS8618: Non-nullable property 'Title' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(195,23): warning CS8618: Non-nullable property 'Overview' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(196,23): warning CS8618: Non-nullable property 'OriginalTitle' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(197,23): warning CS8618: Non-nullable property 'OriginalLanguage' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(206,23): warning CS8618: Non-nullable property 'ReleaseDate' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(207,23): warning CS8618: Non-nullable property 'PosterPath' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(208,23): warning CS8618: Non-nullable property 'BackdropPath' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(242,23): warning CS8618: Non-nullable property 'FileName' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(243,23): warning CS8618: Non-nullable property 'ED2K' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(244,23): warning CS8618: Non-nullable property 'CRC32' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(245,23): warning CS8618: Non-nullable property 'MD5' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(246,23): warning CS8618: Non-nullable property 'SHA1' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(265,23): warning CS8618: Non-nullable property 'FilePath1' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(266,23): warning CS8618: Non-nullable property 'FilePath2' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\FileHelper\NativeHasher.cs(15,23): warning CS8618: Non-nullable property 'ED2K' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\FileHelper\NativeHasher.cs(16,23): warning CS8618: Non-nullable property 'CRC32' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\FileHelper\NativeHasher.cs(17,23): warning CS8618: Non-nullable property 'MD5' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\FileHelper\NativeHasher.cs(18,23): warning CS8618: Non-nullable property 'SHA1' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(276,23): warning CS8618: Non-nullable property 'CharacterName' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(284,23): warning CS8618: Non-nullable property 'EnglishName' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(285,23): warning CS8618: Non-nullable property 'EnglishBio' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(286,23): warning CS8618: Non-nullable property 'Alias' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\NostromoDBContext.cs(290,23): warning CS8618: Non-nullable property 'PlaceOfBirth' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\DownloadImageBaseJob.cs(19,16): warning CS8618: Non-nullable property 'RemoteURL' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\DownloadImageBaseJob.cs(19,16): warning CS8618: Non-nullable property 'RemotePath' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\DownloadImageBaseJob.cs(19,16): warning CS8618: Non-nullable property 'SavePath' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\DownloadImageBaseJob.cs(24,36): warning CS1998: This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\BaseJob.cs(21,26): warning CS0168: The variable 'ex' is declared but never used [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\BaseJob.cs(12,36): warning CS8618: Non-nullable property 'Context' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Server\Startup.cs(121,12): warning CS8618: Non-nullable field '_serviceProvider' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Server\Startup.cs(121,12): warning CS8618: Non-nullable field '_webHost' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\Repositories\UserRepository.cs(18,16): warning CS8603: Possible null reference return. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\Repositories\MovieRepository.cs(16,16): warning CS8603: Possible null reference return. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Database\Repositories\UserRepository.cs(24,16): warning CS8603: Possible null reference return. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Settings\SettingsProvider.cs(26,26): warning CS0618: 'Extensions.DeepClone<T>(T)' is obsolete: 'Please do not use this method. It will be removed in a future version.' [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Settings\SettingsProvider.cs(26,26): warning CS8603: Possible null reference return. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Settings\SettingsProvider.cs(27,16): warning CS8603: Possible null reference return. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Utilities\FileSystemWatcher\RecoveringFileSystemWatcher.cs(18,12): warning CS8618: Non-nullable field '_watcher' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Utilities\FileSystemWatcher\RecoveringFileSystemWatcher.cs(18,12): warning CS8618: Non-nullable event 'FileAdded' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the event as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Utilities\FileSystemWatcher\RecoveringFileSystemWatcher.cs(18,12): warning CS8618: Non-nullable event 'FileDeleted' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the event as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Settings\SettingsProvider.cs(16,36): warning CS8618: Non-nullable property 'Instance' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Utilities\INotifyPropertyChangedExtensions.cs(34,36): warning CS8600: Converting null literal or possible null value to non-nullable type. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Utilities\INotifyPropertyChangedExtensions.cs(42,36): warning CS8600: Converting null literal or possible null value to non-nullable type. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Settings\ServerSettings.cs(9,24): warning CS8618: Non-nullable field '_imagesPath' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Utilities\INotifyPropertyChangedExtensions.cs(62,20): warning CS8603: Possible null reference return. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Server\Startup.cs(180,13): warning CS8604: Possible null reference argument for parameter 'tmdbApiKey' in 'DownloadMovieMetadataJob.DownloadMovieMetadataJob(ILogger<DownloadMovieMetadataJob> logger, HttpClient httpClient, IDatabaseService databaseService, string tmdbApiKey, string tmdbBaseUrl)'. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Server\Startup.cs(181,13): warning CS8604: Possible null reference argument for parameter 'tmdbBaseUrl' in 'DownloadMovieMetadataJob.DownloadMovieMetadataJob(ILogger<DownloadMovieMetadataJob> logger, HttpClient httpClient, IDatabaseService databaseService, string tmdbApiKey, string tmdbBaseUrl)'. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\DownloadTmdbImageJob.cs(47,30): warning CS8601: Possible null reference assignment. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\DownloadTmdbImageJob.cs(52,17): warning CS8604: Possible null reference argument for parameter 'logger' in 'void LoggerExtensions.LogInformation(ILogger logger, string? message, params object?[] args)'. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\DownloadTmdbImageJob.cs(53,86): warning CS8602: Dereference of a possibly null reference. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\DownloadTmdbImageJob.cs(59,17): warning CS8604: Possible null reference argument for parameter 'logger' in 'void LoggerExtensions.LogError(ILogger logger, Exception? exception, string? message, params object?[] args)'. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Utilities\Utils.cs(20,46): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Utilities\Utils.cs(47,58): warning CS8602: Dereference of a possibly null reference. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Utilities\Utils.cs(47,58): warning CS8601: Possible null reference assignment. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Utilities\Utils.cs(14,34): warning CS8618: Non-nullable property 'NostromoServer' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Utilities\Utils.cs(15,36): warning CS8618: Non-nullable property 'ServiceContainer' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Utilities\Utils.cs(16,37): warning CS8618: Non-nullable property 'SettingsProvider' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\FileHelper\NativeHasher.cs(241,49): warning CS8604: Possible null reference argument for parameter 'value' in 'string BitConverter.ToString(byte[] value)'. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\FileHelper\NativeHasher.cs(242,50): warning CS8604: Possible null reference argument for parameter 'value' in 'string BitConverter.ToString(byte[] value)'. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\ProcessVideoJob.cs(75,20): warning CS8603: Possible null reference return. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Server\Startup.cs(299,20): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\ProcessVideoJob.cs(101,31): warning CS8600: Converting null literal or possible null value to non-nullable type. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Scheduling\Jobs\ProcessVideoJob.cs(127,16): warning CS8603: Possible null reference return. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Server\NostromoServer.cs(15,34): warning CS0169: The field 'NostromoServer._startTime' is never used [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.Server\Nostromo.Server.csproj]
-C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.TrayService\App.xaml.cs(17,35): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\n5980\Desktop\NostromoServer-main\Nostromo.TrayService\Nostromo.TrayService.csproj]
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.Server\Nostromo.Server.csproj : warning NU1504: Duplicate 'PackageReference' items found. Remove the duplicate items or use the Update functionality to ensure a consistent restore behavior. The duplicate 'PackageReference' items are: Quartz.Extensions.DependencyInjection 3.13.1, Quartz.Extensions.DependencyInjection 3.13.1; Quartz 3.13.1, Quartz 3.13.1.
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.Server\Nostromo.Server.csproj : warning NU1903: Package 'System.Formats.Asn1' 5.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-447r-wph3-92pm [C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.TrayService\Nostromo.TrayService.csproj]
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.TrayService\Nostromo.TrayService.csproj : warning NU1903: Package 'System.Formats.Asn1' 5.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-447r-wph3-92pm
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.Server\Nostromo.Server.csproj : warning NU1903: Package 'System.Net.Http' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7jgj-8wvc-jh57 [C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.TrayService\Nostromo.TrayService.csproj]
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.Server\Nostromo.Server.csproj : warning NU1903: Package 'System.Text.RegularExpressions' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-cmhx-cq75-c4mj [C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.TrayService\Nostromo.TrayService.csproj]
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.TrayService\Nostromo.TrayService.csproj : warning NU1903: Package 'System.Net.Http' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7jgj-8wvc-jh57
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.TrayService\Nostromo.TrayService.csproj : warning NU1903: Package 'System.Text.RegularExpressions' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-cmhx-cq75-c4mj
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.TrayService\Nostromo.TrayService.csproj : warning NU1903: Package 'System.Formats.Asn1' 5.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-447r-wph3-92pm
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.TrayService\Nostromo.TrayService.csproj : warning NU1903: Package 'System.Net.Http' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7jgj-8wvc-jh57
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.TrayService\Nostromo.TrayService.csproj : warning NU1903: Package 'System.Text.RegularExpressions' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-cmhx-cq75-c4mj
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.Server\Nostromo.Server.csproj : warning NU1504: Duplicate 'PackageReference' items found. Remove the duplicate items or use the Update functionality to ensure a consistent restore behavior. The duplicate 'PackageReference' items are: Quartz.Extensions.DependencyInjection 3.13.1, Quartz.Extensions.DependencyInjection 3.13.1; Quartz 3.13.1, Quartz 3.13.1.
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.Server\Nostromo.Server.csproj : warning NU1903: Package 'System.Formats.Asn1' 5.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-447r-wph3-92pm
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.Server\Nostromo.Server.csproj : warning NU1903: Package 'System.Net.Http' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7jgj-8wvc-jh57
+C:\Users\n5980\Downloads\2\NostromoServer-get-metadata-job\Nostromo.Server\Nostromo.Server.csproj : warning NU1903: Package 'System.Text.RegularExpressions' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-cmhx-cq75-c4mj
 ]9;4;3;\]9;4;0;\dbug: Microsoft.EntityFrameworkCore.Infrastructure[10401]
       An 'IServiceProvider' was created for internal use by Entity Framework.
 dbug: Microsoft.EntityFrameworkCore.Model[10601]
@@ -209,11 +100,11 @@ dbug: Microsoft.EntityFrameworkCore.Database.Command[20106]
       Initialized DbCommand for 'ExecuteScalar' (0ms).
 dbug: Microsoft.EntityFrameworkCore.Database.Command[20100]
       Executing DbCommand [Parameters=[], CommandType='Text', CommandTimeout='30']
-      INSERT OR IGNORE INTO "__EFMigrationsLock"("Id", "Timestamp") VALUES(1, '2024-11-26 13:29:53.2254758+00:00');
+      INSERT OR IGNORE INTO "__EFMigrationsLock"("Id", "Timestamp") VALUES(1, '2024-11-27 01:21:18.929876+00:00');
       SELECT changes();
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
-      INSERT OR IGNORE INTO "__EFMigrationsLock"("Id", "Timestamp") VALUES(1, '2024-11-26 13:29:53.2254758+00:00');
+      INSERT OR IGNORE INTO "__EFMigrationsLock"("Id", "Timestamp") VALUES(1, '2024-11-27 01:21:18.929876+00:00');
       SELECT changes();
 dbug: Microsoft.EntityFrameworkCore.Database.Command[20103]
       Creating DbCommand for 'ExecuteNonQuery'.
@@ -280,7 +171,7 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
 dbug: Microsoft.EntityFrameworkCore.Database.Command[20301]
       Closing data reader to 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Command[20300]
-      A data reader for 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' is being disposed after spending 2ms reading results.
+      A data reader for 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' is being disposed after spending 1ms reading results.
 info: Microsoft.EntityFrameworkCore.Migrations[20402]
       Applying migration '20241125073810_InitialCreate'.
 dbug: Microsoft.EntityFrameworkCore.Database.Command[20103]
@@ -761,8 +652,6 @@ dbug: Quartz.Core.QuartzSchedulerThread[0]
       Batch acquisition of 0 triggers
 dbug: Quartz.Core.QuartzSchedulerThread[0]
       Batch acquisition of 0 triggers
-dbug: Quartz.Core.QuartzSchedulerThread[0]
-      Batch acquisition of 0 triggers
 info: Nostromo.Server.Services.FileWatcherService[0]
       File change detected: C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv
 info: Nostromo.Server.Services.FileWatcherService[0]
@@ -811,16 +700,16 @@ dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 0%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 0%
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 0%
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 1%
 dbug: Microsoft.EntityFrameworkCore.Query[10111]
       Compiling query expression: 
       'DbSet<Video>()
           .AsNoTracking()
           .FirstOrDefault(v => v.FileName == __fileName_0)'
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 0%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 1%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 1%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 1%
@@ -878,6 +767,10 @@ dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 3%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 3%
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 4%
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 4%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 4%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
@@ -995,14 +888,14 @@ dbug: Microsoft.EntityFrameworkCore.Database.Command[20104]
       Created DbCommand for 'ExecuteReader' (0ms).
 dbug: Microsoft.EntityFrameworkCore.Database.Command[20106]
       Initialized DbCommand for 'ExecuteReader' (0ms).
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 4%
 dbug: Microsoft.EntityFrameworkCore.Database.Command[20100]
       Executing DbCommand [Parameters=[@__fileName_0='?' (Size = 69)], CommandType='Text', CommandTimeout='30']
       SELECT "v"."VideoID", "v"."CRC32", "v"."CreatedAt", "v"."ED2K", "v"."FileName", "v"."FileSize", "v"."MD5", "v"."SHA1", "v"."UpdatedAt"
       FROM "Videos" AS "v"
       WHERE "v"."FileName" = @__fileName_0
       LIMIT 1
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 4%
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       Executed DbCommand (2ms) [Parameters=[@__fileName_0='?' (Size = 69)], CommandType='Text', CommandTimeout='30']
       SELECT "v"."VideoID", "v"."CRC32", "v"."CreatedAt", "v"."ED2K", "v"."FileName", "v"."FileSize", "v"."MD5", "v"."SHA1", "v"."UpdatedAt"
@@ -1022,10 +915,6 @@ dbug: Nostromo.Server.Scheduling.ProcessVideoJob[0]
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 4%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 4%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 4%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 5%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 5%
@@ -2291,6 +2180,8 @@ dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 68%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 68%
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 69%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 69%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
@@ -2311,8 +2202,6 @@ dbug: Microsoft.EntityFrameworkCore.Database.Command[20104]
       Created DbCommand for 'ExecuteReader' (0ms).
 dbug: Microsoft.EntityFrameworkCore.Database.Command[20106]
       Initialized DbCommand for 'ExecuteReader' (0ms).
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 69%
 dbug: Microsoft.EntityFrameworkCore.Database.Command[20100]
       Executing DbCommand [Parameters=[@__fileName_0='?' (Size = 69)], CommandType='Text', CommandTimeout='30']
       SELECT "v"."VideoID", "v"."CRC32", "v"."CreatedAt", "v"."ED2K", "v"."FileName", "v"."FileSize", "v"."MD5", "v"."SHA1", "v"."UpdatedAt"
@@ -3055,8 +2944,6 @@ dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 22%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 23%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 24%
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20000]
       Opening connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20001]
@@ -3089,6 +2976,8 @@ dbug: Microsoft.EntityFrameworkCore.Database.Connection[20003]
       Closed connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' (0ms).
 dbug: Nostromo.Server.Scheduling.ProcessVideoJob[0]
       Hash not found for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv. Retrying in 2000ms...
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 24%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 25%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
@@ -3107,8 +2996,6 @@ dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 31%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 32%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 33%
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20000]
       Opening connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20001]
@@ -3141,6 +3028,8 @@ dbug: Microsoft.EntityFrameworkCore.Database.Connection[20003]
       Closed connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' (0ms).
 dbug: Nostromo.Server.Scheduling.ProcessVideoJob[0]
       Hash not found for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv. Retrying in 2000ms...
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 33%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 34%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
@@ -3161,8 +3050,6 @@ dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 42%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 42%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 43%
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20000]
       Opening connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20001]
@@ -3195,6 +3082,8 @@ dbug: Microsoft.EntityFrameworkCore.Database.Connection[20003]
       Closed connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' (0ms).
 dbug: Nostromo.Server.Scheduling.ProcessVideoJob[0]
       Hash not found for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv. Retrying in 2000ms...
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 43%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 44%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
@@ -3213,8 +3102,6 @@ dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 51%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 52%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 53%
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20000]
       Opening connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20001]
@@ -3247,6 +3134,8 @@ dbug: Microsoft.EntityFrameworkCore.Database.Connection[20003]
       Closed connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' (0ms).
 dbug: Nostromo.Server.Scheduling.ProcessVideoJob[0]
       Hash not found for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv. Retrying in 2000ms...
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 53%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 54%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
@@ -3265,8 +3154,6 @@ dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 60%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 61%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 62%
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20000]
       Opening connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20001]
@@ -3299,6 +3186,8 @@ dbug: Microsoft.EntityFrameworkCore.Database.Connection[20003]
       Closed connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' (0ms).
 dbug: Nostromo.Server.Scheduling.ProcessVideoJob[0]
       Hash not found for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv. Retrying in 2000ms...
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 62%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 63%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
@@ -3317,10 +3206,6 @@ dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 70%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 71%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 71%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 72%
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20000]
       Opening connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20001]
@@ -3353,6 +3238,10 @@ dbug: Microsoft.EntityFrameworkCore.Database.Connection[20003]
       Closed connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' (0ms).
 dbug: Nostromo.Server.Scheduling.ProcessVideoJob[0]
       Hash not found for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv. Retrying in 2000ms...
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 71%
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 72%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 73%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
@@ -3369,10 +3258,6 @@ dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 79%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 80%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 81%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 82%
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20000]
       Opening connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20001]
@@ -3405,6 +3290,10 @@ dbug: Microsoft.EntityFrameworkCore.Database.Connection[20003]
       Closed connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' (0ms).
 dbug: Nostromo.Server.Scheduling.ProcessVideoJob[0]
       Hash not found for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv. Retrying in 2000ms...
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 81%
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 82%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 83%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
@@ -3423,10 +3312,6 @@ dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 89%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 90%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 91%
-dbug: Nostromo.Server.Scheduling.HashFileJob[0]
-      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 92%
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20000]
       Opening connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20001]
@@ -3459,6 +3344,10 @@ dbug: Microsoft.EntityFrameworkCore.Database.Connection[20003]
       Closed connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' (0ms).
 dbug: Nostromo.Server.Scheduling.ProcessVideoJob[0]
       Hash not found for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv. Retrying in 2000ms...
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 91%
+dbug: Nostromo.Server.Scheduling.HashFileJob[0]
+      Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 92%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
       Hashing progress for C:\Users\n5980\Videos\test\Alien.1979.REMASTERED.DC.720p.BluRay.999MB.HQ.x265.10bit-GalaxyRG.mkv: 93%
 dbug: Nostromo.Server.Scheduling.HashFileJob[0]
@@ -3629,8 +3518,6 @@ dbug: Microsoft.EntityFrameworkCore.ChangeTracking[10800]
       DetectChanges starting for 'NostromoDbContext'.
 dbug: Microsoft.EntityFrameworkCore.ChangeTracking[10801]
       DetectChanges completed for 'NostromoDbContext'.
-dbug: Quartz.Core.QuartzSchedulerThread[0]
-      Batch acquisition of 0 triggers
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20000]
       Opening connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20001]
@@ -3647,7 +3534,7 @@ dbug: Microsoft.EntityFrameworkCore.Database.Command[20100]
       VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
       RETURNING "VideoID";
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 8), @p1='?' (DbType = DateTime), @p2='?' (Size = 32), @p3='?' (Size = 69), @p4='?' (DbType = Int64), @p5='?' (Size = 32), @p6='?' (Size = 40), @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[@p0='?' (Size = 8), @p1='?' (DbType = DateTime), @p2='?' (Size = 32), @p3='?' (Size = 69), @p4='?' (DbType = Int64), @p5='?' (Size = 32), @p6='?' (Size = 40), @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
       INSERT INTO "Videos" ("CRC32", "CreatedAt", "ED2K", "FileName", "FileSize", "MD5", "SHA1", "UpdatedAt")
       VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
       RETURNING "VideoID";
@@ -3656,7 +3543,7 @@ dbug: Microsoft.EntityFrameworkCore.ChangeTracking[10803]
 dbug: Microsoft.EntityFrameworkCore.Database.Command[20301]
       Closing data reader to 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Command[20300]
-      A data reader for 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' is being disposed after spending 6ms reading results.
+      A data reader for 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' is being disposed after spending 7ms reading results.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20002]
       Closing connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20003]
@@ -3671,7 +3558,7 @@ MD5: 6e8b38d7706001f40bed63bda0de13ad
 SHA1: e6413ad21d53bd0a764835699ab1727008f6b123
 CRC32: 0c69fa2a
 ED2K: 5d886780825db91bbc390f10f1b6c95c
-Time: 23.66s
+Time: 24.11s
 dbug: Quartz.Core.JobRunShell[0]
       Trigger instruction : DeleteTrigger
 dbug: Quartz.Simpl.RAMJobStore[0]
@@ -3740,10 +3627,89 @@ dbug: Quartz.Core.JobRunShell[0]
       Calling Execute on job ConsolidateGroup.MetadataJob_5d886780825db91bbc390f10f1b6c95c
 info: Nostromo.Server.Scheduling.Jobs.DownloadMovieMetadataJob[0]
       Starting metadata download for file hash: 5d886780825db91bbc390f10f1b6c95c
-info: Nostromo.Server.Services.DatabaseService[0]
-      Searching for MovieID with hash: 5d886780825db91bbc390f10f1b6c95c
 dbug: Microsoft.EntityFrameworkCore.Infrastructure[10403]
       Entity Framework Core 9.0.0 initialized 'NostromoDbContext' using provider 'Microsoft.EntityFrameworkCore.Sqlite:9.0.0' with options: None
+dbug: Microsoft.EntityFrameworkCore.Query[10111]
+      Compiling query expression: 
+      'DbSet<Video>()
+          .Where(v => v.ED2K == __fileHash_0 || v.MD5 == __fileHash_0 || v.SHA1 == __fileHash_0 || v.CRC32 == __fileHash_0)
+          .Select(v => (int?)v.VideoID)
+          .FirstOrDefault()'
+dbug: Microsoft.EntityFrameworkCore.Query[10107]
+      Generated query execution expression: 
+      'queryContext => ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync<int?>(
+          asyncEnumerable: SingleQueryingEnumerable.Create<int?>(
+              relationalQueryContext: (RelationalQueryContext)queryContext, 
+              relationalCommandResolver: parameters => [LIFTABLE Constant: RelationalCommandCache.QueryExpression(
+                  Projection Mapping:
+                      EmptyProjectionMember -> 0
+                  SELECT TOP(1) v.VideoID
+                  FROM Videos AS v
+                  WHERE (((v.ED2K == @__fileHash_0) || (v.MD5 == @__fileHash_0)) || (v.SHA1 == @__fileHash_0)) || (v.CRC32 == @__fileHash_0)) | Resolver: c => new RelationalCommandCache(
+                  c.Dependencies.MemoryCache, 
+                  c.RelationalDependencies.QuerySqlGeneratorFactory, 
+                  c.RelationalDependencies.RelationalParameterBasedSqlProcessorFactory, 
+                  Projection Mapping:
+                      EmptyProjectionMember -> 0
+                  SELECT TOP(1) v.VideoID
+                  FROM Videos AS v
+                  WHERE (((v.ED2K == @__fileHash_0) || (v.MD5 == @__fileHash_0)) || (v.SHA1 == @__fileHash_0)) || (v.CRC32 == @__fileHash_0), 
+                  False, 
+                  new HashSet<string>(
+                      new string[]{ }, 
+                      StringComparer.Ordinal
+                  )
+              )].GetRelationalCommandTemplate(parameters), 
+              readerColumns: null, 
+              shaper: (queryContext, dataReader, resultContext, resultCoordinator) => 
+              {
+                  int? value1;
+                  value1 = (int?)dataReader.GetInt32(0);
+                  return value1;
+              }, 
+              contextType: Nostromo.Server.Database.NostromoDbContext, 
+              standAloneStateManager: False, 
+              detailedErrorsEnabled: False, 
+              threadSafetyChecksEnabled: True), 
+          cancellationToken: queryContext.CancellationToken)'
+dbug: Microsoft.EntityFrameworkCore.Database.Connection[20005]
+      Creating DbConnection.
+dbug: Microsoft.EntityFrameworkCore.Database.Connection[20006]
+      Created DbConnection. (0ms).
+dbug: Microsoft.EntityFrameworkCore.Database.Connection[20000]
+      Opening connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
+dbug: Microsoft.EntityFrameworkCore.Database.Connection[20001]
+      Opened connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
+dbug: Microsoft.EntityFrameworkCore.Database.Command[20103]
+      Creating DbCommand for 'ExecuteReader'.
+dbug: Microsoft.EntityFrameworkCore.Database.Command[20104]
+      Created DbCommand for 'ExecuteReader' (0ms).
+dbug: Microsoft.EntityFrameworkCore.Database.Command[20106]
+      Initialized DbCommand for 'ExecuteReader' (0ms).
+dbug: Microsoft.EntityFrameworkCore.Database.Command[20100]
+      Executing DbCommand [Parameters=[@__fileHash_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
+      SELECT "v"."VideoID"
+      FROM "Videos" AS "v"
+      WHERE "v"."ED2K" = @__fileHash_0 OR "v"."MD5" = @__fileHash_0 OR "v"."SHA1" = @__fileHash_0 OR "v"."CRC32" = @__fileHash_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__fileHash_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
+      SELECT "v"."VideoID"
+      FROM "Videos" AS "v"
+      WHERE "v"."ED2K" = @__fileHash_0 OR "v"."MD5" = @__fileHash_0 OR "v"."SHA1" = @__fileHash_0 OR "v"."CRC32" = @__fileHash_0
+      LIMIT 1
+dbug: Microsoft.EntityFrameworkCore.Database.Command[20301]
+      Closing data reader to 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
+dbug: Microsoft.EntityFrameworkCore.Database.Command[20300]
+      A data reader for 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' is being disposed after spending 0ms reading results.
+dbug: Microsoft.EntityFrameworkCore.Database.Connection[20002]
+      Closing connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
+dbug: Microsoft.EntityFrameworkCore.Database.Connection[20003]
+      Closed connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' (0ms).
+info: Nostromo.Server.Scheduling.Jobs.DownloadMovieMetadataJob[0]
+      Found VideoID 1 for hash: 5d886780825db91bbc390f10f1b6c95c
+info: Nostromo.Server.Services.DatabaseService[0]
+      Searching for MovieID with hash: 5d886780825db91bbc390f10f1b6c95c
 dbug: Microsoft.EntityFrameworkCore.Query[10111]
       Compiling query expression: 
       'DbSet<ExampleHash>()
@@ -3841,10 +3807,6 @@ dbug: Microsoft.EntityFrameworkCore.Query[10107]
               detailedErrorsEnabled: False, 
               threadSafetyChecksEnabled: True), 
           cancellationToken: queryContext.CancellationToken)'
-dbug: Microsoft.EntityFrameworkCore.Database.Connection[20005]
-      Creating DbConnection.
-dbug: Microsoft.EntityFrameworkCore.Database.Connection[20006]
-      Created DbConnection. (0ms).
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20000]
       Opening connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20001]
@@ -3872,7 +3834,7 @@ dbug: Microsoft.EntityFrameworkCore.ChangeTracking[10806]
 dbug: Microsoft.EntityFrameworkCore.Database.Command[20301]
       Closing data reader to 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Command[20300]
-      A data reader for 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' is being disposed after spending 4ms reading results.
+      A data reader for 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' is being disposed after spending 5ms reading results.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20002]
       Closing connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20003]
@@ -3886,9 +3848,9 @@ info: System.Net.Http.HttpClient.Default.LogicalHandler[100]
 info: System.Net.Http.HttpClient.Default.ClientHandler[100]
       Sending HTTP request GET https://api.themoviedb.org/3/movie/348?api_key=cbd64d95c4c66beed284bd12701769ec
 info: System.Net.Http.HttpClient.Default.ClientHandler[101]
-      Received HTTP response headers after 492.7269ms - 200
+      Received HTTP response headers after 479.7795ms - 200
 info: System.Net.Http.HttpClient.Default.LogicalHandler[101]
-      End processing HTTP request after 497.4905ms - 200
+      End processing HTTP request after 484.6381ms - 200
 dbug: Microsoft.EntityFrameworkCore.ChangeTracking[10806]
       Context 'NostromoDbContext' started tracking 'TMDBMovie' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
 dbug: Microsoft.EntityFrameworkCore.Update[10004]
@@ -3931,14 +3893,64 @@ info: Nostromo.Server.Services.DatabaseService[0]
       Successfully inserted movie: Alien (ID: 348)
 info: Nostromo.Server.Scheduling.Jobs.DownloadMovieMetadataJob[0]
       Movie metadata saved to database for MovieID: 348
+dbug: Microsoft.EntityFrameworkCore.ChangeTracking[10808]
+      'NostromoDbContext' generated a temporary value for the property 'CrossRefVideoTMDBMovie.CrossRefVideoTMDBMovieID'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+dbug: Microsoft.EntityFrameworkCore.ChangeTracking[10805]
+      The navigation 'CrossRefVideoTMDBMovie.TMDBMovie' was detected as changed. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+dbug: Microsoft.EntityFrameworkCore.ChangeTracking[10806]
+      Context 'NostromoDbContext' started tracking 'CrossRefVideoTMDBMovie' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+dbug: Microsoft.EntityFrameworkCore.Update[10004]
+      SaveChanges starting for 'NostromoDbContext'.
+dbug: Microsoft.EntityFrameworkCore.ChangeTracking[10800]
+      DetectChanges starting for 'NostromoDbContext'.
+dbug: Microsoft.EntityFrameworkCore.ChangeTracking[10801]
+      DetectChanges completed for 'NostromoDbContext'.
+dbug: Microsoft.EntityFrameworkCore.Database.Connection[20000]
+      Opening connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
+dbug: Microsoft.EntityFrameworkCore.Database.Connection[20001]
+      Opened connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
+dbug: Microsoft.EntityFrameworkCore.Database.Command[20103]
+      Creating DbCommand for 'ExecuteReader'.
+dbug: Microsoft.EntityFrameworkCore.Database.Command[20104]
+      Created DbCommand for 'ExecuteReader' (0ms).
+dbug: Microsoft.EntityFrameworkCore.Database.Command[20106]
+      Initialized DbCommand for 'ExecuteReader' (0ms).
+dbug: Microsoft.EntityFrameworkCore.Database.Command[20100]
+      Executing DbCommand [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "CrossRefVideoTMDBMovies" ("TMDBMovieID", "VideoID")
+      VALUES (@p0, @p1)
+      RETURNING "CrossRefVideoTMDBMovieID";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "CrossRefVideoTMDBMovies" ("TMDBMovieID", "VideoID")
+      VALUES (@p0, @p1)
+      RETURNING "CrossRefVideoTMDBMovieID";
+dbug: Microsoft.EntityFrameworkCore.ChangeTracking[10803]
+      The foreign key property 'CrossRefVideoTMDBMovie.CrossRefVideoTMDBMovieID' was detected as changed. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.
+dbug: Microsoft.EntityFrameworkCore.Database.Command[20301]
+      Closing data reader to 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
+dbug: Microsoft.EntityFrameworkCore.Database.Command[20300]
+      A data reader for 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' is being disposed after spending 1ms reading results.
+dbug: Microsoft.EntityFrameworkCore.Database.Connection[20002]
+      Closing connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
+dbug: Microsoft.EntityFrameworkCore.Database.Connection[20003]
+      Closed connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db' (0ms).
+dbug: Microsoft.EntityFrameworkCore.ChangeTracking[10807]
+      An entity of type 'CrossRefVideoTMDBMovie' tracked by 'NostromoDbContext' changed state from 'Added' to 'Unchanged'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+dbug: Microsoft.EntityFrameworkCore.Update[10005]
+      SaveChanges completed for 'NostromoDbContext' with 1 entities written to the database.
+info: Nostromo.Server.Services.DatabaseService[0]
+      Successfully inserted cross-reference for TMDBMovieID=348 and VideoID=1
+info: Nostromo.Server.Scheduling.Jobs.DownloadMovieMetadataJob[0]
+      Linked TMDBMovieID 348 to VideoID 1
 dbug: Quartz.Core.JobRunShell[0]
       Trigger instruction : DeleteTrigger
 dbug: Quartz.Simpl.RAMJobStore[0]
       Deleting trigger
-dbug: Microsoft.EntityFrameworkCore.Infrastructure[10407]
-      'NostromoDbContext' disposed.
 dbug: Quartz.Core.QuartzSchedulerThread[0]
       Batch acquisition of 0 triggers
+dbug: Microsoft.EntityFrameworkCore.Infrastructure[10407]
+      'NostromoDbContext' disposed.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20007]
       Disposing connection to database 'main' on server 'C:\ProgramData\NostromoServer\Database\nostromo.db'.
 dbug: Microsoft.EntityFrameworkCore.Database.Connection[20008]
@@ -3953,16 +3965,16 @@ dbug: Quartz.Core.QuartzSchedulerThread[0]
       Batch acquisition of 0 triggers
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[103]
       HttpMessageHandler expired after 120000ms for client ''
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
-      Starting HttpMessageHandler cleanup cycle with 1 items
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
-      Ending HttpMessageHandler cleanup cycle after 0.0099ms - processed: 0 items - remaining: 1 items
 dbug: Quartz.Core.QuartzSchedulerThread[0]
       Batch acquisition of 0 triggers
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
       Starting HttpMessageHandler cleanup cycle with 1 items
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
-      Ending HttpMessageHandler cleanup cycle after 0.0019ms - processed: 0 items - remaining: 1 items
+      Ending HttpMessageHandler cleanup cycle after 0.0116ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0027ms - processed: 0 items - remaining: 1 items
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
       Starting HttpMessageHandler cleanup cycle with 1 items
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
@@ -3972,15 +3984,25 @@ dbug: Quartz.Core.QuartzSchedulerThread[0]
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
       Starting HttpMessageHandler cleanup cycle with 1 items
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
-      Ending HttpMessageHandler cleanup cycle after 0.0019ms - processed: 0 items - remaining: 1 items
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
-      Starting HttpMessageHandler cleanup cycle with 1 items
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
-      Ending HttpMessageHandler cleanup cycle after 0.0017ms - processed: 0 items - remaining: 1 items
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
-      Starting HttpMessageHandler cleanup cycle with 1 items
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
       Ending HttpMessageHandler cleanup cycle after 0.0021ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0024ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0027ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0033ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0027ms - processed: 0 items - remaining: 1 items
 dbug: Quartz.Core.QuartzSchedulerThread[0]
       Batch acquisition of 0 triggers
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
@@ -3990,11 +4012,77 @@ dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
       Starting HttpMessageHandler cleanup cycle with 1 items
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0027ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0027ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0023ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0027ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0811ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.004ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
       Ending HttpMessageHandler cleanup cycle after 0.0029ms - processed: 0 items - remaining: 1 items
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
       Starting HttpMessageHandler cleanup cycle with 1 items
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0029ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
       Ending HttpMessageHandler cleanup cycle after 0.0024ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0025ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0023ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0024ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0026ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0024ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0027ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0029ms - processed: 0 items - remaining: 1 items
 dbug: Quartz.Core.QuartzSchedulerThread[0]
       Batch acquisition of 0 triggers
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
@@ -4004,31 +4092,7 @@ dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
       Starting HttpMessageHandler cleanup cycle with 1 items
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
-      Ending HttpMessageHandler cleanup cycle after 0.0022ms - processed: 0 items - remaining: 1 items
-dbug: Quartz.Core.QuartzSchedulerThread[0]
-      Batch acquisition of 0 triggers
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
-      Starting HttpMessageHandler cleanup cycle with 1 items
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
-      Ending HttpMessageHandler cleanup cycle after 0.0022ms - processed: 0 items - remaining: 1 items
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
-      Starting HttpMessageHandler cleanup cycle with 1 items
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
-      Ending HttpMessageHandler cleanup cycle after 0.0022ms - processed: 0 items - remaining: 1 items
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
-      Starting HttpMessageHandler cleanup cycle with 1 items
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
-      Ending HttpMessageHandler cleanup cycle after 0.0039ms - processed: 0 items - remaining: 1 items
-dbug: Quartz.Core.QuartzSchedulerThread[0]
-      Batch acquisition of 0 triggers
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
-      Starting HttpMessageHandler cleanup cycle with 1 items
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
-      Ending HttpMessageHandler cleanup cycle after 0.0022ms - processed: 0 items - remaining: 1 items
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
-      Starting HttpMessageHandler cleanup cycle with 1 items
-dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
-      Ending HttpMessageHandler cleanup cycle after 0.0028ms - processed: 0 items - remaining: 1 items
+      Ending HttpMessageHandler cleanup cycle after 0.0031ms - processed: 0 items - remaining: 1 items
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
       Starting HttpMessageHandler cleanup cycle with 1 items
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
@@ -4038,8 +4102,366 @@ dbug: Quartz.Core.QuartzSchedulerThread[0]
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
       Starting HttpMessageHandler cleanup cycle with 1 items
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
-      Ending HttpMessageHandler cleanup cycle after 0.0021ms - processed: 0 items - remaining: 1 items
+      Ending HttpMessageHandler cleanup cycle after 0.0038ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.1118ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
       Starting HttpMessageHandler cleanup cycle with 1 items
 dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
       Ending HttpMessageHandler cleanup cycle after 0.0022ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0014ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0016ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0011ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0012ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0013ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0017ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0013ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0013ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0013ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0014ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0011ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0014ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0013ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0013ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0013ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.002ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0015ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0014ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0019ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0019ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0013ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0015ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0012ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0013ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0015ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0016ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0024ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0015ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.1137ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0009ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0008ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0009ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0004ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0007ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0007ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0009ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0009ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0007ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0009ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0004ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0007ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0005ms - processed: 0 items - remaining: 1 items
+dbug: Quartz.Core.QuartzSchedulerThread[0]
+      Batch acquisition of 0 triggers
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[100]
+      Starting HttpMessageHandler cleanup cycle with 1 items
+dbug: Microsoft.Extensions.Http.DefaultHttpClientFactory[101]
+      Ending HttpMessageHandler cleanup cycle after 0.0006ms - processed: 0 items - remaining: 1 items

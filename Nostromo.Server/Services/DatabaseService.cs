@@ -16,6 +16,8 @@ namespace Nostromo.Server.Services
         Task CreateUserAsync(Users userModel);
         Task<List<TMDBMovie>> SearchMoviesAsync(string title);
         Task<int?> GetMovieIdByHashAsync(string hash);
+        Task<int?> GetVideoIdByHashAsync(string fileHash);
+        Task InsertCrossRefAsync(CrossRefVideoTMDBMovie crossRefModel);
     }
 
     public class DatabaseService : IDatabaseService
@@ -60,8 +62,13 @@ namespace Nostromo.Server.Services
             return exampleHash?.TmdbId; // Return null if not found
         }
 
-
-
+        public async Task<int?> GetVideoIdByHashAsync(string fileHash)
+        {
+            return await _context.Videos
+                .Where(v => v.ED2K == fileHash || v.MD5 == fileHash || v.SHA1 == fileHash || v.CRC32 == fileHash)
+                .Select(v => (int?)v.VideoID) // Cast to nullable int to handle cases where no match is found
+                .FirstOrDefaultAsync();
+        }
 
         public async Task<TMDBMovie> GetMovieAsync(int id)
         {
@@ -137,6 +144,30 @@ namespace Nostromo.Server.Services
                 throw;
             }
         }
+
+        public async Task InsertCrossRefAsync(CrossRefVideoTMDBMovie crossRefModel)
+        {
+            try
+            {
+                await _context.CrossRefVideoTMDBMovies.AddAsync(crossRefModel);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Successfully inserted cross-reference for TMDBMovieID={TMDBMovieID} and VideoID={VideoID}",
+                    crossRefModel.TMDBMovieID, crossRefModel.VideoID);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database error while inserting cross-reference for TMDBMovieID={TMDBMovieID} and VideoID={VideoID}",
+                    crossRefModel.TMDBMovieID, crossRefModel.VideoID);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while inserting cross-reference for TMDBMovieID={TMDBMovieID} and VideoID={VideoID}",
+                    crossRefModel.TMDBMovieID, crossRefModel.VideoID);
+                throw;
+            }
+        }
+
 
         public async Task<User> FindUserByUsernameAsync(string username)
         {
