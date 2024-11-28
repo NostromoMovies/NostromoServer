@@ -1,4 +1,5 @@
 ﻿// AuthTokenRepository.cs
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Nostromo.Server.Database.Repositories
@@ -9,12 +10,14 @@ namespace Nostromo.Server.Database.Repositories
         {
         }
 
-        public AuthToken CreateToken(User user)
+        public AuthToken CreateToken(User user, string device)
         {
+
             var token = new AuthToken
             {
                 Token = GenerateToken(),
                 UserId = user.UserID,
+                DeviceName = device
             };
 
             _context.AuthTokens.Add(token);
