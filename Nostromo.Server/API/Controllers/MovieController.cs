@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
 using Nostromo.Server.Utilities;
+using System.Security.Claims;
 
 namespace Nostromo.Server.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class MoviesController : ControllerBase
 {
     private readonly IMovieRepository _movieRepository;
@@ -21,6 +24,9 @@ public class MoviesController : ControllerBase
     public async Task<ActionResult<IEnumerable<TMDBMovie>>> GetMovies()
     {
         var movies = await _movieRepository.GetAllAsync();
+
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
         return Ok(movies);
     }
 

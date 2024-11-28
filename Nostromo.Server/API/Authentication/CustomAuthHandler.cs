@@ -9,14 +9,14 @@ namespace Nostromo.Server.API.Authentication
 {
     public class CustomAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-        private readonly AuthTokenRepository _authTokens;
+        private readonly IAuthTokenRepository _authTokens;
 
         public CustomAuthHandler(
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
             ISystemClock clock,
-            AuthTokenRepository authTokens)
+            IAuthTokenRepository authTokens)
             : base(options, logger, encoder, clock)
         {
             _authTokens = authTokens;
