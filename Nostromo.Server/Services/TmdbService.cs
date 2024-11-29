@@ -27,13 +27,15 @@ namespace Nostromo.Server.Services
         private readonly IMovieRepository _movieRepository;
         private readonly ILogger<TmdbService> _logger;
         private readonly string _tmdbApiKey;
+        private readonly IOptions<TmdbSettings> _settings;
 
         public TmdbService(
             HttpClient httpClient,
             IDatabaseService databaseService,
             IOptions<ServerSettings> serverSettings,
             ILogger<TmdbService> logger,
-            IMovieRepository movieRepository)
+            IMovieRepository movieRepository,
+            IOptions<TmdbSettings> settings)
         {
             _httpClient = httpClient;
             _databaseService = databaseService;
@@ -46,6 +48,7 @@ namespace Nostromo.Server.Services
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
+            _settings = settings;
         }
 
         public async Task<Dictionary<int, string>> GetGenreDictionary()

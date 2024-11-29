@@ -12,6 +12,12 @@
   <ItemGroup>
 		<Content Include="$(MSBuildThisFileDirectory)..\Dependencies\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+	<ItemGroup>
+		<None Update="appsettings.Development.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 	
   <ItemGroup>
     <Compile Remove="Hasher\**" />

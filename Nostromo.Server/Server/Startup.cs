@@ -39,6 +39,9 @@ namespace Nostromo.Server.Server
             _configuration = new ConfigurationBuilder()
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                 .AddJsonFile("appsettings.json", optional: false)
+                .AddJsonFile("appsettings.Development.json", optional: true)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+                .AddEnvironmentVariables()
                 .Build();
         }
 
@@ -114,25 +117,11 @@ namespace Nostromo.Server.Server
             // Add Quartz services
             services.AddQuartz();
 
-            // TMDB Configuration
-            var tmdbApiKey = _configuration.GetValue<string>("TMDB:ApiKey", "cbd64d95c4c66beed284bd12701769ec");
-            var tmdbBaseUrl = _configuration.GetValue<string>("TMDB:BaseUrl", "https://api.themoviedb.org/3");
-
-            if (tmdbApiKey == "cbd64d95c4c66beed284bd12701769ec" || tmdbBaseUrl == "https://api.themoviedb.org/3")
-            {
-                _logger.LogWarning("TMDB configuration is using default values. Ensure appsettings.json is correctly configured.");
-            }
-
-            //services.AddTransient(sp => new DownloadMovieMetadataJob(
-            //    sp.GetRequiredService<ILogger<DownloadMovieMetadataJob>>(),
-            //    sp.GetRequiredService<HttpClient>(),
-            //    sp.GetRequiredService<IDatabaseService>(),
-            //    tmdbApiKey,
-            //    tmdbBaseUrl
-            //));
-
+            services.Configure<TmdbSettings>(_configuration.GetSection("TMDB"));
             services.AddHttpClient<ITmdbService, TmdbService>(client => {
-                client.BaseAddress = new Uri("https://api.themoviedb.org/3/");
+                var tmdbSettings = _configuration.GetSection("TMDB").Get<TmdbSettings>();
+                client.BaseAddress = new Uri(tmdbSettings?.BaseUrl ??
+                    throw new InvalidOperationException("TMDB BaseUrl not configured"));
                 client.DefaultRequestHeaders.Accept.Add(
                     new MediaTypeWithQualityHeaderValue("application/json"));
             });
