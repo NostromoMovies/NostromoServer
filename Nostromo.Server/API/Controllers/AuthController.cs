@@ -6,6 +6,7 @@ using Nostromo.Models;
 using Nostromo.Server.Services;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
+using User = Nostromo.Server.Database.User;
 
 namespace Nostromo.Server.API.Controllers
 {

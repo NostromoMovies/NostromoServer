@@ -1,28 +1,30 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nostromo.Models;
 using Nostromo.Server.API.Models;
 using Nostromo.Server.Settings;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Nostromo.Server.Database;
+using Nostromo.Server.Database.Repositories;
 
 namespace Nostromo.Server.Services
 {
 
     public interface ITmdbService
     {
-        Task<TmdbMovie> GetMovieById(int id);
+        Task<TmdbMovieResponse> GetMovieById(int id);
         Task<TmdbImageCollection> GetMovieImagesById(int id);
         Task<int?> GetMovieRuntime(int movieId);
-        Task<(IEnumerable<TmdbMovie> Results, int TotalResults)> SearchMovies(string query);
+        Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query);
         Task<Dictionary<int, string>> GetGenreDictionary();
     }
 
     public class TmdbService : ITmdbService
     {
         private readonly HttpClient _httpClient;
-        private readonly IDatabaseService _databaseService;
+        private readonly IDatabaseService _databaseService; //TODO: remove
+        private readonly IMovieRepository _movieRepository;
         private readonly ILogger<TmdbService> _logger;
         private readonly string _tmdbApiKey;
 
@@ -30,10 +32,12 @@ namespace Nostromo.Server.Services
             HttpClient httpClient,
             IDatabaseService databaseService,
             IOptions<ServerSettings> serverSettings,
-            ILogger<TmdbService> logger)
+            ILogger<TmdbService> logger,
+            IMovieRepository movieRepository)
         {
             _httpClient = httpClient;
             _databaseService = databaseService;
+            _movieRepository = movieRepository;
             _logger = logger;
             _tmdbApiKey = serverSettings.Value.TmdbApiKey
                 ?? throw new ArgumentNullException(nameof(serverSettings), "TMDB API key not configured");
@@ -72,15 +76,18 @@ namespace Nostromo.Server.Services
             }
         }
 
-        public async Task<TmdbMovie> GetMovieById(int id)
+        public async Task<TmdbMovieResponse> GetMovieById(int id)
         {
             try
             {
                 var movieUrl = $"movie/{id}?api_key={_tmdbApiKey}";
-                var movie = await _httpClient.GetFromJsonAsync<TmdbMovie>(movieUrl)
+                var movie = await _httpClient.GetFromJsonAsync<TmdbMovieResponse>(movieUrl)
                     ?? throw new NotFoundException($"Movie with ID {id} not found");
 
-                await _databaseService.InsertMovieAsync(movie);
+                var newMovie = new TMDBMovie(movie);
+
+                await _movieRepository.AddAsync(newMovie);
+
                 return movie;
             }
             catch (Exception ex)
@@ -124,7 +131,7 @@ namespace Nostromo.Server.Services
             }
         }
 
-        public async Task<(IEnumerable<TmdbMovie> Results, int TotalResults)> SearchMovies(string query)
+        public async Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query)
         {
             try
             {
@@ -139,32 +146,33 @@ namespace Nostromo.Server.Services
 
                 if (response.results == null || !response.results.Any())
                 {
-                    return (Array.Empty<TmdbMovie>(), 0);
+                    return (Array.Empty<TmdbMovieResponse>(), 0);
                 }
 
                 var genreDict = await GetGenreDictionary();
 
                 // Process each movie
-                foreach (var movie in response.results)
+                foreach (var movieResponse in response.results)
                 {
                     try
-                    {
-                        movie.runtime = await GetMovieRuntime(movie.id);
-                        await _databaseService.InsertMovieAsync(movie);
+                    {                                     // why?
+                        movieResponse.runtime = await GetMovieRuntime(movieResponse.id);
+                        TMDBMovie movie = new TMDBMovie(movieResponse);
+                        await _movieRepository.AddAsync(movie);
 
-                        var genres = movie.genreIds
+                        var genres = movieResponse.genreIds
                             .Select(id => genreDict.ContainsKey(id) ? genreDict[id] : "Unknown")
                             .ToList();
 
                         _logger.LogDebug(
                             "Processed movie: {Title}, Genres: {Genres}, Runtime: {Runtime}",
-                            movie.title,
+                            movieResponse.title,
                             string.Join(", ", genres),
-                            movie.runtime);
+                            movieResponse.runtime);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error processing movie {Title} (ID: {Id})", movie.title, movie.id);
+                        _logger.LogError(ex, "Error processing movie {Title} (ID: {Id})", movieResponse.title, movieResponse.id);
                         // Continue processing other movies
                     }
                 }

@@ -26,7 +26,7 @@ namespace Nostromo.Server.API.Controllers
         }
 
         [HttpGet("searchMedia")]
-        public async Task<ActionResult<IEnumerable<TmdbMovie>>> SearchMedia([FromQuery] string mediaName)
+        public async Task<ActionResult<IEnumerable<TmdbMovieResponse>>> SearchMedia([FromQuery] string mediaName)
         {
             try
             {
@@ -44,12 +44,12 @@ namespace Nostromo.Server.API.Controllers
                     return Ok(new
                     {
                         Message = "No movies found matching the search criteria",
-                        Results = Array.Empty<TmdbMovie>()
+                        Results = Array.Empty<TmdbMovieResponse>()
                     });
                 }
 
                 // Convert database entities to API model
-                var results = movies.Select(movie => new TmdbMovie
+                var results = movies.Select(movie => new TmdbMovieResponse
                 {
                     id = movie.MovieID,
                     title = movie.Title,
@@ -84,7 +84,7 @@ namespace Nostromo.Server.API.Controllers
 
         // You might want to add other endpoints for getting movie details, genres, etc.
         [HttpGet("{id}")]
-        public async Task<ActionResult<TmdbMovie>> GetMovie(int id)
+        public async Task<ActionResult<TmdbMovieResponse>> GetMovie(int id)
         {
             try
             {
@@ -95,7 +95,7 @@ namespace Nostromo.Server.API.Controllers
                     return NotFound(new { Message = $"Movie with ID {id} not found" });
                 }
 
-                var result = new TmdbMovie
+                var result = new TmdbMovieResponse
                 {
                     id = movie.MovieID,
                     title = movie.Title,
@@ -123,7 +123,7 @@ namespace Nostromo.Server.API.Controllers
        
    
         [HttpGet("filtered-genre")]
-        public async Task<ActionResult<List<TmdbMovie>>> GetFilteredGenre([FromQuery] List<int> genres)
+        public async Task<ActionResult<List<TmdbMovieResponse>>> GetFilteredGenre([FromQuery] List<int> genres)
         {
             try
             {
@@ -132,10 +132,10 @@ namespace Nostromo.Server.API.Controllers
                 {
                     return NotFound(new { Message = $"Movie with genreID {genres} not found" });
                 }
-                List<TmdbMovie> tmbdMovie = new List<TmdbMovie>();
+                List<TmdbMovieResponse> tmbdMovie = new List<TmdbMovieResponse>();
                 foreach (var movie in movies)
                 {
-                    var result = new TmdbMovie
+                    var result = new TmdbMovieResponse
                     {
                         id = movie.MovieID,
                         title = movie.Title,
@@ -164,7 +164,7 @@ namespace Nostromo.Server.API.Controllers
             }
         }
         [HttpGet("filtered-highestRatings")]
-        public async Task<ActionResult<List<TmdbMovie>>> HighestRatings()
+        public async Task<ActionResult<List<TmdbMovieResponse>>> HighestRatings()
         {
 
             try

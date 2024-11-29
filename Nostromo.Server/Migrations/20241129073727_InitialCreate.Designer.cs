@@ -11,7 +11,7 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    [Migration("20241127033816_InitialCreate")]
+    [Migration("20241129073727_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

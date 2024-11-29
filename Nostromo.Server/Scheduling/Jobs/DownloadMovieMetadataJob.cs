@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Nostromo.Server.Services;
 using Nostromo.Models;
 using Nostromo.Server.Database;
+using Nostromo.Server.Database.Repositories;
+using System.Runtime.CompilerServices;
 
 namespace Nostromo.Server.Scheduling.Jobs
 {
@@ -16,6 +18,7 @@ namespace Nostromo.Server.Scheduling.Jobs
         private readonly ILogger<DownloadMovieMetadataJob> _logger;
         private readonly HttpClient _httpClient;
         private readonly IDatabaseService _databaseService;
+        private readonly IMovieRepository _movieRepository;
         private readonly string _tmdbApiKey;
         private readonly string _tmdbBaseUrl;
 
@@ -25,6 +28,7 @@ namespace Nostromo.Server.Scheduling.Jobs
             ILogger<DownloadMovieMetadataJob> logger,
             HttpClient httpClient,
             IDatabaseService databaseService,
+            IMovieRepository movieRepository,
             string tmdbApiKey,
             string tmdbBaseUrl)
         {
@@ -73,9 +77,9 @@ namespace Nostromo.Server.Scheduling.Jobs
 
                 // Step 3: Fetch metadata from TMDB
                 var movieUrl = $"{_tmdbBaseUrl}/movie/{movieId}?api_key={_tmdbApiKey}";
-                var movie = await _httpClient.GetFromJsonAsync<TmdbMovie>(movieUrl);
+                var movieResponse = await _httpClient.GetFromJsonAsync<TmdbMovieResponse>(movieUrl);
 
-                if (movie == null)
+                if (movieResponse == null)
                 {
                     _logger.LogWarning("Movie with ID {MovieID} not found on TMDB.", movieId);
                     return;
@@ -84,7 +88,8 @@ namespace Nostromo.Server.Scheduling.Jobs
                 // Step 4: Save movie metadata to the database
                 try
                 {
-                    await _databaseService.InsertMovieAsync(movie);
+                    var movie = new TMDBMovie(movieResponse);
+                    await _movieRepository.AddAsync(movie);
                     _logger.LogInformation("Movie metadata saved to database for MovieID: {MovieID}", movieId);
                 }
                 catch (Exception ex)

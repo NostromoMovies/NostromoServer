@@ -22,7 +22,7 @@ namespace Nostromo.Server.API.Controllers
         }
 
         [HttpGet("movie/{id}")]
-        public async Task<ActionResult<TmdbMovie>> GetMovieById(int id)
+        public async Task<ActionResult<TmdbMovieResponse>> GetMovieById(int id)
         {
             try
             {
@@ -79,7 +79,7 @@ namespace Nostromo.Server.API.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<TmdbMovie>>> SearchMovies([FromQuery] string query)
+        public async Task<ActionResult<IEnumerable<TmdbMovieResponse>>> SearchMovies([FromQuery] string query)
         {
             try
             {
@@ -102,7 +102,7 @@ namespace Nostromo.Server.API.Controllers
             }
             catch (NotFoundException ex)
             {
-                return Ok(new { Message = ex.Message, Results = Array.Empty<TmdbMovie>() });
+                return Ok(new { Message = ex.Message, Results = Array.Empty<TmdbMovieResponse>() });
             }
             catch (Exception ex)
             {

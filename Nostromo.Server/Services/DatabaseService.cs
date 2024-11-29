@@ -10,10 +10,10 @@ namespace Nostromo.Server.Services
     public interface IDatabaseService
     {
         Task<TMDBMovie> GetMovieAsync(int id);
-        Task InsertMovieAsync(TmdbMovie movie);
+        //Task InsertMovieAsync(TmdbMovieResponse movie);
         Task InsertGenreAsync(TmdbGenre genre);
-        Task<User> FindUserByUsernameAsync(string username);
-        Task CreateUserAsync(Users userModel);
+        //Task<User> FindUserByUsernameAsync(string username);
+        //Task CreateUserAsync(User userModel);
         Task<List<TMDBMovie>> SearchMoviesAsync(string title);
         Task<int?> GetMovieIdByHashAsync(string hash);
         Task<int?> GetVideoIdByHashAsync(string fileHash);
@@ -31,12 +31,12 @@ namespace Nostromo.Server.Services
 
         public DatabaseService(
             IMovieRepository movieRepository,
-            IUserRepository userRepository,
+            //IUserRepository userRepository,
             NostromoDbContext context,
             ILogger<DatabaseService> logger)
         {
             _movieRepository = movieRepository;
-            _userRepository = userRepository;
+            //_userRepository = userRepository;
             _context = context;
             _logger = logger;
         }
@@ -77,50 +77,50 @@ namespace Nostromo.Server.Services
             return await _movieRepository.GetByIdAsync(id);
         }
 
-        public async Task InsertMovieAsync(TmdbMovie movieModel)
-        {
-            try
-            {
-                var movie = new TMDBMovie
-                {
-                    MovieID = movieModel.id,
-                    Title = movieModel.title,
-                    OriginalTitle = movieModel.originalTitle,
-                    OriginalLanguage = movieModel.OriginalLanguage,
-                    Overview = movieModel.overview,
-                    PosterPath = movieModel.posterPath,
-                    BackdropPath = movieModel.backdropPath,
-                    ReleaseDate = movieModel.releaseDate,
-                    IsAdult = movieModel.adult,
-                    Popularity = movieModel.popularity, // Fixed float to decimal conversion
-                    VoteCount = movieModel.voteCount,
-                    VoteAverage = movieModel.voteAverage, // Fixed float to decimal conversion
-                    Runtime = movieModel.runtime ?? 0 // Fixed nullable int conversion with default value
-                };
+        //public async Task InsertMovieAsync(TmdbMovieResponse movieModel)
+        //{
+        //    try
+        //    {
+        //        var movie = new TMDBMovie
+        //        {
+        //            MovieID = movieModel.id,
+        //            Title = movieModel.title,
+        //            OriginalTitle = movieModel.originalTitle,
+        //            OriginalLanguage = movieModel.OriginalLanguage,
+        //            Overview = movieModel.overview,
+        //            PosterPath = movieModel.posterPath,
+        //            BackdropPath = movieModel.backdropPath,
+        //            ReleaseDate = movieModel.releaseDate,
+        //            IsAdult = movieModel.adult,
+        //            Popularity = movieModel.popularity, // Fixed float to decimal conversion
+        //            VoteCount = movieModel.voteCount,
+        //            VoteAverage = movieModel.voteAverage, // Fixed float to decimal conversion
+        //            Runtime = movieModel.runtime ?? 0 // Fixed nullable int conversion with default value
+        //        };
 
-                // Get or create genres
-                if (movieModel.genreIds != null && movieModel.genreIds.Any())
-                {
-                    var genreIds = movieModel.genreIds.Where(id => id != 0).ToList();
-                    var genres = await _context.Genres
-                        .Where(g => genreIds.Contains(g.GenreID))
-                        .ToListAsync();
+        //        // Get or create genres
+        //        if (movieModel.genreIds != null && movieModel.genreIds.Any())
+        //        {
+        //            var genreIds = movieModel.genreIds.Where(id => id != 0).ToList();
+        //            var genres = await _context.Genres
+        //                .Where(g => genreIds.Contains(g.GenreID))
+        //                .ToListAsync();
 
-                    foreach (var genre in genres)
-                    {
-                        movie.Genres.Add(genre);
-                    }
-                }
+        //            foreach (var genre in genres)
+        //            {
+        //                movie.Genres.Add(genre);
+        //            }
+        //        }
 
-                await _movieRepository.AddAsync(movie);
-                _logger.LogInformation("Successfully inserted movie: {Title} (ID: {Id})", movie.Title, movie.MovieID);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error inserting movie {Title} (ID: {Id})", movieModel.title, movieModel.id);
-                throw;
-            }
-        }
+        //        await _movieRepository.AddAsync(movie);
+        //        _logger.LogInformation("Successfully inserted movie: {Title} (ID: {Id})", movie.Title, movie.MovieID);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error inserting movie {Title} (ID: {Id})", movieModel.title, movieModel.id);
+        //        throw;
+        //    }
+        //}
 
         public async Task InsertGenreAsync(TmdbGenre genreModel)
         {
@@ -171,31 +171,31 @@ namespace Nostromo.Server.Services
         }
 
 
-        public async Task<User> FindUserByUsernameAsync(string username)
-        {
-            return await _userRepository.FindByUsernameAsync(username);
-        }
+        //public async Task<User> FindUserByUsernameAsync(string username)
+        //{
+        //    return await _userRepository.FindByUsernameAsync(username);
+        //}
 
-        // IF MERGE CONFLICT ACCEPT THIS ONE
-        public async Task CreateUserAsync(Users userModel)
-        {
-            try
-            {
-                var user = new User
-                {
-                    Username = userModel.username,
-                    PasswordHash = userModel.passwordHash,
-                    Salt = userModel.salt
-                };
-                await _userRepository.AddAsync(user);  // Changed from CreateUserAsync to AddAsync
-                _logger.LogInformation("Successfully created user: {Username}", user.Username);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating user {Username}", userModel.username);
-                throw;
-            }
-        }
+        //// IF MERGE CONFLICT ACCEPT THIS ONE
+        //public async Task CreateUserAsync(Users userModel)
+        //{
+        //    try
+        //    {
+        //        var user = new User
+        //        {
+        //            Username = userModel.username,
+        //            PasswordHash = userModel.passwordHash,
+        //            Salt = userModel.salt
+        //        };
+        //        await _userRepository.AddAsync(user);  // Changed from CreateUserAsync to AddAsync
+        //        _logger.LogInformation("Successfully created user: {Username}", user.Username);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error creating user {Username}", userModel.username);
+        //        throw;
+        //    }
+        //}
 
         public async Task<List<TMDBMovie>> SearchMoviesAsync(string title)
         {

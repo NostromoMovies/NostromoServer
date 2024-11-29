@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using Nostromo.Server.Utilities;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Nostromo.Models;
 
 namespace Nostromo.Server.Database
 {
@@ -205,6 +206,30 @@ namespace Nostromo.Server.Database
 
     public class TMDBMovie
     {
+        public TMDBMovie(TmdbMovieResponse apiMovie)
+        {
+            MovieID = apiMovie.id;
+            Title = apiMovie.title;
+            Overview = apiMovie.overview;
+            OriginalTitle = apiMovie.originalTitle;
+            OriginalLanguage = apiMovie.OriginalLanguage;
+            IsAdult = apiMovie.adult;
+            IsVideo = apiMovie.video;
+            Popularity = apiMovie.popularity;
+            VoteAverage = apiMovie.voteAverage;
+            VoteCount = apiMovie.voteCount;
+            Runtime = apiMovie.runtime ?? 0;
+            ReleaseDate = apiMovie.releaseDate;
+            PosterPath = apiMovie.posterPath;
+            BackdropPath = apiMovie.backdropPath;
+            CreatedAt = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            LastUpdatedAt = DateTime.UtcNow;
+        }
+
+        public TMDBMovie()
+        {
+        }
+
         public int MovieID { get; set; }
         public int TMDBID { get; set; }
         public int? TMDBCollectionID { get; set; }

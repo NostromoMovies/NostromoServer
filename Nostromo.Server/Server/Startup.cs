@@ -123,13 +123,13 @@ namespace Nostromo.Server.Server
                 _logger.LogWarning("TMDB configuration is using default values. Ensure appsettings.json is correctly configured.");
             }
 
-            services.AddTransient(sp => new DownloadMovieMetadataJob(
-                sp.GetRequiredService<ILogger<DownloadMovieMetadataJob>>(),
-                sp.GetRequiredService<HttpClient>(),
-                sp.GetRequiredService<IDatabaseService>(),
-                tmdbApiKey,
-                tmdbBaseUrl
-            ));
+            //services.AddTransient(sp => new DownloadMovieMetadataJob(
+            //    sp.GetRequiredService<ILogger<DownloadMovieMetadataJob>>(),
+            //    sp.GetRequiredService<HttpClient>(),
+            //    sp.GetRequiredService<IDatabaseService>(),
+            //    tmdbApiKey,
+            //    tmdbBaseUrl
+            //));
 
             services.AddHttpClient<ITmdbService, TmdbService>(client => {
                 client.BaseAddress = new Uri("https://api.themoviedb.org/3/");

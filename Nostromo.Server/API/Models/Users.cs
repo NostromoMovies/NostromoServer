@@ -2,7 +2,7 @@ using System.Collections.Generic; // List
 namespace Nostromo.Models;
 
 
-public class Users
+public class User
 {
     public int Id { get; set; }
     public string first_name { get; set; }
