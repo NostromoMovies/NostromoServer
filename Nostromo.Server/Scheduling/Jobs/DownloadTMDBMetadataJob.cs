@@ -17,12 +17,10 @@ public class DownloadTMDBMetadataJob : BaseJob
 
     public DownloadTMDBMetadataJob(
         ILogger<DownloadTMDBMetadataJob> logger,
-        ITmdbService tmdbService,
-        IDatabaseService databaseService)
+        ITmdbService tmdbService)
     {
         _logger = logger;
         _tmdbService = tmdbService;
-        _databaseService = databaseService;
     }
 
     public override async Task ProcessJob()
