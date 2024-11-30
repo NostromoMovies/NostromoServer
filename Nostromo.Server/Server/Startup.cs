@@ -99,9 +99,11 @@ namespace Nostromo.Server.Server
             });
 
             // Register core services
+            // TODO: move
             services.AddScoped<IDatabaseService, DatabaseService>();
             services.AddSingleton<ISettingsProvider>(_settingsProvider);
             services.AddSingleton<FileWatcherService>();
+            services.AddScoped<IImportFolderManager, ImportFolderManager>();
             services.AddSingleton<NostromoServer>();
 
             // Configure WatcherSettings
