@@ -12,12 +12,6 @@
   <ItemGroup>
 		<Content Include="$(MSBuildThisFileDirectory)..\Dependencies\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
-	<ItemGroup>
-		<None Update="appsettings.Development.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
 	
   <ItemGroup>
     <Compile Remove="Hasher\**" />
@@ -32,6 +26,7 @@
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
     <None Remove="appsettings.json" />
+    <PackageReference Include="Quartz.AspNetCore" Version="3.13.1" />
     <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.13.1" />
   </ItemGroup>
 	

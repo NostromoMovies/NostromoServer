@@ -2,65 +2,49 @@
 using Nostromo.Server.Database;
 using Microsoft.EntityFrameworkCore;
 
-﻿using Microsoft.EntityFrameworkCore;
-using Nostromo.Server.Utilities;
-
-namespace Nostromo.Server.Database.Repositories;
-public class MovieRepository : Repository<TMDBMovie>, IMovieRepository
+public class MovieRepository : IMovieRepository
 {
-    public MovieRepository(NostromoDbContext context) : base(context)
+    private readonly NostromoDbContext _context;
+
+    public MovieRepository(NostromoDbContext context)
     {
+        _context = context;
     }
 
-    //override makes sense here
-    public override async Task<TMDBMovie> GetByIdAsync(int id)
+    public async Task<TMDBMovie> GetByIdAsync(int id)
     {
-        return await Query()
+        return await _context.Movies
             .Include(m => m.Genres)
             .FirstOrDefaultAsync(m => m.MovieID == id);
     }
 
     public async Task<IEnumerable<TMDBMovie>> SearchAsync(string searchTerm)
     {
-        return await Query()
+        return await _context.Movies
             .Include(m => m.Genres)
             .Where(m => m.Title.Contains(searchTerm))
             .ToListAsync();
     }
 
-    public async Task<(bool exists, string path)> GetPosterPathAsync(int id)
+    public async Task AddAsync(TMDBMovie movie)
     {
-        // First check if movie exists
-        var movie = await GetByIdAsync(id);
-        if (movie == null)
-            return (false, string.Empty);
-
-        var imagePath = Path.Combine(Utils.ApplicationPath, $"posters/{id}_poster.jpg");
-
-        return (File.Exists(imagePath), imagePath);
+        await _context.Movies.AddAsync(movie);
+        await _context.SaveChangesAsync();
     }
 
-    
-    public async Task<IEnumerable<TMDBMovie>> SortMovieByRatings()
+    public async Task UpdateAsync(TMDBMovie movie)
     {
-
-        var movies = await _context.Movies
-            .OrderByDescending(m => m.VoteAverage)
-            .ToListAsync();
-
-
-        return movies;
-
-
-    }
-    public async Task<IEnumerable<TMDBMovie>> SearchGenreAsync(List<int> genreIds)
-    {
-       
-
-        return await _context.Movies
-            .Include(m => m.Genres) 
-            .Where(m => m.Genres != null && m.Genres.Any(g => genreIds.Contains(g.GenreID)))
-            .ToListAsync(); 
+        _context.Movies.Update(movie);
+        await _context.SaveChangesAsync();
     }
 
+    public async Task DeleteAsync(int id)
+    {
+        var movie = await _context.Movies.FindAsync(id);
+        if (movie != null)
+        {
+            _context.Movies.Remove(movie);
+            await _context.SaveChangesAsync();
+        }
+    }
 }

@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nostromo.Server.Database.Repositories;
 using Nostromo.Server.Utilities;
 
-namespace Nostromo.Server.Database;
+namespace Nostromo.Server.Database.Repositories;
 
 public static class DatabaseStartup
 {
@@ -26,7 +26,6 @@ public static class DatabaseStartup
         // Add Repository services
         services.AddScoped<IMovieRepository, MovieRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IAuthTokenRepository, AuthTokenRepository>();
 
         return services;
 

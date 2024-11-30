@@ -18,7 +18,6 @@ public static class QuartzExtensions
         services.AddTransient<HashFileJob>();
         services.AddTransient<DownloadTmdbImageJob>();
         services.AddTransient<ProcessVideoJob>();
-        services.AddTransient<DownloadMovieMetadataJob>();
 
         return services;
     }

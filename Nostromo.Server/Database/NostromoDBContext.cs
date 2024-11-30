@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Design;
 using Nostromo.Server.Utilities;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using Nostromo.Models;
 
 namespace Nostromo.Server.Database
 {
@@ -16,7 +15,6 @@ namespace Nostromo.Server.Database
         public DbSet<TMDBMovie> Movies { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<AuthToken> AuthTokens { get; set; }
         public DbSet<Video> Videos { get; set; }
         public DbSet<VideoPlace> VideoPlaces { get; set; }
         public DbSet<ImportFolder> ImportFolders { get; set; }
@@ -72,21 +70,8 @@ namespace Nostromo.Server.Database
                 entity.HasKey(e => e.UserID);
                 entity.Property(e => e.Username).IsRequired();
                 entity.Property(e => e.PasswordHash).IsRequired();
-                entity.Property(e => e.Salt).IsRequired();
                 entity.Property(e => e.IsAdmin);
                 entity.Property(e => e.CreatedAt);
-            });
-
-            modelBuilder.Entity<AuthToken>(entity =>
-            {
-                entity.HasKey(e => e.AuthId);
-                entity.Property(e => e.Token).IsRequired();
-                entity.Property(e => e.UserId).IsRequired();
-                entity.Property(e => e.DeviceName);
-
-                entity.HasOne(e => e.User)
-                    .WithMany()
-                    .HasForeignKey(e => e.UserId);
             });
 
             modelBuilder.Entity<Video>(entity =>
@@ -206,30 +191,6 @@ namespace Nostromo.Server.Database
 
     public class TMDBMovie
     {
-        public TMDBMovie(TmdbMovieResponse apiMovie)
-        {
-            MovieID = apiMovie.id;
-            Title = apiMovie.title;
-            Overview = apiMovie.overview;
-            OriginalTitle = apiMovie.originalTitle;
-            OriginalLanguage = apiMovie.OriginalLanguage;
-            IsAdult = apiMovie.adult;
-            IsVideo = apiMovie.video;
-            Popularity = apiMovie.popularity;
-            VoteAverage = apiMovie.voteAverage;
-            VoteCount = apiMovie.voteCount;
-            Runtime = apiMovie.runtime ?? 0;
-            ReleaseDate = apiMovie.releaseDate;
-            PosterPath = apiMovie.posterPath;
-            BackdropPath = apiMovie.backdropPath;
-            CreatedAt = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            LastUpdatedAt = DateTime.UtcNow;
-        }
-
-        public TMDBMovie()
-        {
-        }
-
         public int MovieID { get; set; }
         public int TMDBID { get; set; }
         public int? TMDBCollectionID { get; set; }
@@ -276,15 +237,6 @@ namespace Nostromo.Server.Database
         public string PasswordHash { get; set; }
         public bool IsAdmin { get; set; }
         public DateTime CreatedAt { get; set; }
-    }
-
-    public class AuthToken
-    {
-        public int AuthId { get; set; }
-        public int UserId { get; set; }
-        public string DeviceName { get; set; }
-        public string Token { get; set; }
-        public virtual User User { get; set; }
     }
 
     public class Video

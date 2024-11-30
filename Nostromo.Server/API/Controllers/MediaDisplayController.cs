@@ -26,7 +26,7 @@ namespace Nostromo.Server.API.Controllers
         }
 
         [HttpGet("searchMedia")]
-        public async Task<ActionResult<IEnumerable<TmdbMovieResponse>>> SearchMedia([FromQuery] string mediaName)
+        public async Task<ActionResult<IEnumerable<TmdbMovie>>> SearchMedia([FromQuery] string mediaName)
         {
             try
             {
@@ -44,12 +44,12 @@ namespace Nostromo.Server.API.Controllers
                     return Ok(new
                     {
                         Message = "No movies found matching the search criteria",
-                        Results = Array.Empty<TmdbMovieResponse>()
+                        Results = Array.Empty<TmdbMovie>()
                     });
                 }
 
                 // Convert database entities to API model
-                var results = movies.Select(movie => new TmdbMovieResponse
+                var results = movies.Select(movie => new TmdbMovie
                 {
                     id = movie.MovieID,
                     title = movie.Title,
@@ -84,7 +84,7 @@ namespace Nostromo.Server.API.Controllers
 
         // You might want to add other endpoints for getting movie details, genres, etc.
         [HttpGet("{id}")]
-        public async Task<ActionResult<TmdbMovieResponse>> GetMovie(int id)
+        public async Task<ActionResult<TmdbMovie>> GetMovie(int id)
         {
             try
             {
@@ -95,7 +95,7 @@ namespace Nostromo.Server.API.Controllers
                     return NotFound(new { Message = $"Movie with ID {id} not found" });
                 }
 
-                var result = new TmdbMovieResponse
+                var result = new TmdbMovie
                 {
                     id = movie.MovieID,
                     title = movie.Title,
@@ -119,70 +119,6 @@ namespace Nostromo.Server.API.Controllers
                 _logger.LogError(ex, "Error retrieving movie with ID: {MovieId}", id);
                 return StatusCode(500, new { Message = "An error occurred while retrieving the movie" });
             }
-        }
-       
-   
-        [HttpGet("filtered-genre")]
-        public async Task<ActionResult<List<TmdbMovieResponse>>> GetFilteredGenre([FromQuery] List<int> genres)
-        {
-            try
-            {
-                var movies = await _databaseService.GetFilterMediaGenre(genres);
-                if (movies == null)
-                {
-                    return NotFound(new { Message = $"Movie with genreID {genres} not found" });
-                }
-                List<TmdbMovieResponse> tmbdMovie = new List<TmdbMovieResponse>();
-                foreach (var movie in movies)
-                {
-                    var result = new TmdbMovieResponse
-                    {
-                        id = movie.MovieID,
-                        title = movie.Title,
-                        originalTitle = movie.OriginalTitle,
-                        overview = movie.Overview,
-                        posterPath = movie.PosterPath,
-                        backdropPath = movie.BackdropPath,
-                        releaseDate = movie.ReleaseDate,
-                        adult = movie.IsAdult,
-                        popularity = Convert.ToSingle(movie.Popularity),
-                        voteCount = movie.VoteCount,
-                        voteAverage = Convert.ToSingle(movie.VoteAverage),
-                        runtime = movie.Runtime,
-                        genreIds = movie.Genres?.Select(g => g.GenreID).ToList() ?? new List<int>()
-                    };
-                    tmbdMovie.Add(result);
-                }
-
-
-                return Ok(tmbdMovie);
-            }
-            catch (Exception ex)
-            {
-                
-                return StatusCode(500, new { Message = "An error occurred while retrieving the movie" });
-            }
-        }
-        [HttpGet("filtered-highestRatings")]
-        public async Task<ActionResult<List<TmdbMovieResponse>>> HighestRatings()
-        {
-
-            try
-            {
-                List<TMDBMovie> tmbdMovie = new List<TMDBMovie>();
-                tmbdMovie = await _databaseService.movieRatingsSorted();
-             
-                
-
-
-                return Ok(tmbdMovie);
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(500, new { Message = "An error occurred while retrieving the movie" });
-            }
-
         }
     }
 }

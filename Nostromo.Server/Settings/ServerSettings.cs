@@ -4,6 +4,11 @@ using NHibernate.Mapping;
 
 namespace Nostromo.Server.Settings
 {
+    public class WatcherSettings
+    {
+        public int ProcessingIntervalSeconds { get; set; }
+    }
+
     public class ServerSettings : IServerSettings
     {
         private string _imagesPath;

@@ -1,12 +1,12 @@
-﻿using Nostromo.Server.Database.Repositories;
+﻿// IMovieRepository.cs
 
 namespace Nostromo.Server.Database.Repositories;
-public interface IMovieRepository : IRepository<TMDBMovie>
+
+public interface IMovieRepository
 {
+    Task<TMDBMovie> GetByIdAsync(int id);
     Task<IEnumerable<TMDBMovie>> SearchAsync(string searchTerm);
-    Task<(bool exists, string path)> GetPosterPathAsync(int id);
-
-    Task<IEnumerable<TMDBMovie>> SearchGenreAsync(List<int> genreIds);
-
-    Task<IEnumerable<TMDBMovie>> SortMovieByRatings();
+    Task AddAsync(TMDBMovie movie);
+    Task UpdateAsync(TMDBMovie movie);
+    Task DeleteAsync(int id);
 }

@@ -1,48 +1,133 @@
-﻿// Startup.cs
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Nostromo.Server.Database;
-using Nostromo.Server.Scheduling.Jobs;
 using Nostromo.Server.Services;
-using Nostromo.Server.Settings;
 using Nostromo.Server.Utilities;
-using Nostromo.Server.Utilities.FileSystemWatcher;
+using Nostromo.Server.Scheduling;
+using Nostromo.Server.Settings;
+using Nostromo.Server.Database;
+using Nostromo.Server.Database.Repositories;
+using Nostromo.Server.Scheduling.Jobs;
 using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using Nostromo.Server.API.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Authentication;
-using Nostromo.Server.API.Authentication;
-using System.Security.Claims;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Quartz.AspNetCore;
 
 namespace Nostromo.Server.Server
 {
+    // WebStartup class is now correctly using _configuration.
+    public class WebStartup
+    {
+        private readonly IWebHostEnvironment _env;
+        private readonly IConfiguration _configuration;
+
+        // Inject IConfiguration here
+        public WebStartup(IWebHostEnvironment env, IConfiguration configuration)
+        {
+            _env = env;
+            _configuration = configuration;
+        }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.Configure<WatcherSettings>(_configuration.GetSection("WatcherSettings"));
+
+            // API Controllers
+            services.AddControllers();
+
+            // Swagger documentation
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Nostromo API",
+                    Version = "v1",
+                    Description = "API endpoints for Nostromo Server"
+                });
+            });
+
+            // CORS if needed for development
+            services.AddCors(options =>
+            {
+                options.AddPolicy("Development", builder =>
+                {
+                    builder.WithOrigins("http://localhost:5173")
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseCors("Development");
+            }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Nostromo API V1");
+                c.RoutePrefix = "swagger";
+            });
+
+            string _serverProjectPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../..", "Nostromo.Server"));
+            var webuiPath = Path.Combine(_serverProjectPath, "webui");
+
+            // Move the static files middleware BEFORE routing
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(webuiPath),
+                RequestPath = "/webui",
+                ServeUnknownFileTypes = true,
+                OnPrepareResponse = ctx =>
+                {
+                    Console.WriteLine($"Attempting to serve static file: {ctx.File.PhysicalPath}");
+                }
+            });
+
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+
+                // Only use fallback for non-file routes
+                endpoints.MapFallbackToFile("/webui/{**path}", "/index.html", new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(webuiPath)
+                });
+            });
+        }
+    }
+
+    // Main Startup class
     public class Startup
     {
         private IServiceProvider _serviceProvider;
-        private IConfiguration _configuration;
+        private IConfiguration _configuration; // Declare _configuration here
         private readonly ILogger _logger;
         private readonly ISettingsProvider _settingsProvider;
         private IWebHost _webHost;
-        private readonly IServiceCollection _services;
 
-        public Startup(ILogger<Startup> logger, ISettingsProvider settingsProvider)
+        public Startup(ILogger<Startup> logger, ISettingsProvider settingsProvider, IConfiguration configuration)
         {
             _logger = logger;
             _settingsProvider = settingsProvider;
-            _services = new ServiceCollection();
-
-            // Build configuration
-            _configuration = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false)
-                .AddJsonFile("appsettings.Development.json", optional: true)
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
-                .AddEnvironmentVariables()
-                .Build();
+            _configuration = configuration; // Assign the configuration
         }
 
         private void ConfigureServices(IServiceCollection services)
@@ -57,82 +142,68 @@ namespace Nostromo.Server.Server
 
             services.AddSingleton(_configuration);
 
+            // Register the database context and services
             services.AddNostromoDatabase(_configuration);
             services.AddHttpClient();
+            services.AddHttpContextAccessor();
 
-            // add authentication
-            services.AddAuthentication("ApiKey")
-                .AddScheme<AuthenticationSchemeOptions, CustomAuthHandler>("ApiKey", null);
-
-            // add authorization
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("admin", policy =>
-                    policy.RequireClaim(ClaimTypes.Role, "admin"));
-            });
-
-            services.AddSwaggerGen(c =>
-            {
-                c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
-                {
-                    Type = SecuritySchemeType.ApiKey,
-                    In = ParameterLocation.Header,
-                    Name = "apikey",
-                    Description = "API Key can be provided in header or query parameter"
-                });
-
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "ApiKey"
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
-            });
-
-            // Register core services
+            // Register DatabaseService
             services.AddScoped<IDatabaseService, DatabaseService>();
-            services.AddSingleton<ISettingsProvider>(_settingsProvider);
-            services.AddSingleton<FileWatcherService>();
-            services.AddSingleton<NostromoServer>();
 
-            // Configure WatcherSettings
+            // Register the repository (FileSystemRepository)
+            services.AddScoped<IFileSystemRepository, FileSystemRepository>();
+
+            // Register the FileWatcherService
+            services.AddSingleton<FileWatcherService>();
+
+            // Configure WatcherSettings from configuration
             services.Configure<WatcherSettings>(_configuration.GetSection("WatcherSettings"));
 
-            // Register FileSystemWatcher
-            services.AddSingleton<RecoveringFileSystemWatcher>(sp =>
+            // Add Quartz services for scheduled jobs
+            services.AddQuartz(q =>
             {
-                var watchPath = _configuration.GetValue<string>("WatchSettings:Path")
-                    ?? throw new InvalidOperationException("Watch path not configured");
-                return new RecoveringFileSystemWatcher(watchPath);
+                q.UseMicrosoftDependencyInjectionJobFactory();
             });
 
-            // Add Quartz services
-            services.AddQuartz();
+            services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
-            services.Configure<TmdbSettings>(_configuration.GetSection("TMDB"));
-            services.AddHttpClient<ITmdbService, TmdbService>(client => {
-                var tmdbSettings = _configuration.GetSection("TMDB").Get<TmdbSettings>();
-                client.BaseAddress = new Uri(tmdbSettings?.BaseUrl ??
-                    throw new InvalidOperationException("TMDB BaseUrl not configured"));
-                client.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/json"));
+
+            // Register Quartz IScheduler
+            services.AddSingleton(provider =>
+            {
+                var schedulerFactory = provider.GetRequiredService<ISchedulerFactory>();
+                return schedulerFactory.GetScheduler().Result;
             });
+
+            // Register TMDB API settings and add necessary services
+            var tmdbApiKey = _configuration.GetValue<string>("TMDB:ApiKey", "cbd64d95c4c66beed284bd12701769ec");
+            var tmdbBaseUrl = _configuration.GetValue<string>("TMDB:BaseUrl", "https://api.themoviedb.org/3");
+
+            if (tmdbApiKey == "cbd64d95c4c66beed284bd12701769ec" || tmdbBaseUrl == "https://api.themoviedb.org/3")
+            {
+                _logger.LogWarning("TMDB configuration is using default values. Ensure appsettings.json is correctly configured.");
+            }
+
+            // Register controllers (this will automatically pick up FolderController)
+            services.AddControllers();
+
+            // Register settings provider and core services
+            services.AddSingleton<ISettingsProvider>(_settingsProvider);
+
+            // Register the NostromoServer singleton
+            services.AddSingleton<NostromoServer>();
         }
 
         public async Task Start()
         {
             try
             {
-                ConfigureServices(_services);
-                _serviceProvider = _services.BuildServiceProvider();
+                // Create service collection
+                var services = new ServiceCollection();
+                ConfigureServices(services);
+
+                // Build service provider
+                _serviceProvider = services.BuildServiceProvider();
 
                 // Initialize database
                 using (var scope = _serviceProvider.CreateScope())
@@ -141,18 +212,22 @@ namespace Nostromo.Server.Server
                     await dbContext.Database.MigrateAsync();
                 }
 
-                if (!await StartWebHost())
+                // Start web host
+                if (!await StartWebHost(_settingsProvider))
                 {
                     throw new Exception("Failed to start web host");
                 }
 
+                // Set the static service provider
                 Utils.ServiceContainer = _serviceProvider;
 
+                // Get and start the server
                 var nostromoServer = _serviceProvider.GetRequiredService<NostromoServer>();
                 Utils.NostromoServer = nostromoServer;
 
+                // Start the file watcher service
                 var fileWatcherService = _serviceProvider.GetRequiredService<FileWatcherService>();
-                await fileWatcherService.StartAsync(CancellationToken.None);
+                await fileWatcherService.StartWatchingAsync(CancellationToken.None);
 
                 if (!nostromoServer.StartUpServer())
                 {
@@ -168,14 +243,13 @@ namespace Nostromo.Server.Server
             }
         }
 
-        private async Task<bool> StartWebHost()
+        private async Task<bool> StartWebHost(ISettingsProvider settingsProvider)
         {
             try
             {
-                _webHost ??= InitWebHost();
+                _webHost ??= InitWebHost(settingsProvider);
                 await _webHost.StartAsync();
-                _logger.LogInformation("Web host started successfully on port {Port}",
-                    _settingsProvider.GetSettings().ServerPort);
+                _logger.LogInformation("Web host started successfully on port {Port}", settingsProvider.GetSettings().ServerPort);
                 return true;
             }
             catch (Exception e)
@@ -186,31 +260,32 @@ namespace Nostromo.Server.Server
             }
         }
 
-        private IWebHost InitWebHost()
+        private IWebHost InitWebHost(ISettingsProvider settingsProvider)
         {
             if (_webHost != null) return _webHost;
 
-            var settings = _settingsProvider.GetSettings();
-            var serverProjectPath = Path.GetFullPath(
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../..", "Nostromo.Server"));
+            var settings = settingsProvider.GetSettings();
+            var serverProjectPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../..", "Nostromo.Server"));
 
             var builder = new WebHostBuilder()
                 .UseKestrel(options =>
                 {
                     options.ListenAnyIP(settings.ServerPort);
                 })
-                .UseWebRoot(Path.Combine(serverProjectPath, "webui"))
-                .UseStartup<WebStartup>()
+                .UseWebRoot(Path.Combine(serverProjectPath, "webui"))  // Add this line
                 .ConfigureServices(services =>
                 {
-                    // Copy core services to the web host
-                    foreach (var descriptor in _services)
-                    {
-                        services.Add(descriptor);
-                    }
-                });
+                    // Share the configuration
+                    services.AddSingleton(_configuration);
+                    // Share the settings provider
+                    services.AddSingleton(settingsProvider);
+                    // Share other core services
+                    ConfigureServices(services);
+                })
+                .UseStartup<WebStartup>();
 
             var result = builder.Build();
+
             Utils.SettingsProvider = result.Services.GetRequiredService<ISettingsProvider>();
             Utils.ServiceContainer = result.Services;
 

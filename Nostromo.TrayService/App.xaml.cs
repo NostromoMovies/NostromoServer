@@ -1,13 +1,13 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
-using Hardcodet.Wpf.TaskbarNotification;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using Nostromo.Server.Server;
-using Nostromo.Server.Utilities;
 using Nostromo.Server.Settings;
-using SettingsProvider = Nostromo.Server.Settings.SettingsProvider;
+using System;
+using System.Windows;
+using Hardcodet.Wpf.TaskbarNotification;
+using Nostromo.Server.Utilities;
+
 
 namespace Nostromo.TrayService
 {
@@ -43,14 +43,22 @@ namespace Nostromo.TrayService
                 }
             };
 
-            var logFactory = LoggerFactory.Create( o => o.AddNLog() );
+            var logFactory = LoggerFactory.Create(o => o.AddNLog());
             _logger = logFactory.CreateLogger("Main");
 
             try
             {
                 var settingsProvider = new SettingsProvider(logFactory.CreateLogger<SettingsProvider>());
                 Utils.SettingsProvider = settingsProvider;
-                var startup = new Startup(logFactory.CreateLogger<Startup>(), settingsProvider);
+
+                // Configure IConfiguration
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                    .AddJsonFile("appsettings.json", optional: false)
+                    .Build();
+
+                // Pass ILogger, ISettingsProvider, and IConfiguration to Startup constructor
+                var startup = new Startup(logFactory.CreateLogger<Startup>(), settingsProvider, configuration);
                 startup.Start().ConfigureAwait(true).GetAwaiter().GetResult();
             }
             catch (Exception exception)

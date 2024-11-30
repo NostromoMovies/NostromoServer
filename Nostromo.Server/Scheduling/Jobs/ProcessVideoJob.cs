@@ -77,10 +77,16 @@ public class ProcessVideoJob : BaseJob
 
         _logger.LogInformation("Computed hash for file {FilePath}: {Hash}", filePath, computedHash);
 
-        // Schedule DownloadMovieMetadataJob with the computed hash
+        // Retrieve TMDB API Key and Base URL from your configuration or other source
+        var tmdbApiKey = "cbd64d95c4c66beed284bd12701769ec"; // Replace with the actual value or configuration access
+        var tmdbBaseUrl = "https://api.themoviedb.org/3"; // Replace with the actual base URL or configuration access
+
+        // Schedule DownloadMovieMetadataJob with the computed hash and TMDB values
         var metadataJobKey = new JobKey($"MetadataJob_{computedHash}", "ConsolidateGroup");
         var metadataJob = JobBuilder.Create<DownloadMovieMetadataJob>()
-            .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, computedHash) // Pass the computed hash
+            .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, computedHash)  // Pass the computed hash
+            .UsingJobData(DownloadMovieMetadataJob.TMDB_API_KEY, tmdbApiKey)  // Pass the TMDB API key
+            .UsingJobData(DownloadMovieMetadataJob.TMDB_BASE_URL, tmdbBaseUrl)  // Pass the TMDB base URL
             .WithIdentity(metadataJobKey)
             .Build();
 

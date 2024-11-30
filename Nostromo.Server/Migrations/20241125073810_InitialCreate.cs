@@ -203,27 +203,6 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AuthTokens",
-                columns: table => new
-                {
-                    AuthId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
-                    DeviceName = table.Column<string>(type: "TEXT", nullable: false),
-                    Token = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AuthTokens", x => x.AuthId);
-                    table.ForeignKey(
-                        name: "FK_AuthTokens_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "UserID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "CrossRefVideoTMDBMovies",
                 columns: table => new
                 {
@@ -277,11 +256,6 @@ namespace Nostromo.Server.Migrations
                 values: new object[] { 1, "5d886780825db91bbc390f10f1b6c95c", "Alien", 348 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AuthTokens_UserId",
-                table: "AuthTokens",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_CrossRefVideoTMDBMovies_TMDBMovieID",
                 table: "CrossRefVideoTMDBMovies",
                 column: "TMDBMovieID");
@@ -306,9 +280,6 @@ namespace Nostromo.Server.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AuthTokens");
-
-            migrationBuilder.DropTable(
                 name: "CrossRefVideoTMDBMovies");
 
             migrationBuilder.DropTable(
@@ -330,10 +301,10 @@ namespace Nostromo.Server.Migrations
                 name: "People");
 
             migrationBuilder.DropTable(
-                name: "VideoPlaces");
+                name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "VideoPlaces");
 
             migrationBuilder.DropTable(
                 name: "Genres");
