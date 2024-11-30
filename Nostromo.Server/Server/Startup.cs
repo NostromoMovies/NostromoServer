@@ -18,6 +18,7 @@ using Nostromo.Server.API.Authentication;
 using System.Security.Claims;
 using Microsoft.OpenApi.Models;
 using Nostromo.Server.Scheduling;
+using System.Threading;
 
 namespace Nostromo.Server.Server
 {
@@ -102,7 +103,7 @@ namespace Nostromo.Server.Server
             // TODO: move
             services.AddScoped<IDatabaseService, DatabaseService>();
             services.AddSingleton<ISettingsProvider>(_settingsProvider);
-            services.AddSingleton<FileWatcherService>();
+            services.AddSingleton<IFileWatcherService, FileWatcherService>();
             services.AddScoped<IImportFolderManager, ImportFolderManager>();
             services.AddSingleton<NostromoServer>();
 
@@ -155,8 +156,12 @@ namespace Nostromo.Server.Server
                 var nostromoServer = _serviceProvider.GetRequiredService<NostromoServer>();
                 Utils.NostromoServer = nostromoServer;
 
-                var fileWatcherService = _serviceProvider.GetRequiredService<FileWatcherService>();
-                await fileWatcherService.StartWatchingAsync(CancellationToken.None);
+                // old
+                //var fileWatcherService = _serviceProvider.GetRequiredService<FileWatcherService>();
+                //await fileWatcherService.StartWatchingAsync(CancellationToken.None);
+
+                var importFolderManager = _serviceProvider.GetRequiredService<IImportFolderManager>();
+                await importFolderManager.InitializeWatchersAsync(CancellationToken.None);
 
                 if (!nostromoServer.StartUpServer())
                 {

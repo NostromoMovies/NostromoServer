@@ -1,10 +1,12 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
-using Nostromo.Server.Database.Repositories;
 using Nostromo.Server.Database;
+using Nostromo.Server.Database.Repositories;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Nostromo.Server.Services
 {
@@ -14,22 +16,38 @@ namespace Nostromo.Server.Services
         Task<bool> RemoveImportFolderAsync(string path);
         Task<List<string>> GetWatchedFoldersAsync();
         Task<bool> IsFolderWatchedAsync(string path);
+        Task InitializeWatchersAsync(CancellationToken cancellationToken);
     }
 
     public class ImportFolderManager : IImportFolderManager
     {
         private readonly IImportFolderRepository _importFolderRepository;
-        private readonly FileWatcherService _fileWatcherService;
+        private readonly IFileWatcherService _fileWatcherService;
         private readonly ILogger<ImportFolderManager> _logger;
 
         public ImportFolderManager(
             IImportFolderRepository importFolderRepository,
-            FileWatcherService fileWatcherService,
+            IFileWatcherService fileWatcherService,
             ILogger<ImportFolderManager> logger)
         {
             _importFolderRepository = importFolderRepository;
             _fileWatcherService = fileWatcherService;
             _logger = logger;
+        }
+
+        public async Task InitializeWatchersAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var watchedPaths = await GetWatchedFoldersAsync();
+                await _fileWatcherService.StartWatchingPathsAsync(watchedPaths, cancellationToken);
+                _logger.LogInformation("Initialized watchers for {Count} folders", watchedPaths.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error initializing folder watchers");
+                throw;
+            }
         }
 
         public async Task<bool> AddImportFolderAsync(string path)
@@ -48,14 +66,12 @@ namespace Nostromo.Server.Services
                     return false;
                 }
 
-                // Check if folder is already being watched
                 if (await IsFolderWatchedAsync(path))
                 {
                     _logger.LogInformation("Folder is already being watched: {Path}", path);
                     return true;
                 }
 
-                // Create new import folder
                 var newFolder = new ImportFolder
                 {
                     FolderLocation = path,
@@ -66,7 +82,7 @@ namespace Nostromo.Server.Services
                 };
 
                 await _importFolderRepository.AddAsync(newFolder);
-                await _fileWatcherService.AddDirectoryToWatchAsync(path);
+                await _fileWatcherService.StartWatchingPathAsync(path);
 
                 _logger.LogInformation("Successfully added and started watching folder: {Path}", path);
                 return true;
@@ -103,8 +119,7 @@ namespace Nostromo.Server.Services
                     await _importFolderRepository.DeleteAsync(folder.ImportFolderID);
                 }
 
-                await _fileWatcherService.RemoveDirectoryFromWatchAsync(path);
-
+                await _fileWatcherService.StopWatchingPathAsync(path);
                 _logger.LogInformation("Successfully removed folder from watching: {Path}", path);
                 return true;
             }
@@ -132,6 +147,11 @@ namespace Nostromo.Server.Services
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    return false;
+                }
+
                 var watchedPaths = await GetWatchedFoldersAsync();
                 return watchedPaths.Contains(path);
             }

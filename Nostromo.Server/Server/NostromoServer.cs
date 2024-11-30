@@ -11,10 +11,10 @@ namespace Nostromo.Server.Server
 
 
     {
-        private readonly FileWatcherService _fileWatcherService;
+        private readonly IFileWatcherService _fileWatcherService;
         private static DateTime? _startTime;
 
-        public NostromoServer(FileWatcherService fileWatcherService)
+        public NostromoServer(IFileWatcherService fileWatcherService)
         {
             _fileWatcherService = fileWatcherService;
         }

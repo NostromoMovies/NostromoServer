@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using System;
 using System.IO;
@@ -7,18 +8,19 @@ using Nostromo.Server.Scheduling.Jobs;
 using Nostromo.Server.Database;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace Nostromo.Server.Scheduling;
 
 public class ProcessVideoJob : BaseJob
 {
     private readonly ILogger<ProcessVideoJob> _logger;
-    private readonly NostromoDbContext _dbContext;
+    private readonly IServiceProvider _serviceProvider;
 
-    public ProcessVideoJob(ILogger<ProcessVideoJob> logger, NostromoDbContext dbContext)
+    public ProcessVideoJob(
+        ILogger<ProcessVideoJob> logger,
+        IServiceProvider serviceProvider)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }
 
     public override string Name => "Process Video Job";
@@ -80,7 +82,7 @@ public class ProcessVideoJob : BaseJob
         // Schedule DownloadMovieMetadataJob with the computed hash
         var metadataJobKey = new JobKey($"MetadataJob_{computedHash}", "ConsolidateGroup");
         var metadataJob = JobBuilder.Create<DownloadMovieMetadataJob>()
-            .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, computedHash) // Pass the computed hash
+            .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, computedHash)
             .WithIdentity(metadataJobKey)
             .Build();
 
@@ -106,16 +108,22 @@ public class ProcessVideoJob : BaseJob
 
         while (retries > 0)
         {
-            // Query the database for the computed hash
-            var video = await _dbContext.Videos
-                .AsNoTracking() // Prevent EF from tracking the entity, as we just need to read
-                .FirstOrDefaultAsync(v => v.FileName == fileName, Context.CancellationToken);
-
-            if (video != null && !string.IsNullOrWhiteSpace(video.ED2K))
+            // Create a new scope for each database operation
+            using (var scope = _serviceProvider.CreateScope())
             {
-                computedHash = video.ED2K;
-                _logger.LogInformation("Hash found in database for {FilePath}: {Hash}", filePath, computedHash);
-                return computedHash;
+                var dbContext = scope.ServiceProvider.GetRequiredService<NostromoDbContext>();
+
+                // Query the database for the computed hash
+                var video = await dbContext.Videos
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(v => v.FileName == fileName, Context.CancellationToken);
+
+                if (video != null && !string.IsNullOrWhiteSpace(video.ED2K))
+                {
+                    computedHash = video.ED2K;
+                    _logger.LogInformation("Hash found in database for {FilePath}: {Hash}", filePath, computedHash);
+                    return computedHash;
+                }
             }
 
             retries--;
@@ -126,5 +134,4 @@ public class ProcessVideoJob : BaseJob
         _logger.LogError("Failed to retrieve hash for {FilePath} after multiple retries.", filePath);
         return null;
     }
-
 }

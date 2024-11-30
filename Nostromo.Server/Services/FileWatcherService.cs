@@ -3,56 +3,48 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Nostromo.Server.Database;
-using Nostromo.Server.Database.Repositories;
 using Quartz;
 using Microsoft.Extensions.Logging;
 using Nostromo.Server.Scheduling;
 
 namespace Nostromo.Server.Services
 {
-    public class FileWatcherService
+    public interface IFileWatcherService
     {
-        private readonly IImportFolderRepository _importFolderRepository;
+        Task StartWatchingPathsAsync(IEnumerable<string> paths, CancellationToken cancellationToken);
+        Task StartWatchingPathAsync(string path);
+        Task StopWatchingPathAsync(string path);
+    }
+
+    public class FileWatcherService : IFileWatcherService
+    {
         private readonly List<FileSystemWatcher> _watchers;
         private readonly IScheduler _scheduler;
         private readonly ILogger<FileWatcherService> _logger;
 
-        public FileWatcherService(IImportFolderRepository importFolderRepository, IScheduler scheduler, ILogger<FileWatcherService> logger)
+        public FileWatcherService(IScheduler scheduler, ILogger<FileWatcherService> logger)
         {
-            _importFolderRepository = importFolderRepository;
             _watchers = new List<FileSystemWatcher>();
             _scheduler = scheduler;
             _logger = logger;
         }
 
-        // Start watching the folders that are loaded from the database
-        public async Task StartWatchingAsync(CancellationToken cancellationToken)
+        public async Task StartWatchingPathsAsync(IEnumerable<string> paths, CancellationToken cancellationToken)
         {
-            var watchedPaths = await _importFolderRepository.GetWatchedPathsAsync();
-
-            foreach (var path in watchedPaths)
+            foreach (var path in paths)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                StartWatchingPath(path);
+                await StartWatchingPathAsync(path);
             }
         }
 
-        // Dynamically add a new directory to be watched
-        public async Task AddDirectoryToWatchAsync(string path)
+        public async Task StartWatchingPathAsync(string path)
         {
-            // Save the new path to the database
-            await _importFolderRepository.SaveWatchedPathsAsync(new List<string> { path });
-
-            // Start watching the new path
             StartWatchingPath(path);
-
-            // Trigger the ProcessVideoJob for the new directory
             await TriggerProcessVideoJob(path);
         }
 
-        // Dynamically remove a directory from the watch list
-        public async Task RemoveDirectoryFromWatchAsync(string path)
+        public async Task StopWatchingPathAsync(string path)
         {
             var watcher = _watchers.FirstOrDefault(w => w.Path == path);
             if (watcher != null)
@@ -60,17 +52,10 @@ namespace Nostromo.Server.Services
                 watcher.EnableRaisingEvents = false;
                 watcher.Dispose();
                 _watchers.Remove(watcher);
+                _logger.LogInformation($"Stopped watching: {path}");
             }
-
-            // Get all currently watched paths
-            var watchedPaths = await _importFolderRepository.GetWatchedPathsAsync();
-
-            // Remove the specified path and save the updated list
-            watchedPaths.Remove(path);
-            await _importFolderRepository.SaveWatchedPathsAsync(watchedPaths);
         }
 
-        // Helper method to start watching a specific path
         private void StartWatchingPath(string path)
         {
             if (!Directory.Exists(path))
@@ -85,19 +70,9 @@ namespace Nostromo.Server.Services
                 EnableRaisingEvents = true
             };
 
-            // Add event handlers for changes in the directory
-            watcher.Created += async (sender, e) =>
-            {
-                await OnChangedAsync(e.FullPath, e.ChangeType);
-            };
-            watcher.Changed += async (sender, e) =>
-            {
-                await OnChangedAsync(e.FullPath, e.ChangeType);
-            };
-            watcher.Deleted += async (sender, e) =>
-            {
-                await OnChangedAsync(e.FullPath, e.ChangeType);
-            };
+            watcher.Created += async (sender, e) => await OnChangedAsync(e.FullPath, e.ChangeType);
+            watcher.Changed += async (sender, e) => await OnChangedAsync(e.FullPath, e.ChangeType);
+            watcher.Deleted += async (sender, e) => await OnChangedAsync(e.FullPath, e.ChangeType);
 
             _watchers.Add(watcher);
             _logger.LogInformation($"Started watching: {path}");
@@ -109,7 +84,6 @@ namespace Nostromo.Server.Services
 
             if (changeType == WatcherChangeTypes.Created)
             {
-                // Try multiple times with a delay between attempts
                 const int maxAttempts = 10;
                 const int delayMs = 500;
 
@@ -156,11 +130,9 @@ namespace Nostromo.Server.Services
         {
             try
             {
-                // First check if the file exists
                 if (!File.Exists(filename))
                     return false;
 
-                // Attempt to open with FileShare.None to ensure file is not locked
                 using var stream = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
                 return stream.Length > 0;
             }
