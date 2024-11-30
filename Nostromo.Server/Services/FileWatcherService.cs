@@ -109,7 +109,23 @@ namespace Nostromo.Server.Services
 
             if (changeType == WatcherChangeTypes.Created)
             {
-                await TriggerProcessVideoJob(filePath);
+                // Try multiple times with a delay between attempts
+                const int maxAttempts = 10;
+                const int delayMs = 500;
+
+                for (int i = 0; i < maxAttempts; i++)
+                {
+                    if (IsFileReady(filePath))
+                    {
+                        await TriggerProcessVideoJob(filePath);
+                        return;
+                    }
+
+                    _logger.LogInformation($"File not ready, attempt {i + 1} of {maxAttempts}: {filePath}");
+                    await Task.Delay(delayMs);
+                }
+
+                _logger.LogWarning($"File could not be accessed after {maxAttempts} attempts: {filePath}");
             }
         }
 
@@ -133,6 +149,29 @@ namespace Nostromo.Server.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error triggering ProcessVideoJob for path: {Path}", path);
+            }
+        }
+
+        private bool IsFileReady(string filename)
+        {
+            try
+            {
+                // First check if the file exists
+                if (!File.Exists(filename))
+                    return false;
+
+                // Attempt to open with FileShare.None to ensure file is not locked
+                using var stream = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+                return stream.Length > 0;
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Unexpected error checking if file is ready: {FileName}", filename);
+                return false;
             }
         }
     }
