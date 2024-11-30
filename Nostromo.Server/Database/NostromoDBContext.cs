@@ -107,6 +107,10 @@ namespace Nostromo.Server.Database
                 entity.Property(e => e.IsDropSource);
                 entity.Property(e => e.IsDropDestination);
                 entity.Property(e => e.IsWatched);
+
+                // Add a unique index on FolderLocation
+                entity.HasIndex(e => e.FolderLocation)
+                    .IsUnique();
             });
 
             modelBuilder.Entity<DuplicateFile>(entity =>
