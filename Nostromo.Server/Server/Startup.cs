@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authentication;
 using Nostromo.Server.API.Authentication;
 using System.Security.Claims;
 using Microsoft.OpenApi.Models;
+using Nostromo.Server.Scheduling;
 
 namespace Nostromo.Server.Server
 {
@@ -104,7 +105,7 @@ namespace Nostromo.Server.Server
             services.AddSingleton<NostromoServer>();
 
             // Configure WatcherSettings
-            services.Configure<WatcherSettings>(_configuration.GetSection("WatcherSettings"));
+            //services.Configure<WatcherSettings>(_configuration.GetSection("WatcherSettings"));
 
             // Register FileSystemWatcher
             services.AddSingleton<RecoveringFileSystemWatcher>(sp =>
@@ -116,6 +117,7 @@ namespace Nostromo.Server.Server
 
             // Add Quartz services
             services.AddQuartz();
+            services.AddQuartzServices();
 
             services.Configure<TmdbSettings>(_configuration.GetSection("TMDB"));
             services.AddHttpClient<ITmdbService, TmdbService>(client => {
@@ -152,7 +154,7 @@ namespace Nostromo.Server.Server
                 Utils.NostromoServer = nostromoServer;
 
                 var fileWatcherService = _serviceProvider.GetRequiredService<FileWatcherService>();
-                await fileWatcherService.StartAsync(CancellationToken.None);
+                await fileWatcherService.StartWatchingAsync(CancellationToken.None);
 
                 if (!nostromoServer.StartUpServer())
                 {

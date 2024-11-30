@@ -14,12 +14,22 @@ public static class QuartzExtensions
         services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
         services.AddSingleton<IJobFactory, JobFactory>();
 
+        // Add IScheduler as singleton
+        services.AddSingleton(provider =>
+        {
+            var factory = provider.GetRequiredService<ISchedulerFactory>();
+            var scheduler = factory.GetScheduler().Result;
+            scheduler.JobFactory = provider.GetRequiredService<IJobFactory>();
+            return scheduler;
+        });
+
         // Register jobs
         services.AddTransient<HashFileJob>();
         services.AddTransient<DownloadTmdbImageJob>();
         services.AddTransient<ProcessVideoJob>();
         services.AddTransient<DownloadMovieMetadataJob>();
 
+        services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
         return services;
     }
 }

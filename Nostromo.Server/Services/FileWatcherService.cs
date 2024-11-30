@@ -1,269 +1,139 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Nostromo.Server.Utilities.FileSystemWatcher;
-using System.Collections.Concurrent;
-using Quartz;
-using Nostromo.Server.Scheduling;
-using Nostromo.Server.Scheduling.Jobs;
-using Nostromo.Server.Utilities;
-using Microsoft.Extensions.DependencyInjection;
-using Quartz.Spi;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Nostromo.Server.Database;
+using Nostromo.Server.Database.Repositories;
+using Quartz;
+using Microsoft.Extensions.Logging;
+using Nostromo.Server.Scheduling;
 
-namespace Nostromo.Server.Services;
-
-public class WatcherSettings
+namespace Nostromo.Server.Services
 {
-    public int ProcessingIntervalSeconds { get; set; } = 5;
-}
-
-public class FileWatcherService : IHostedService, IDisposable
-{
-    private readonly List<RecoveringFileSystemWatcher> _watchers;
-    private readonly ILogger<FileWatcherService> _logger;
-    private readonly WatcherSettings _settings;
-    private readonly IServiceProvider _serviceProvider;
-    private readonly ConcurrentQueue<string> _changedFiles;
-    private readonly ISchedulerFactory _schedulerFactory;
-    private IScheduler? _scheduler;
-    private Timer? _timer;
-    private bool _isDisposed;
-    private readonly CancellationTokenSource _serviceCts = new();
-
-    public FileWatcherService(
-        IEnumerable<RecoveringFileSystemWatcher> watchers,
-        ILogger<FileWatcherService> logger,
-        IOptions<WatcherSettings> settings,
-        ISchedulerFactory schedulerFactory,
-        IServiceProvider serviceProvider)
+    public class FileWatcherService
     {
-        _watchers = watchers?.ToList() ?? throw new ArgumentNullException(nameof(watchers));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _settings = settings.Value;
-        _schedulerFactory = schedulerFactory ?? throw new ArgumentNullException(nameof(schedulerFactory));
-        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        _changedFiles = new ConcurrentQueue<string>();
-    }
+        private readonly IImportFolderRepository _importFolderRepository;
+        private readonly List<FileSystemWatcher> _watchers;
+        private readonly IScheduler _scheduler;
+        private readonly ILogger<FileWatcherService> _logger;
 
-    public async Task StartAsync(CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("File watcher service is starting...");
-
-        // Initialize and start the Quartz scheduler
-        _scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
-
-        // Set the job factory
-        _scheduler.JobFactory = _serviceProvider.GetRequiredService<IJobFactory>();
-
-        await _scheduler.Start(cancellationToken);
-
-        foreach (var watcher in _watchers)
+        public FileWatcherService(IImportFolderRepository importFolderRepository, IScheduler scheduler, ILogger<FileWatcherService> logger)
         {
-            _logger.LogInformation("Starting watcher for directory: {Path}", watcher.Path);
-            watcher.FileAdded += OnFileChanged;
-            watcher.FileDeleted += OnFileDeleted;
-            watcher.Start();
+            _importFolderRepository = importFolderRepository;
+            _watchers = new List<FileSystemWatcher>();
+            _scheduler = scheduler;
+            _logger = logger;
         }
 
-        _timer = new Timer(DoWork, null, TimeSpan.Zero,
-            TimeSpan.FromSeconds(_settings.ProcessingIntervalSeconds));
-    }
-
-    private void OnFileChanged(object? sender, string filePath)
-    {
-        _logger.LogInformation("File change detected: {FilePath}", filePath);
-        _changedFiles.Enqueue(filePath);
-    }
-
-    private void OnFileDeleted(object? sender, string filePath)
-    {
-        _logger.LogInformation("File deleted: {FilePath}", filePath);
-
-        // Try to cancel any scheduled job for this file
-        if (_scheduler != null)
+        // Start watching the folders that are loaded from the database
+        public async Task StartWatchingAsync(CancellationToken cancellationToken)
         {
-            var jobKey = new JobKey($"ProcessVideoJob_{filePath}", "ProcessVideoGroup");
-            _scheduler.DeleteJob(jobKey, _serviceCts.Token).ConfigureAwait(false);
-        }
-    }
+            var watchedPaths = await _importFolderRepository.GetWatchedPathsAsync();
 
-    private async void DoWork(object? state)
-    {
-        if (_scheduler == null) return;
-
-        try
-        {
-            while (_changedFiles.TryDequeue(out string? filePath))
+            foreach (var path in watchedPaths)
             {
-                _logger.LogInformation("Processing file from queue: {FilePath}", filePath);
-                try
-                {
-                    await ProcessFileAsync(filePath);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error processing file: {FilePath}", filePath);
-                }
+                cancellationToken.ThrowIfCancellationRequested();
+                StartWatchingPath(path);
             }
         }
-        catch (Exception ex)
+
+        // Dynamically add a new directory to be watched
+        public async Task AddDirectoryToWatchAsync(string path)
         {
-            _logger.LogError(ex, "Error in file processing loop");
+            // Save the new path to the database
+            await _importFolderRepository.SaveWatchedPathsAsync(new List<string> { path });
+
+            // Start watching the new path
+            StartWatchingPath(path);
+
+            // Trigger the ProcessVideoJob for the new directory
+            await TriggerProcessVideoJob(path);
         }
-    }
 
-    private async Task ProcessFileAsync(string filePath)
-    {
-        if (_scheduler == null) return;
+        // Dynamically remove a directory from the watch list
+        public async Task RemoveDirectoryFromWatchAsync(string path)
+        {
+            var watcher = _watchers.FirstOrDefault(w => w.Path == path);
+            if (watcher != null)
+            {
+                watcher.EnableRaisingEvents = false;
+                watcher.Dispose();
+                _watchers.Remove(watcher);
+            }
 
-        _logger.LogInformation("Preparing to process file: {FilePath}", filePath);
+            // Get all currently watched paths
+            var watchedPaths = await _importFolderRepository.GetWatchedPathsAsync();
 
-        // Wait for file to be ready with timeout and retries
-        var readyCheckStart = DateTime.UtcNow;
-        var retryCount = 0;
-        const int maxRetries = 5;
+            // Remove the specified path and save the updated list
+            watchedPaths.Remove(path);
+            await _importFolderRepository.SaveWatchedPathsAsync(watchedPaths);
+        }
 
-        while (true)
+        // Helper method to start watching a specific path
+        private void StartWatchingPath(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                _logger.LogWarning($"The directory '{path}' does not exist, skipping.");
+                return;
+            }
+
+            var watcher = new FileSystemWatcher(path)
+            {
+                NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.DirectoryName,
+                EnableRaisingEvents = true
+            };
+
+            // Add event handlers for changes in the directory
+            watcher.Created += async (sender, e) =>
+            {
+                await OnChangedAsync(e.FullPath, e.ChangeType);
+            };
+            watcher.Changed += async (sender, e) =>
+            {
+                await OnChangedAsync(e.FullPath, e.ChangeType);
+            };
+            watcher.Deleted += async (sender, e) =>
+            {
+                await OnChangedAsync(e.FullPath, e.ChangeType);
+            };
+
+            _watchers.Add(watcher);
+            _logger.LogInformation($"Started watching: {path}");
+        }
+
+        private async Task OnChangedAsync(string filePath, WatcherChangeTypes changeType)
+        {
+            _logger.LogInformation($"File {changeType}: {filePath}");
+
+            if (changeType == WatcherChangeTypes.Created)
+            {
+                await TriggerProcessVideoJob(filePath);
+            }
+        }
+
+        private async Task TriggerProcessVideoJob(string path)
         {
             try
             {
-                if (!File.Exists(filePath))
-                {
-                    _logger.LogWarning("File no longer exists: {FilePath}", filePath);
-                    return;
-                }
-
-                if (!IsFileReady(filePath))
-                {
-                    if (DateTime.UtcNow - readyCheckStart > TimeSpan.FromMinutes(5))
-                    {
-                        _logger.LogWarning("Timed out waiting for file to be ready: {FilePath}", filePath);
-                        return;
-                    }
-                    _logger.LogDebug("File is not ready yet: {FilePath}", filePath);
-                    await Task.Delay(1000, _serviceCts.Token);
-                    continue;
-                }
-
-                // Get file info to ensure we can access the file
-                var fileInfo = new FileInfo(filePath);
-                if (!fileInfo.Exists || fileInfo.Length == 0)
-                {
-                    if (retryCount++ >= maxRetries)
-                    {
-                        _logger.LogWarning("Max retries reached waiting for file: {FilePath}", filePath);
-                        return;
-                    }
-                    _logger.LogDebug("Retrying for file: {FilePath}", filePath);
-                    await Task.Delay(2000, _serviceCts.Token); // Wait 2 seconds between retries
-                    continue;
-                }
-
-                var jobKey = new JobKey($"ProcessVideoJob_{filePath}", "ProcessVideoGroup");
-                var triggerKey = new TriggerKey($"ProcessVideoTrigger_{filePath}", "ProcessVideoGroup");
-
-                // Create job detail
-                var jobDetail = JobBuilder.Create<ProcessVideoJob>()
-                    .WithIdentity(jobKey)
-                    .UsingJobData("FilePath", filePath)
+                var job = JobBuilder.Create<ProcessVideoJob>()
+                    .WithIdentity("ProcessVideoJob_" + path)
+                    .UsingJobData("FilePath", path)
                     .Build();
 
-                // Create trigger
                 var trigger = TriggerBuilder.Create()
-                    .WithIdentity(triggerKey)
+                    .WithIdentity("ProcessVideoJobTrigger_" + path)
                     .StartNow()
                     .Build();
 
-                // Schedule the job
-                await _scheduler.ScheduleJob(jobDetail, trigger, _serviceCts.Token);
-                _logger.LogInformation("Successfully scheduled ProcessVideoJob for {FilePath}", filePath);
-                return; // Success - exit the method
-            }
-            catch (IOException ex)
-            {
-                if (retryCount++ >= maxRetries)
-                {
-                    _logger.LogError(ex, "Failed to access file after {RetryCount} retries: {FilePath}", retryCount, filePath);
-                    return;
-                }
-                _logger.LogDebug("File still locked, retry {RetryCount}: {FilePath}", retryCount, filePath);
-                await Task.Delay(2000, _serviceCts.Token); // Wait 2 seconds between retries
+                await _scheduler.ScheduleJob(job, trigger);
+                _logger.LogInformation($"Scheduled ProcessVideoJob for directory: {path}");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error processing file: {FilePath}", filePath);
-                return;
+                _logger.LogError(ex, "Error triggering ProcessVideoJob for path: {Path}", path);
             }
         }
-    }
-
-    private bool IsFileReady(string filename)
-    {
-        try
-        {
-            // First check if the file exists
-            if (!File.Exists(filename))
-                return false;
-
-            // Attempt to open with FileShare.None to ensure file is not locked
-            using var stream = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return stream.Length > 0;
-        }
-        catch (IOException)
-        {
-            return false;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Unexpected error checking if file is ready: {FileName}", filename);
-            return false;
-        }
-    }
-
-    public async Task StopAsync(CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("File watcher service is stopping...");
-
-        _timer?.Change(Timeout.Infinite, 0);
-        _serviceCts.Cancel();
-
-        if (_scheduler != null)
-        {
-            // Shutdown the scheduler
-            await _scheduler.Shutdown(true, cancellationToken);
-        }
-
-        // Unsubscribe from events and clean up watchers
-        foreach (var watcher in _watchers)
-        {
-            watcher.FileAdded -= OnFileChanged;
-            watcher.FileDeleted -= OnFileDeleted;
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (_isDisposed)
-            return;
-
-        if (disposing)
-        {
-            _timer?.Dispose();
-            _serviceCts.Dispose();
-
-            foreach (var watcher in _watchers)
-            {
-                watcher.Dispose();
-            }
-        }
-
-        _isDisposed = true;
     }
 }
