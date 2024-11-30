@@ -10,7 +10,6 @@ namespace Nostromo.Server.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 public class MoviesController : ControllerBase
 {
     private readonly IMovieRepository _movieRepository;
