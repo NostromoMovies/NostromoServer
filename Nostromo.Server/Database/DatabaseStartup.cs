@@ -27,6 +27,7 @@ public static class DatabaseStartup
         services.AddScoped<IMovieRepository, MovieRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAuthTokenRepository, AuthTokenRepository>();
+        services.AddScoped<IImportFolderRepository, ImportFolderRepository>();
 
         return services;
 
