@@ -56,4 +56,54 @@ public class FolderController : ControllerBase
 
         return Ok($"Folder removed successfully: {path}");
     }
+
+    [HttpGet("Drives")]
+    public async Task<IActionResult> GetDrives()
+    {
+        string currentDirectory = Directory.GetCurrentDirectory();
+
+        string rootDirectory = Path.GetPathRoot(currentDirectory);
+        DriveInfo driveInfo = new DriveInfo(rootDirectory);
+
+        string[] subDirs = Directory.GetDirectories(rootDirectory);
+        var subFolders = subDirs.Select(dir =>
+        {
+            bool isAccessible = true;
+            DirectoryInfo dirInfo = null;
+
+            try
+            {
+                dirInfo = new DirectoryInfo(dir);
+                // Try to access some properties to verify access
+                var _ = dirInfo.GetFiles();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                isAccessible = false;
+            }
+
+            return new
+            {
+                Name = dirInfo?.Name ?? Path.GetFileName(dir),
+                FullPath = dir,
+                IsAccessible = isAccessible,
+                Created = dirInfo?.CreationTime,
+                LastModified = dirInfo?.LastWriteTime
+            };
+        });
+
+        var driveDetails = new
+        {
+            Name = driveInfo.Name,
+            VolumeLabel = driveInfo.VolumeLabel,
+            DriveFormat = driveInfo.DriveFormat,
+            TotalSize = driveInfo.TotalSize,
+            AvailableFreeSpace = driveInfo.AvailableFreeSpace,
+            DriveType = driveInfo.DriveType,
+            IsReady = driveInfo.IsReady,
+            SubFolders = subFolders
+        };
+
+        return Ok(driveDetails);
+    }
 }
