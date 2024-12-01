@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Nostromo.Server.API.Models;
 using System.Linq;
 
 namespace Nostromo.Server.Services
@@ -34,7 +35,7 @@ namespace Nostromo.Server.Services
             _fileWatcherService = fileWatcherService;
             _logger = logger;
         }
-
+ 
         public async Task InitializeWatchersAsync(CancellationToken cancellationToken)
         {
             try
