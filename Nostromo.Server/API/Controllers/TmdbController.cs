@@ -1,114 +1,121 @@
-using System.Net.Http.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Nostromo.Models;
 using Nostromo.Server.API.Models;
 using Nostromo.Server.Services;
-using Nostromo.Server.Settings;
 
-namespace Nostromo.Server.API.Controllers
+namespace Nostromo.Server.API.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class TmdbController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class TmdbController : Controller
+    private readonly ITmdbService _tmdbService;
+    private readonly ILogger<TmdbController> _logger;
+
+    public TmdbController(ITmdbService tmdbService, ILogger<TmdbController> logger)
     {
-        private readonly ITmdbService _tmdbService;
-        private readonly ILogger<TmdbController> _logger;
+        _tmdbService = tmdbService;
+        _logger = logger;
+    }
 
-        public TmdbController(ITmdbService tmdbService, ILogger<TmdbController> logger)
+    [HttpGet("movie/{id}")]
+    public async Task<IResult> GetMovieById(int id)
+    {
+        try
         {
-            _tmdbService = tmdbService;
-            _logger = logger;
+            var movie = await _tmdbService.GetMovieById(id);
+            return ApiResults.Success(movie);
         }
-
-        [HttpGet("movie/{id}")]
-        public async Task<ActionResult<TmdbMovieResponse>> GetMovieById(int id)
+        catch (NotFoundException ex)
         {
-            try
-            {
-                var movie = await _tmdbService.GetMovieById(id);
-                return Ok(movie);
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new { Message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting movie {Id}", id);
-                return StatusCode(500, new { Message = "An error occurred" });
-            }
+            return ApiResults.NotFound(ex.Message);
         }
-
-        [HttpGet("movie/{id}/images")]
-        public async Task<ActionResult<TmdbImageCollection>> GetMovieImagesById(int id)
+        catch (Exception ex)
         {
-            try
-            {
-                var images = await _tmdbService.GetMovieImagesById(id);
-                return Ok(images);
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new { Message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching movie images for ID: {MovieId}", id);
-                return StatusCode(500, new { Message = "Error fetching movie images" });
-            }
-        }
-
-        [HttpGet("movie_runtime/{id}")]
-        public async Task<ActionResult<int?>> GetMovieRuntime(int id)
-        {
-            try
-            {
-                var runtime = await _tmdbService.GetMovieRuntime(id);
-                return Ok(runtime);
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new { Message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching runtime for movie {MovieId}", id);
-                return StatusCode(500, new { Message = "Error fetching movie runtime" });
-            }
-        }
-
-        [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<TmdbMovieResponse>>> SearchMovies([FromQuery] string query)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(query))
-                {
-                    return BadRequest(new { Message = "Search query is required" });
-                }
-
-                var (results, totalResults) = await _tmdbService.SearchMovies(query);
-
-                return Ok(new
-                {
-                    Message = $"Found {totalResults} results",
-                    Results = results
-                });
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
-            catch (NotFoundException ex)
-            {
-                return Ok(new { Message = ex.Message, Results = Array.Empty<TmdbMovieResponse>() });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error searching movies with query: {Query}", query);
-                return StatusCode(500, new { Message = "An unexpected error occurred" });
-            }
+            _logger.LogError(ex, "Error getting movie {Id}", id);
+            return ApiResults.ServerError("An error occurred");
         }
     }
+
+    [HttpGet("movie/{id}/images")]
+    public async Task<IResult> GetMovieImagesById(int id)
+    {
+        try
+        {
+            var images = await _tmdbService.GetMovieImagesById(id);
+            return ApiResults.Success(images);
+        }
+        catch (NotFoundException ex)
+        {
+            return ApiResults.NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching movie images for ID: {MovieId}", id);
+            return ApiResults.ServerError("Error fetching movie images");
+        }
+    }
+
+    [HttpGet("movie_runtime/{id}")]
+    public async Task<IResult> GetMovieRuntime(int id)
+    {
+        try
+        {
+            var runtime = await _tmdbService.GetMovieRuntime(id);
+            return ApiResults.Success(runtime);
+        }
+        catch (NotFoundException ex)
+        {
+            return ApiResults.NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching runtime for movie {MovieId}", id);
+            return ApiResults.ServerError("Error fetching movie runtime");
+        }
+    }
+
+    [HttpGet("search")]
+    public async Task<IResult> SearchMovies([FromQuery] string query)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return ApiResults.BadRequest("Search query is required");
+            }
+
+            var (results, totalResults) = await _tmdbService.SearchMovies(query);
+            return ApiResults.Success(new SearchResult
+            {
+                TotalResults = totalResults,
+                Results = results
+            });
+        }
+        catch (ArgumentException ex)
+        {
+            return ApiResults.BadRequest(ex.Message);
+        }
+        catch (NotFoundException)
+        {
+            return ApiResults.Success(new SearchResult
+            {
+                TotalResults = 0,
+                Results = Array.Empty<TmdbMovieResponse>()
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error searching movies with query: {Query}", query);
+            return ApiResults.ServerError("An unexpected error occurred");
+        }
+    }
+}
+
+public class SearchResult
+{
+    public int TotalResults { get; set; }
+    public IEnumerable<TmdbMovieResponse> Results { get; set; }
 }
