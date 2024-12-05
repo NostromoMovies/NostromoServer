@@ -1,34 +1,44 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Nostromo.Server.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Nostromo.Server.API.Models;
 
+public class ApiError
+{
+    public int Code { get; }
+    public string Message { get; }
+
+    public ApiError(int code, string message)
+    {
+        Code = code;
+        Message = message;
+    }
+}
+
 public static class ApiResults
 {
+    private const string ApiVersion = "1.0";
+
     public static IResult Success<T>(T data) =>
-        Results.Ok(new { data });
+        Results.Json(new { apiVersion = ApiVersion, data }, statusCode: StatusCodes.Status200OK);
 
     public static IResult NotFound(string message) =>
-        Results.NotFound(new
-        {
-            error = new { code = 404, message }
-        });
+        Results.Json(
+            new { apiVersion = ApiVersion, error = new ApiError(StatusCodes.Status404NotFound, message) },
+            statusCode: StatusCodes.Status404NotFound);
+
+    public static IResult Unauthorized(string message) =>
+        Results.Json(
+            new { apiVersion = ApiVersion, error = new ApiError(StatusCodes.Status401Unauthorized, message) },
+            statusCode: StatusCodes.Status401Unauthorized);
 
     public static IResult ServerError(string message = "Error occurred") =>
         Results.Json(
-            new { error = new { code = 500, message } },
-            statusCode: 500
-        );
+            new { apiVersion = ApiVersion, error = new ApiError(StatusCodes.Status500InternalServerError, message) },
+            statusCode: StatusCodes.Status500InternalServerError);
 
     public static IResult BadRequest(string message) =>
-        Results.BadRequest(new
-        {
-            error = new { code = 400, message }
-        });
+        Results.Json(
+            new { apiVersion = ApiVersion, error = new ApiError(StatusCodes.Status400BadRequest, message) },
+            statusCode: StatusCodes.Status400BadRequest);
 }
+

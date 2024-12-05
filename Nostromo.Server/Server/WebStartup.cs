@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Nostromo.Server.API.Middleware;
 
 namespace Nostromo.Server.Server
 {
@@ -49,6 +50,12 @@ namespace Nostromo.Server.Server
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
+            app.UseWhen(
+                context => context.Request.Path.StartsWithSegments("/api"),
+                builder => builder.UseApiExceptionHandler()
+            );
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

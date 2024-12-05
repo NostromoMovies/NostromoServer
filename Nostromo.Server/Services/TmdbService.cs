@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
+using System.Net;
 
 namespace Nostromo.Server.Services
 {
@@ -108,6 +109,10 @@ namespace Nostromo.Server.Services
                 var images = await _httpClient.GetFromJsonAsync<TmdbImageCollection>(imageUrl)
                     ?? throw new NotFoundException($"Images for movie with ID {id} not found");
                 return images;
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                throw new NotFoundException($"Movie with ID {id} not found");
             }
             catch (Exception ex)
             {
