@@ -139,6 +139,7 @@ namespace Nostromo.Server.Services
             }
         }
 
+            // weird
         public async Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query)
         {
             try
@@ -159,31 +160,32 @@ namespace Nostromo.Server.Services
 
                 var genreDict = await GetGenreDictionary();
 
+                             // apparently not thread-safe
                 // Process each movie
-                foreach (var movieResponse in response.results)
-                {
-                    try
-                    {                                     // why?
-                        movieResponse.runtime = await GetMovieRuntime(movieResponse.id);
-                        TMDBMovie movie = new TMDBMovie(movieResponse);
-                        await _movieRepository.AddAsync(movie);
+                //foreach (var movieResponse in response.results)
+                //{
+                //    try
+                //    {                                     // why?
+                //        movieResponse.runtime = await GetMovieRuntime(movieResponse.id);
+                //        TMDBMovie movie = new TMDBMovie(movieResponse);
+                //        await _movieRepository.AddAsync(movie);
 
-                        var genres = movieResponse.genreIds
-                            .Select(id => genreDict.ContainsKey(id) ? genreDict[id] : "Unknown")
-                            .ToList();
+                //        var genres = movieResponse.genreIds
+                //            .Select(id => genreDict.ContainsKey(id) ? genreDict[id] : "Unknown")
+                //            .ToList();
 
-                        _logger.LogDebug(
-                            "Processed movie: {Title}, Genres: {Genres}, Runtime: {Runtime}",
-                            movieResponse.title,
-                            string.Join(", ", genres),
-                            movieResponse.runtime);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error processing movie {Title} (ID: {Id})", movieResponse.title, movieResponse.id);
-                        // Continue processing other movies
-                    }
-                }
+                //        _logger.LogDebug(
+                //            "Processed movie: {Title}, Genres: {Genres}, Runtime: {Runtime}",
+                //            movieResponse.title,
+                //            string.Join(", ", genres),
+                //            movieResponse.runtime);
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        _logger.LogError(ex, "Error processing movie {Title} (ID: {Id})", movieResponse.title, movieResponse.id);
+                //        // Continue processing other movies
+                //    }
+                //}
 
                 return (response.results, response.results.Count);
             }

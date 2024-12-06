@@ -14,12 +14,28 @@ public class ApiError
     }
 }
 
+public class ApiCollection<T>
+{
+    public int TotalItems { get; }
+    public IEnumerable<T> Items { get; }
+
+    public ApiCollection(IEnumerable<T> items, int? total = null)
+    {
+        Items = items ?? Array.Empty<T>();
+        TotalItems = Items.Count();
+    }
+}
+
 public static class ApiResults
 {
     private const string ApiVersion = "1.0";
 
     public static IResult Success<T>(T data) =>
-        Results.Json(new { apiVersion = ApiVersion, data }, statusCode: StatusCodes.Status200OK);
+        Results.Json(new { apiVersion = ApiVersion, data },
+            statusCode: StatusCodes.Status200OK);
+
+    public static IResult SuccessCollection<T>(IEnumerable<T>? items) =>
+        Success(new ApiCollection<T>(items ?? Array.Empty<T>()));
 
     public static IResult NotFound(string message) =>
         Results.Json(
@@ -41,4 +57,3 @@ public static class ApiResults
             new { apiVersion = ApiVersion, error = new ApiError(StatusCodes.Status400BadRequest, message) },
             statusCode: StatusCodes.Status400BadRequest);
 }
-

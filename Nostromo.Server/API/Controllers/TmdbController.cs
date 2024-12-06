@@ -47,27 +47,6 @@ public class TmdbController : ControllerBase
         }
 
         var (results, totalResults) = await _tmdbService.SearchMovies(query);
-
-        // Keep special handling for empty results since it's not an error condition
-        if (results == null || !results.Any())
-        {
-            return ApiResults.Success(new SearchResult
-            {
-                TotalResults = 0,
-                Results = Array.Empty<TmdbMovieResponse>()
-            });
-        }
-
-        return ApiResults.Success(new SearchResult
-        {
-            TotalResults = totalResults,
-            Results = results
-        });
+        return ApiResults.SuccessCollection(results);
     }
-}
-
-public class SearchResult
-{
-    public int TotalResults { get; set; }
-    public IEnumerable<TmdbMovieResponse> Results { get; set; }
 }
