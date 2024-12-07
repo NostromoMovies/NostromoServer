@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Nostromo.Models;
 using Nostromo.Server.API.Controllers;
+using Nostromo.Server.API.Middleware;
 using Nostromo.Server.API.Models;
 using Nostromo.Server.Services;
 using System.Text.Json;
@@ -15,6 +16,7 @@ namespace Nostromo.Tests.Controllers
     {
         private readonly Mock<ITmdbService> _mockTmdbService;
         private readonly Mock<ILogger<TmdbController>> _mockLogger;
+        private readonly Mock<ILogger<ApiExceptionMiddleware>> _middlewareLogger;
         private readonly TmdbController _controller;
         private readonly IServiceProvider _serviceProvider;
 
@@ -22,6 +24,7 @@ namespace Nostromo.Tests.Controllers
         {
             _mockTmdbService = new Mock<ITmdbService>();
             _mockLogger = new Mock<ILogger<TmdbController>>();
+            _middlewareLogger = new Mock<ILogger<ApiExceptionMiddleware>>();
             _controller = new TmdbController(_mockTmdbService.Object, _mockLogger.Object);
 
             var services = new ServiceCollection();
@@ -30,7 +33,7 @@ namespace Nostromo.Tests.Controllers
             _serviceProvider = services.BuildServiceProvider();
         }
 
-        private async Task<(int StatusCode, string Body)> GetResultDetails(IResult result)
+        private async Task<(int StatusCode, JsonDocument Response)> GetResultDetails(Func<Task<IResult>> action)
         {
             var httpContext = new DefaultHttpContext
             {
@@ -38,13 +41,19 @@ namespace Nostromo.Tests.Controllers
             };
             httpContext.Response.Body = new MemoryStream();
 
-            await result.ExecuteAsync(httpContext);
+            var middleware = new ApiExceptionMiddleware(
+                next: async (context) => await (await action()).ExecuteAsync(context),
+                logger: _middlewareLogger.Object
+            );
+
+            await middleware.InvokeAsync(httpContext);
 
             httpContext.Response.Body.Position = 0;
             using var reader = new StreamReader(httpContext.Response.Body);
             var body = await reader.ReadToEndAsync();
+            var response = JsonDocument.Parse(body);
 
-            return (httpContext.Response.StatusCode, body);
+            return (httpContext.Response.StatusCode, response);
         }
 
         #region GetMovieById Tests
@@ -63,14 +72,13 @@ namespace Nostromo.Tests.Controllers
                            .ReturnsAsync(expectedMovie);
 
             // Act
-            var result = await _controller.GetMovieById(movieId);
-            var (statusCode, body) = await GetResultDetails(result);
+            var (statusCode, response) = await GetResultDetails(() => _controller.GetMovieById(movieId));
 
             // Assert
             Assert.Equal(200, statusCode);
-            var response = JsonSerializer.Deserialize<JsonElement>(body);
-            Assert.Equal(movieId, response.GetProperty("data").GetProperty("id").GetInt32());
-            Assert.Equal("Test Movie", response.GetProperty("data").GetProperty("title").GetString());
+            Assert.Equal("1.0", response.RootElement.GetProperty("apiVersion").GetString());
+            Assert.Equal(movieId, response.RootElement.GetProperty("data").GetProperty("id").GetInt32());
+            Assert.Equal("Test Movie", response.RootElement.GetProperty("data").GetProperty("title").GetString());
         }
 
         [Fact]
@@ -82,14 +90,14 @@ namespace Nostromo.Tests.Controllers
                            .ThrowsAsync(new NotFoundException($"Movie {movieId} not found"));
 
             // Act
-            var result = await _controller.GetMovieById(movieId);
-            var (statusCode, body) = await GetResultDetails(result);
+            var (statusCode, response) = await GetResultDetails(() => _controller.GetMovieById(movieId));
 
             // Assert
             Assert.Equal(404, statusCode);
-            var response = JsonSerializer.Deserialize<JsonElement>(body);
-            Assert.Equal(404, response.GetProperty("error").GetProperty("code").GetInt32());
-            Assert.Contains("not found", response.GetProperty("error").GetProperty("message").GetString());
+            Assert.Equal("1.0", response.RootElement.GetProperty("apiVersion").GetString());
+            var error = response.RootElement.GetProperty("error");
+            Assert.Equal(404, error.GetProperty("code").GetInt32());
+            Assert.Contains("not found", error.GetProperty("message").GetString());
         }
 
         [Fact]
@@ -101,14 +109,14 @@ namespace Nostromo.Tests.Controllers
                            .ThrowsAsync(new Exception("Service error"));
 
             // Act
-            var result = await _controller.GetMovieById(movieId);
-            var (statusCode, body) = await GetResultDetails(result);
+            var (statusCode, response) = await GetResultDetails(() => _controller.GetMovieById(movieId));
 
             // Assert
             Assert.Equal(500, statusCode);
-            var response = JsonSerializer.Deserialize<JsonElement>(body);
-            Assert.Equal(500, response.GetProperty("error").GetProperty("code").GetInt32());
-            Assert.Equal("An error occurred", response.GetProperty("error").GetProperty("message").GetString());
+            Assert.Equal("1.0", response.RootElement.GetProperty("apiVersion").GetString());
+            var error = response.RootElement.GetProperty("error");
+            Assert.Equal(500, error.GetProperty("code").GetInt32());
+            Assert.Equal("An unexpected error occurred", error.GetProperty("message").GetString());
         }
 
         #endregion
@@ -125,13 +133,12 @@ namespace Nostromo.Tests.Controllers
                            .ReturnsAsync(expectedImages);
 
             // Act
-            var result = await _controller.GetMovieImagesById(movieId);
-            var (statusCode, body) = await GetResultDetails(result);
+            var (statusCode, response) = await GetResultDetails(() => _controller.GetMovieImagesById(movieId));
 
             // Assert
             Assert.Equal(200, statusCode);
-            var response = JsonSerializer.Deserialize<JsonElement>(body);
-            Assert.True(response.GetProperty("data").ValueKind == JsonValueKind.Object);
+            Assert.Equal("1.0", response.RootElement.GetProperty("apiVersion").GetString());
+            Assert.True(response.RootElement.GetProperty("data").ValueKind == JsonValueKind.Object);
         }
 
         [Fact]
@@ -143,13 +150,12 @@ namespace Nostromo.Tests.Controllers
                            .ThrowsAsync(new NotFoundException("Images not found"));
 
             // Act
-            var result = await _controller.GetMovieImagesById(movieId);
-            var (statusCode, body) = await GetResultDetails(result);
+            var (statusCode, response) = await GetResultDetails(() => _controller.GetMovieImagesById(movieId));
 
             // Assert
             Assert.Equal(404, statusCode);
-            var response = JsonSerializer.Deserialize<JsonElement>(body);
-            Assert.Equal(404, response.GetProperty("error").GetProperty("code").GetInt32());
+            Assert.Equal("1.0", response.RootElement.GetProperty("apiVersion").GetString());
+            Assert.Equal(404, response.RootElement.GetProperty("error").GetProperty("code").GetInt32());
         }
 
         #endregion
@@ -166,13 +172,12 @@ namespace Nostromo.Tests.Controllers
                            .ReturnsAsync(expectedRuntime);
 
             // Act
-            var result = await _controller.GetMovieRuntime(movieId);
-            var (statusCode, body) = await GetResultDetails(result);
+            var (statusCode, response) = await GetResultDetails(() => _controller.GetMovieRuntime(movieId));
 
             // Assert
             Assert.Equal(200, statusCode);
-            var response = JsonSerializer.Deserialize<JsonElement>(body);
-            Assert.Equal(expectedRuntime, response.GetProperty("data").GetInt32());
+            Assert.Equal("1.0", response.RootElement.GetProperty("apiVersion").GetString());
+            Assert.Equal(expectedRuntime, response.RootElement.GetProperty("data").GetInt32());
         }
 
         [Fact]
@@ -184,13 +189,13 @@ namespace Nostromo.Tests.Controllers
                            .ThrowsAsync(new NotFoundException("Movie not found"));
 
             // Act
-            var result = await _controller.GetMovieRuntime(movieId);
-            var (statusCode, body) = await GetResultDetails(result);
+            var (statusCode, response) = await GetResultDetails(() => _controller.GetMovieRuntime(movieId));
 
             // Assert
             Assert.Equal(404, statusCode);
-            var response = JsonSerializer.Deserialize<JsonElement>(body);
-            Assert.Equal(404, response.GetProperty("error").GetProperty("code").GetInt32());
+            Assert.Equal("1.0", response.RootElement.GetProperty("apiVersion").GetString());
+            var error = response.RootElement.GetProperty("error");
+            Assert.Equal(404, error.GetProperty("code").GetInt32());
         }
 
         #endregion
@@ -210,14 +215,14 @@ namespace Nostromo.Tests.Controllers
                            .ReturnsAsync((expectedResults, expectedResults.Count));
 
             // Act
-            var result = await _controller.SearchMovies(query);
-            var (statusCode, body) = await GetResultDetails(result);
+            var (statusCode, response) = await GetResultDetails(() => _controller.SearchMovies(query));
 
             // Assert
             Assert.Equal(200, statusCode);
-            var response = JsonSerializer.Deserialize<JsonElement>(body);
-            Assert.Equal(1, response.GetProperty("data").GetProperty("totalResults").GetInt32());
-            Assert.True(response.GetProperty("data").GetProperty("results").GetArrayLength() > 0);
+            Assert.Equal("1.0", response.RootElement.GetProperty("apiVersion").GetString());
+            var data = response.RootElement.GetProperty("data");
+            Assert.Equal(1, data.GetProperty("totalItems").GetInt32());
+            Assert.True(data.GetProperty("items").GetArrayLength() > 0);
         }
 
         [Fact]
@@ -227,33 +232,33 @@ namespace Nostromo.Tests.Controllers
             string query = "";
 
             // Act
-            var result = await _controller.SearchMovies(query);
-            var (statusCode, body) = await GetResultDetails(result);
+            var (statusCode, response) = await GetResultDetails(() => _controller.SearchMovies(query));
 
             // Assert
             Assert.Equal(400, statusCode);
-            var response = JsonSerializer.Deserialize<JsonElement>(body);
-            Assert.Equal(400, response.GetProperty("error").GetProperty("code").GetInt32());
-            Assert.Contains("required", response.GetProperty("error").GetProperty("message").GetString());
+            Assert.Equal("1.0", response.RootElement.GetProperty("apiVersion").GetString());
+            var error = response.RootElement.GetProperty("error");
+            Assert.Equal(400, error.GetProperty("code").GetInt32());
+            Assert.Contains("required", error.GetProperty("message").GetString());
         }
 
         [Fact]
-        public async Task SearchMovies_NoResults_ReturnsEmptyArray()
+        public async Task SearchMovies_NoResults_ReturnsEmptyCollection()
         {
             // Arrange
-            var query = "nonexistent";
+            var query = "fggfgffgfgfgfgffggffg";
             _mockTmdbService.Setup(x => x.SearchMovies(query))
-                           .ThrowsAsync(new NotFoundException("No results found"));
+                           .ReturnsAsync((Array.Empty<TmdbMovieResponse>(), 0));
 
             // Act
-            var result = await _controller.SearchMovies(query);
-            var (statusCode, body) = await GetResultDetails(result);
+            var (statusCode, response) = await GetResultDetails(() => _controller.SearchMovies(query));
 
             // Assert
             Assert.Equal(200, statusCode);
-            var response = JsonSerializer.Deserialize<JsonElement>(body);
-            Assert.Equal(0, response.GetProperty("data").GetProperty("totalResults").GetInt32());
-            Assert.Equal(0, response.GetProperty("data").GetProperty("results").GetArrayLength());
+            Assert.Equal("1.0", response.RootElement.GetProperty("apiVersion").GetString());
+            var data = response.RootElement.GetProperty("data");
+            Assert.Equal(0, data.GetProperty("totalItems").GetInt32());
+            Assert.Equal(0, data.GetProperty("items").GetArrayLength());
         }
 
         [Fact]
@@ -265,14 +270,14 @@ namespace Nostromo.Tests.Controllers
                            .ThrowsAsync(new Exception("Service error"));
 
             // Act
-            var result = await _controller.SearchMovies(query);
-            var (statusCode, body) = await GetResultDetails(result);
+            var (statusCode, response) = await GetResultDetails(() => _controller.SearchMovies(query));
 
             // Assert
             Assert.Equal(500, statusCode);
-            var response = JsonSerializer.Deserialize<JsonElement>(body);
-            Assert.Equal(500, response.GetProperty("error").GetProperty("code").GetInt32());
-            Assert.Equal("An unexpected error occurred", response.GetProperty("error").GetProperty("message").GetString());
+            Assert.Equal("1.0", response.RootElement.GetProperty("apiVersion").GetString());
+            var error = response.RootElement.GetProperty("error");
+            Assert.Equal(500, error.GetProperty("code").GetInt32());
+            Assert.Equal("An unexpected error occurred", error.GetProperty("message").GetString());
         }
 
         #endregion

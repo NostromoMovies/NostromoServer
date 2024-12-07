@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Nostromo.Models;
 using Nostromo.Server.API.Models;
 using Nostromo.Server.Services;
@@ -11,10 +12,12 @@ namespace Nostromo.Server.API.Controllers;
 public class TmdbController : ControllerBase
 {
     private readonly ITmdbService _tmdbService;
+    private readonly ILogger<TmdbController> _logger;
 
-    public TmdbController(ITmdbService tmdbService)
+    public TmdbController(ITmdbService tmdbService, ILogger<TmdbController> logger)
     {
         _tmdbService = tmdbService;
+        _logger = logger;
     }
 
     [HttpGet("movie/{id}")]
