@@ -24,6 +24,14 @@ namespace Nostromo.Server.Server
             services.AddControllers();
             services.AddHttpContextAccessor();
 
+            // CORS for remote and non-remote hosts
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder => {
+                    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                });
+            });
+
             // Swagger
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
@@ -59,7 +67,6 @@ namespace Nostromo.Server.Server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseCors("Development");
             }
 
             app.UseSwagger();
@@ -68,6 +75,8 @@ namespace Nostromo.Server.Server
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Nostromo API V1");
                 c.RoutePrefix = "swagger";
             });
+
+            app.UseCors();
 
             string _serverProjectPath = Path.GetFullPath(
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../..", "Nostromo.Server"));

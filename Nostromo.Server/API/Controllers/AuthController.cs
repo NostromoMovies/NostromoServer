@@ -130,8 +130,6 @@ namespace Nostromo.Server.API.Controllers
     {
         public string username { get; set; }
         public string password { get; set; }
-        public string first_Name { get; set; }
-        public string last_Name { get; set; }
         public bool isAdmin { get; set; }
     }
 
