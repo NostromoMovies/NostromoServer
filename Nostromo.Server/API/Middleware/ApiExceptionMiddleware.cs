@@ -38,7 +38,7 @@ namespace Nostromo.Server.API.Middleware
             {
                 NotFoundException notFoundEx => ApiResults.NotFound(notFoundEx.Message),
                 ArgumentException argEx => ApiResults.BadRequest(argEx.Message),
-                UnauthorizedAccessException => ApiResults.BadRequest("Unauthorized access"),
+                UnauthorizedAccessException authEx => ApiResults.Unauthorized(authEx.Message),
                 HttpRequestException httpEx => HandleHttpException(httpEx),
                 _ => ApiResults.ServerError("An unexpected error occurred")
             };

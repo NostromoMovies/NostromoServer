@@ -1,12 +1,12 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.Extensions.Logging;
 using Nostromo.Models;
+using Nostromo.Server.API.Models;
 using Nostromo.Server.Services;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
 using User = Nostromo.Server.Database.User;
+using Microsoft.AspNetCore.Http;
 
 namespace Nostromo.Server.API.Controllers
 {
@@ -35,94 +35,73 @@ namespace Nostromo.Server.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
+        public async Task<IResult> Register([FromBody] RegisterRequest registerRequest)
         {
-            try
+            // Validate request
+            if (string.IsNullOrWhiteSpace(registerRequest.username) ||
+                string.IsNullOrWhiteSpace(registerRequest.password))
             {
-                // Validate request
-                if (string.IsNullOrWhiteSpace(registerRequest.username) ||
-                    string.IsNullOrWhiteSpace(registerRequest.password))
-                {
-                    return BadRequest(new { Message = "Username and password are required" });
-                }
-
-                // Check if user already exists
-                var existingUser = await _userRepository.FindByUsernameAsync(
-                    registerRequest.username);
-                if (existingUser != null)
-                {
-                    return Conflict(new { Message = "Username already exists" });
-                }
-
-                string salt = PasswordHelper.GenerateSalt();
-                string hashedPassword = PasswordHelper.HashPassword(registerRequest.password, salt);
-
-                var user = new User
-                {
-                    
-                    Username = registerRequest.username,
-                    PasswordHash = hashedPassword,
-                    Salt = salt,
-                    IsAdmin = registerRequest.isAdmin
-                };
-                await _userRepository.AddAsync(user);
-                
-               
-
-                _logger.LogInformation("User registered successfully: {Username}", user.Username);
-                return Ok(new { Message = "User registered successfully" });
+                throw new ArgumentException("Username and password are required");
             }
-            catch (Exception ex)
+
+            // Check if user already exists
+            var existingUser = await _userRepository.FindByUsernameAsync(
+                registerRequest.username);
+            if (existingUser != null)
             {
-                _logger.LogError(ex, "Error registering user: {Username}", registerRequest.username);
-                return StatusCode(500, new { Message = "An error occurred while registering the user" });
+                throw new ArgumentException("Username already exists");
             }
+
+            string salt = PasswordHelper.GenerateSalt();
+            string hashedPassword = PasswordHelper.HashPassword(registerRequest.password, salt);
+
+            var user = new User
+            {
+                Username = registerRequest.username,
+                PasswordHash = hashedPassword,
+                Salt = salt,
+                IsAdmin = registerRequest.isAdmin
+            };
+            await _userRepository.AddAsync(user);
+
+            _logger.LogInformation("User registered successfully: {Username}", user.Username);
+            return ApiResults.Success(new { message = "User registered successfully" });
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
+        public async Task<IResult> Login([FromBody] LoginRequest loginRequest)
         {
-            try
+            // Validate request
+            if (string.IsNullOrWhiteSpace(loginRequest.username) ||
+                string.IsNullOrWhiteSpace(loginRequest.password))
             {
-                // Validate request
-                if (string.IsNullOrWhiteSpace(loginRequest.username) ||
-                    string.IsNullOrWhiteSpace(loginRequest.password))
-                {
-                    return BadRequest(new { Message = "Username and password are required" });
-                }
-
-                var user =  await _userRepository.FindByUsernameAsync(loginRequest.username);
-
-                if (user == null)
-                {
-                    // Use the same message as password failure to avoid username enumeration
-                    return Unauthorized(new { Message = "Invalid username or password" });
-                }
-
-                string passwordHash = user.PasswordHash; // Note: Using the correct property name from User entity
-                string salt = user.Salt;
-
-                if (!PasswordHelper.VerifyPassword(loginRequest.password, passwordHash, salt))
-                {
-                    return Unauthorized(new { Message = "Invalid username or password" });
-                }
-
-                _logger.LogInformation("User logged in successfully: {Username}", user.Username);
-                var token = _authTokenRepository.CreateToken(user, loginRequest.device);
-                
-                return Ok(new
-                {
-                    
-                    Message = "User logged in successfully",
-                    token = token
-                    
-                });
+                throw new ArgumentException("Username and password are required");
             }
-            catch (Exception ex)
+
+            var user = await _userRepository.FindByUsernameAsync(loginRequest.username);
+
+            if (user == null)
             {
-                _logger.LogError(ex, "Error during login for user: {Username}", loginRequest.username);
-                return StatusCode(500, new { Message = "An error occurred during login" });
+                // Use the same message as password failure to avoid username enumeration
+                throw new UnauthorizedAccessException("Invalid username or password");
             }
+
+            string passwordHash = user.PasswordHash;
+            string salt = user.Salt;
+
+            if (!PasswordHelper.VerifyPassword(loginRequest.password, passwordHash, salt))
+            {
+                throw new ArgumentException("Invalid username or password");
+            }
+
+            _logger.LogInformation("User logged in successfully: {Username}", user.Username);
+            var token = _authTokenRepository.CreateToken(user, loginRequest.device);
+
+            return ApiResults.Success(new
+            {
+                message = "User logged in successfully",
+                token = token
+            });
         }
     }
 
@@ -137,6 +116,6 @@ namespace Nostromo.Server.API.Controllers
     {
         public string username { get; set; }
         public string password { get; set; }
-        public string device {  get; set; }
+        public string device { get; set; }
     }
 }
