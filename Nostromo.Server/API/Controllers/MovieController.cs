@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Nostromo.Server.API.Models;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
 using Nostromo.Server.Utilities;
@@ -20,22 +22,19 @@ public class MoviesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TMDBMovie>>> GetMovies()
+    public async Task<IResult> GetMovies()
     {
         var movies = await _movieRepository.GetAllAsync();
 
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        return Ok(movies);
+        return ApiResults.SuccessCollection(movies);
     }
 
     [HttpGet("{id}/poster")]
-    public async Task<IActionResult> GetPoster(int id)
+    public async Task<IResult> GetPoster(int id)
     {
         var (exists, path) = await _movieRepository.GetPosterPathAsync(id);
         if (!exists)
-            return NotFound();
-
-        return PhysicalFile(path, "image/jpeg");
+            return ApiResults.NotFound("Poster not found");
+        return ApiResults.PhysicalFile(path, "image/jpeg");
     }
 }

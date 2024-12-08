@@ -56,4 +56,6 @@ public static class ApiResults
         Results.Json(
             new { apiVersion = ApiVersion, error = new ApiError(StatusCodes.Status400BadRequest, message) },
             statusCode: StatusCodes.Status400BadRequest);
+    public static IResult PhysicalFile(string path, string contentType) =>
+        TypedResults.PhysicalFile(path, contentType);
 }
