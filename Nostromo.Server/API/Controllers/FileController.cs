@@ -88,5 +88,11 @@ namespace Nostromo.Server.API.Controllers
                 return StatusCode(500, new { Message = "Error checking job status", Error = ex.Message });
             }
         }
+
+        [HttpGet("unrecognized")]
+        public async Task<IActionResult> GetUnrecognizedFiles()
+        {
+
+        }
     }
 }
