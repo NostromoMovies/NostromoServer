@@ -1,0 +1,594 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.TrayService\\Nostromo.TrayService.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.TrayService\\Nostromo.TrayService.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\MediaDisplayController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\API\\Controllers\\MediaDisplayController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Services\\TmdbService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Services\\TmdbService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Services\\DatabaseService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Services\\DatabaseService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\FolderController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\API\\Controllers\\FolderController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Services\\FileWatcherService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Services\\FileWatcherService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\ProcessVideoJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Scheduling\\Jobs\\ProcessVideoJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\DownloadTmdbImageJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Scheduling\\Jobs\\DownloadTmdbImageJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\DownloadImageBaseJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Scheduling\\Jobs\\DownloadImageBaseJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\DownloadMovieMetadataJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Scheduling\\Jobs\\DownloadMovieMetadataJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\IImageDownloadJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Scheduling\\Jobs\\IImageDownloadJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\NostromoDBContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Database\\NostromoDBContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\MatchRequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\API\\Models\\MatchRequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\TmdbMovieResponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\API\\Models\\TmdbMovieResponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\Repositories\\MovieRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Database\\Repositories\\MovieRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\DownloadTMDBMetadataJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Scheduling\\Jobs\\DownloadTMDBMetadataJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Services\\ImportFolderManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Services\\ImportFolderManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\Repositories\\IImportFolderRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Database\\Repositories\\IImportFolderRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\GenreResponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\API\\Models\\GenreResponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\ValuesController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\API\\Controllers\\ValuesController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\TmdbController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\API\\Controllers\\TmdbController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\Repositories\\IMovieRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Database\\Repositories\\IMovieRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\MovieController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\API\\Controllers\\MovieController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\VideoResponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\API\\Models\\VideoResponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\UnrecognizedFileResponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\API\\Models\\UnrecognizedFileResponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\Repositories\\Repository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Database\\Repositories\\Repository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.TrayService\\bin\\Debug\\net8.0-windows\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.TrayService\\bin\\Debug\\net8.0-windows\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Server\\Startup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Server\\Startup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\new.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\new.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\.dockerignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:.dockerignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Nostromo.Server.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Nostromo.Server\\Nostromo.Server.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Downloads\\NostromoServer-main\\Nostromo.Server\\Server\\NewFile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Downloads\\NostromoServer-main\\Nostromo.TrayService\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\n5980\\Desktop\\old\\NostromoServer-main\\Nostromo.Server\\bin\\Debug\\net8.0\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 35,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "DownloadTmdbImageJob.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\DownloadTmdbImageJob.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Scheduling\\Jobs\\DownloadTmdbImageJob.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\DownloadTmdbImageJob.cs",
+              "RelativeToolTip": "Nostromo.Server\\Scheduling\\Jobs\\DownloadTmdbImageJob.cs",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T06:15:10.88Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "DownloadImageBaseJob.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\DownloadImageBaseJob.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Scheduling\\Jobs\\DownloadImageBaseJob.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\DownloadImageBaseJob.cs",
+              "RelativeToolTip": "Nostromo.Server\\Scheduling\\Jobs\\DownloadImageBaseJob.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T06:15:06.573Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "IImageDownloadJob.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\IImageDownloadJob.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Scheduling\\Jobs\\IImageDownloadJob.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\IImageDownloadJob.cs",
+              "RelativeToolTip": "Nostromo.Server\\Scheduling\\Jobs\\IImageDownloadJob.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T05:22:33.086Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "MovieRepository.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\Repositories\\MovieRepository.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Database\\Repositories\\MovieRepository.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\Repositories\\MovieRepository.cs",
+              "RelativeToolTip": "Nostromo.Server\\Database\\Repositories\\MovieRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T05:00:40.716Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ProcessVideoJob.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\ProcessVideoJob.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Scheduling\\Jobs\\ProcessVideoJob.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\ProcessVideoJob.cs",
+              "RelativeToolTip": "Nostromo.Server\\Scheduling\\Jobs\\ProcessVideoJob.cs",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T04:43:06.638Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "DownloadMovieMetadataJob.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\DownloadMovieMetadataJob.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Scheduling\\Jobs\\DownloadMovieMetadataJob.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\DownloadMovieMetadataJob.cs",
+              "RelativeToolTip": "Nostromo.Server\\Scheduling\\Jobs\\DownloadMovieMetadataJob.cs",
+              "ViewState": "AgIAACYAAAAAAAAAAAAkwFEAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T04:37:16.497Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "DownloadTMDBMetadataJob.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\DownloadTMDBMetadataJob.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Scheduling\\Jobs\\DownloadTMDBMetadataJob.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Scheduling\\Jobs\\DownloadTMDBMetadataJob.cs",
+              "RelativeToolTip": "Nostromo.Server\\Scheduling\\Jobs\\DownloadTMDBMetadataJob.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T04:34:49.112Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "NostromoDBContext.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\NostromoDBContext.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Database\\NostromoDBContext.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\NostromoDBContext.cs",
+              "RelativeToolTip": "Nostromo.Server\\Database\\NostromoDBContext.cs",
+              "ViewState": "AgIAAMYAAAAAAAAAAAAQwOQAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T04:30:10.706Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "ImportFolderManager.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Services\\ImportFolderManager.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Services\\ImportFolderManager.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Services\\ImportFolderManager.cs",
+              "RelativeToolTip": "Nostromo.Server\\Services\\ImportFolderManager.cs",
+              "ViewState": "AgIAAH4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T04:29:41.479Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "IImportFolderRepository.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\Repositories\\IImportFolderRepository.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Database\\Repositories\\IImportFolderRepository.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\Repositories\\IImportFolderRepository.cs",
+              "RelativeToolTip": "Nostromo.Server\\Database\\Repositories\\IImportFolderRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T04:29:36.791Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "GenreResponse.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\GenreResponse.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\API\\Models\\GenreResponse.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\GenreResponse.cs",
+              "RelativeToolTip": "Nostromo.Server\\API\\Models\\GenreResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T04:29:34.849Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "ValuesController.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\ValuesController.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\API\\Controllers\\ValuesController.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\ValuesController.cs",
+              "RelativeToolTip": "Nostromo.Server\\API\\Controllers\\ValuesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T04:29:33.002Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "FolderController.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\FolderController.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\API\\Controllers\\FolderController.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\FolderController.cs",
+              "RelativeToolTip": "Nostromo.Server\\API\\Controllers\\FolderController.cs",
+              "ViewState": "AgIAAI0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T04:29:26.61Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "IMovieRepository.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\Repositories\\IMovieRepository.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Database\\Repositories\\IMovieRepository.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\Repositories\\IMovieRepository.cs",
+              "RelativeToolTip": "Nostromo.Server\\Database\\Repositories\\IMovieRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T04:29:23.46Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "FileWatcherService.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Services\\FileWatcherService.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Services\\FileWatcherService.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Services\\FileWatcherService.cs",
+              "RelativeToolTip": "Nostromo.Server\\Services\\FileWatcherService.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T04:28:46.506Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "VideoResponse.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\VideoResponse.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\API\\Models\\VideoResponse.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\VideoResponse.cs",
+              "RelativeToolTip": "Nostromo.Server\\API\\Models\\VideoResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T04:26:38.924Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "MatchRequest.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\MatchRequest.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\API\\Models\\MatchRequest.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\MatchRequest.cs",
+              "RelativeToolTip": "Nostromo.Server\\API\\Models\\MatchRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T04:24:00.169Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "TmdbMovieResponse.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\TmdbMovieResponse.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\API\\Models\\TmdbMovieResponse.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\TmdbMovieResponse.cs",
+              "RelativeToolTip": "Nostromo.Server\\API\\Models\\TmdbMovieResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T02:41:56.129Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "UnrecognizedFileResponse.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\UnrecognizedFileResponse.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\API\\Models\\UnrecognizedFileResponse.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Models\\UnrecognizedFileResponse.cs",
+              "RelativeToolTip": "Nostromo.Server\\API\\Models\\UnrecognizedFileResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T02:23:42.678Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "Repository.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\Repositories\\Repository.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Database\\Repositories\\Repository.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Database\\Repositories\\Repository.cs",
+              "RelativeToolTip": "Nostromo.Server\\Database\\Repositories\\Repository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T02:12:01.326Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.TrayService\\bin\\Debug\\net8.0-windows\\appsettings.json",
+              "RelativeDocumentMoniker": "Nostromo.TrayService\\bin\\Debug\\net8.0-windows\\appsettings.json",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.TrayService\\bin\\Debug\\net8.0-windows\\appsettings.json",
+              "RelativeToolTip": "Nostromo.TrayService\\bin\\Debug\\net8.0-windows\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-12-11T02:08:35.224Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "new.json",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\new.json",
+              "RelativeDocumentMoniker": "Nostromo.Server\\new.json",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\new.json",
+              "RelativeToolTip": "Nostromo.Server\\new.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-12-11T02:05:41.112Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": ".dockerignore",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\.dockerignore",
+              "RelativeDocumentMoniker": ".dockerignore",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\.dockerignore",
+              "RelativeToolTip": ".dockerignore",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-12-11T01:58:41.432Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "Nostromo.Server.csproj",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Nostromo.Server.csproj",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Nostromo.Server.csproj",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Nostromo.Server.csproj",
+              "RelativeToolTip": "Nostromo.Server\\Nostromo.Server.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACYAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-12-11T01:55:28.434Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "NewFile",
+              "DocumentMoniker": "C:\\Users\\n5980\\Downloads\\NostromoServer-main\\Nostromo.Server\\Server\\NewFile",
+              "RelativeDocumentMoniker": "..\\..\\Downloads\\NostromoServer-main\\Nostromo.Server\\Server\\NewFile",
+              "ToolTip": "C:\\Users\\n5980\\Downloads\\NostromoServer-main\\Nostromo.Server\\Server\\NewFile",
+              "RelativeToolTip": "..\\..\\Downloads\\NostromoServer-main\\Nostromo.Server\\Server\\NewFile",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-12-11T01:52:00.024Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\n5980\\Downloads\\NostromoServer-main\\Nostromo.TrayService\\appsettings.json",
+              "RelativeDocumentMoniker": "..\\..\\Downloads\\NostromoServer-main\\Nostromo.TrayService\\appsettings.json",
+              "ToolTip": "C:\\Users\\n5980\\Downloads\\NostromoServer-main\\Nostromo.TrayService\\appsettings.json",
+              "RelativeToolTip": "..\\..\\Downloads\\NostromoServer-main\\Nostromo.TrayService\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-12-11T01:48:39.061Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\old\\NostromoServer-main\\Nostromo.Server\\bin\\Debug\\net8.0\\appsettings.json",
+              "RelativeDocumentMoniker": "..\\old\\NostromoServer-main\\Nostromo.Server\\bin\\Debug\\net8.0\\appsettings.json",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\old\\NostromoServer-main\\Nostromo.Server\\bin\\Debug\\net8.0\\appsettings.json",
+              "RelativeToolTip": "..\\old\\NostromoServer-main\\Nostromo.Server\\bin\\Debug\\net8.0\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-12-11T01:34:28.385Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\appsettings.json",
+              "RelativeDocumentMoniker": "Nostromo.Server\\appsettings.json",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\appsettings.json",
+              "RelativeToolTip": "Nostromo.Server\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-12-11T01:25:00.587Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "Startup.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Server\\Startup.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Server\\Startup.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Server\\Startup.cs",
+              "RelativeToolTip": "Nostromo.Server\\Server\\Startup.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAIAwwCgAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T01:16:05.813Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "TmdbService.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Services\\TmdbService.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Services\\TmdbService.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Services\\TmdbService.cs",
+              "RelativeToolTip": "Nostromo.Server\\Services\\TmdbService.cs",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAAAGoAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T01:10:30.64Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "MovieController.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\MovieController.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\API\\Controllers\\MovieController.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\MovieController.cs",
+              "RelativeToolTip": "Nostromo.Server\\API\\Controllers\\MovieController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T01:08:16.823Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "TmdbController.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\TmdbController.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\API\\Controllers\\TmdbController.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\TmdbController.cs",
+              "RelativeToolTip": "Nostromo.Server\\API\\Controllers\\TmdbController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T00:53:15.026Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "DatabaseService.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Services\\DatabaseService.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\Services\\DatabaseService.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\Services\\DatabaseService.cs",
+              "RelativeToolTip": "Nostromo.Server\\Services\\DatabaseService.cs",
+              "ViewState": "AgIAANQAAAAAAAAAAAAgwE0AAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T00:32:34.78Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Nostromo.TrayService.csproj",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.TrayService\\Nostromo.TrayService.csproj",
+              "RelativeDocumentMoniker": "Nostromo.TrayService\\Nostromo.TrayService.csproj",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.TrayService\\Nostromo.TrayService.csproj",
+              "RelativeToolTip": "Nostromo.TrayService\\Nostromo.TrayService.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-12-11T00:29:49.937Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MediaDisplayController.cs",
+              "DocumentMoniker": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\MediaDisplayController.cs",
+              "RelativeDocumentMoniker": "Nostromo.Server\\API\\Controllers\\MediaDisplayController.cs",
+              "ToolTip": "C:\\Users\\n5980\\Desktop\\NostromoServer-main\\Nostromo.Server\\API\\Controllers\\MediaDisplayController.cs",
+              "RelativeToolTip": "Nostromo.Server\\API\\Controllers\\MediaDisplayController.cs",
+              "ViewState": "AgIAAM8AAAAAAAAAAAAAANgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-10T20:40:33.151Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

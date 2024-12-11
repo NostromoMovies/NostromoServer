@@ -20,6 +20,12 @@ namespace Nostromo.Server.Services
         Task InsertCrossRefAsync(CrossRefVideoTMDBMovie crossRefModel);
         Task<List<TMDBMovie>> GetFilterMediaGenre(List<int> genresID);
         Task<List<TMDBMovie>> movieRatingsSorted();
+        Task<List<Video>> GetVideosWithoutCrossRefAsync();
+        Task<TMDBMovie> GetMovieByFilenameAsync(string cleanTitle);
+        Task ApproveFileMatchAsync(int videoId, int tmdbMovieId);
+        Task<Video> GetVideoByIdAsync(int videoID);
+
+
     }
 
     public class DatabaseService : IDatabaseService
@@ -210,6 +216,7 @@ namespace Nostromo.Server.Services
                 throw;
             }
         }
+
         public async Task<List<TMDBMovie>> GetFilterMediaGenre(List<int> genresID)
         {
             try
@@ -231,6 +238,7 @@ namespace Nostromo.Server.Services
                 throw; 
             }
         }
+
         public async Task<List<TMDBMovie>> movieRatingsSorted()
         {
 
@@ -250,6 +258,75 @@ namespace Nostromo.Server.Services
 
 
 
+        }
+
+        public async Task<List<Video>> GetVideosWithoutCrossRefAsync()
+        {
+            try
+            {
+                var unrecognizedVideos = await _context.Videos
+                    .Where(v => !_context.CrossRefVideoTMDBMovies.Any(cr => cr.VideoID == v.VideoID))
+                    .ToListAsync();
+
+                return unrecognizedVideos;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching videos without cross-references.");
+                throw;
+            }
+        }
+
+        public async Task<TMDBMovie> GetMovieByFilenameAsync(string cleanTitle)
+        {
+            try
+            {
+                return await _context.Movies
+                    .Where(m => EF.Functions.Like(m.Title, $"%{cleanTitle}%"))
+                    .OrderByDescending(m => m.Popularity)
+                    .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error finding movie by filename: {Filename}", cleanTitle);
+                throw;
+            }
+        }
+
+        public async Task ApproveFileMatchAsync(int videoId, int tmdbMovieId)
+        {
+            try
+            {
+                var existingCrossRef = await _context.CrossRefVideoTMDBMovies
+                    .FirstOrDefaultAsync(cr => cr.VideoID == videoId);
+
+                if (existingCrossRef != null)
+                {
+                    _logger.LogWarning("A cross-reference already exists for VideoID {VideoID}.", videoId);
+                    return;
+                }
+
+                var crossRef = new CrossRefVideoTMDBMovie
+                {
+                    VideoID = videoId,
+                    TMDBMovieID = tmdbMovieId
+                };
+
+                await _context.CrossRefVideoTMDBMovies.AddAsync(crossRef);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Successfully approved file match for VideoID {VideoID} with TMDBMovieID {TMDBMovieID}.", videoId, tmdbMovieId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error approving file match for VideoID {VideoID} with TMDBMovieID {TMDBMovieID}.", videoId, tmdbMovieId);
+                throw;
+            }
+        }
+
+        public async Task<Video> GetVideoByIdAsync(int videoID)
+        {
+            return await _context.Videos.FirstOrDefaultAsync(v => v.VideoID == videoID);
         }
     }
 }

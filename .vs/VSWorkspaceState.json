@@ -1,0 +1,17 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Nostromo.Server",
+    "\\Nostromo.Server\\API",
+    "\\Nostromo.Server\\API\\Models",
+    "\\Nostromo.Server\\Database",
+    "\\Nostromo.Server\\Database\\Repositories",
+    "\\Nostromo.Server\\Settings",
+    "\\Nostromo.TrayService",
+    "\\Nostromo.TrayService\\bin",
+    "\\Nostromo.TrayService\\bin\\Debug",
+    "\\Nostromo.TrayService\\bin\\Debug\\net8.0-windows"
+  ],
+  "SelectedNode": "\\Nostromo.Server\\API\\Controllers\\MediaDisplayController.cs",
+  "PreviewInSolutionExplorer": false
+}

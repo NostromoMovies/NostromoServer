@@ -18,6 +18,7 @@ namespace Nostromo.Server.Services
         Task<int?> GetMovieRuntime(int movieId);
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query);
         Task<Dictionary<int, string>> GetGenreDictionary();
+        Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesWithoutCaching(string query);
     }
 
     public class TmdbService : ITmdbService
@@ -83,12 +84,25 @@ namespace Nostromo.Server.Services
         {
             try
             {
+                var existingMovie = await _movieRepository.FindByConditionAsync(m => m.TMDBMovieID == id);
+                if (existingMovie != null)
+                {
+                    _logger.LogInformation("Movie with TMDBMovieID {TMDBMovieID} already exists in the database.", id);
+                    return new TmdbMovieResponse
+                    {
+                        id = existingMovie.TMDBMovieID,
+                        title = existingMovie.Title,
+                        releaseDate = existingMovie.ReleaseDate,
+                        runtime = existingMovie.Runtime,
+                        popularity = existingMovie.Popularity
+                    };
+                }
+
                 var movieUrl = $"movie/{id}?api_key={_tmdbApiKey}";
                 var movie = await _httpClient.GetFromJsonAsync<TmdbMovieResponse>(movieUrl)
                     ?? throw new NotFoundException($"Movie with ID {id} not found");
 
                 var newMovie = new TMDBMovie(movie);
-
                 await _movieRepository.AddAsync(newMovie);
 
                 return movie;
@@ -188,6 +202,34 @@ namespace Nostromo.Server.Services
                 throw;
             }
         }
+
+        public async Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesWithoutCaching(string query)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(query))
+                {
+                    throw new ArgumentException("Search query cannot be empty", nameof(query));
+                }
+
+                var tmdbUrl = $"search/movie?api_key={_tmdbApiKey}&query={Uri.EscapeDataString(query)}";
+                var response = await _httpClient.GetFromJsonAsync<TmdbResponse>(tmdbUrl)
+                    ?? throw new NotFoundException("No search results found");
+
+                if (response.results == null || !response.results.Any())
+                {
+                    return (Array.Empty<TmdbMovieResponse>(), 0);
+                }
+
+                return (response.results, response.results.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during SearchMoviesWithoutCaching for query: {Query}", query);
+                throw;
+            }
+        }
+
     }
 
     public class NotFoundException(string message) : Exception(message)
