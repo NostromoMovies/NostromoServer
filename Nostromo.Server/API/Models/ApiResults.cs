@@ -26,16 +26,22 @@ public static class ApiResults
     }
 
     private static IResult Error(int statusCode, string message) =>
-        Response(new ApiError(statusCode, message), statusCode);
+        ErrorResponse(new ApiError(statusCode, message), statusCode);
 
-// --------------------------------------------------------------------------------------------------------------------------
-// Success responses
-// --------------------------------------------------------------------------------------------------------------------------
+    private static IResult ErrorResponse(ApiError error, int statusCode) =>
+        TypedResults.Json(
+            new { apiVersion = ApiVersion, error },
+            statusCode: statusCode
+        );
+
+    // --------------------------------------------------------------------------------------------------------------------------
+    // Success responses
+    // --------------------------------------------------------------------------------------------------------------------------
     public static IResult Success<T>(T data) =>
         Response(data, StatusCodes.Status200OK);
 
     public static IResult SuccessCollection<T>(IEnumerable<T>? items, int? total = null) =>
-    Success(new ApiCollection<T>(items ?? Array.Empty<T>(), total));
+        Success(new ApiCollection<T>(items ?? Array.Empty<T>(), total));
 
     public static IResult Created<T>(T data, string? uri = null) =>
         Response(data, StatusCodes.Status201Created, uri);
