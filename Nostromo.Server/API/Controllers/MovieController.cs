@@ -22,6 +22,8 @@ public class MoviesController : ControllerBase
     }
 
     [HttpGet]
+    [ProducesResponseType(typeof(SuccessResponse<IEnumerable<TMDBMovie>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<IResult> GetMovies()
     {
         var movies = await _movieRepository.GetAllAsync();

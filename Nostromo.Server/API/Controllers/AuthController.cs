@@ -7,6 +7,7 @@ using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
 using User = Nostromo.Server.Database.User;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace Nostromo.Server.API.Controllers
 {
@@ -35,6 +36,8 @@ namespace Nostromo.Server.API.Controllers
         }
 
         [HttpPost("register")]
+        [ProducesResponseType(typeof(SuccessResponse<string>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IResult> Register([FromBody] RegisterRequest registerRequest)
         {
             // Validate request
@@ -45,8 +48,7 @@ namespace Nostromo.Server.API.Controllers
             }
 
             // Check if user already exists
-            var existingUser = await _userRepository.FindByUsernameAsync(
-                registerRequest.username);
+            var existingUser = await _userRepository.FindByUsernameAsync(registerRequest.username);
             if (existingUser != null)
             {
                 throw new ArgumentException("Username already exists");
@@ -65,10 +67,12 @@ namespace Nostromo.Server.API.Controllers
             await _userRepository.AddAsync(user);
 
             _logger.LogInformation("User registered successfully: {Username}", user.Username);
-            return ApiResults.Success(new { message = "User registered successfully" });
+            return ApiResults.Created(new { message = "User registered successfully" });
         }
 
         [HttpPost("login")]
+        [ProducesResponseType(typeof(SuccessResponse<String>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IResult> Login([FromBody] LoginRequest loginRequest)
         {
             // Validate request
@@ -100,7 +104,7 @@ namespace Nostromo.Server.API.Controllers
             return ApiResults.Success(new
             {
                 message = "User logged in successfully",
-                token = token
+                token = token.Token
             });
         }
     }

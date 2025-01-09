@@ -1,27 +1,43 @@
 ﻿using Microsoft.AspNetCore.Http;
-
 namespace Nostromo.Server.API.Models;
 
-// ApiResults class
-// ex usage:
-//      var movie = await _tmdbService.GetMovieById(id)
-//      return ApiResults.Success(movie);
+public class SuccessResponse<T>
+{
+    public string ApiVersion { get; set; }
+    public T Data { get; set; }
+
+    public SuccessResponse(string apiVersion, T data)
+    {
+        ApiVersion = apiVersion;
+        Data = data;
+    }
+}
+
+public class ErrorResponse
+{
+    public string ApiVersion { get; set; }
+    public ApiError Error { get; set; }
+
+    public ErrorResponse(string apiVersion, ApiError error)
+    {
+        ApiVersion = apiVersion;
+        Error = error;
+    }
+}
+
 public static class ApiResults
 {
     private const string ApiVersion = "1.0";
-
     private static IResult Response<T>(T data, int statusCode, string? location = null)
     {
         var response = TypedResults.Json(
-            new { apiVersion = ApiVersion, data },
+            new SuccessResponse<T>(ApiVersion, data),
             statusCode: statusCode
         );
-
         if (location != null)
         {
             return new HeaderResult(response, location);
         }
-
         return response;
     }
 
@@ -30,13 +46,11 @@ public static class ApiResults
 
     private static IResult ErrorResponse(ApiError error, int statusCode) =>
         TypedResults.Json(
-            new { apiVersion = ApiVersion, error },
+            new ErrorResponse(ApiVersion, error),
             statusCode: statusCode
         );
 
-    // --------------------------------------------------------------------------------------------------------------------------
     // Success responses
-    // --------------------------------------------------------------------------------------------------------------------------
     public static IResult Success<T>(T data) =>
         Response(data, StatusCodes.Status200OK);
 
@@ -46,13 +60,10 @@ public static class ApiResults
     public static IResult Created<T>(T data, string? uri = null) =>
         Response(data, StatusCodes.Status201Created, uri);
 
-    // File response (passthrough to TypedResults)
     public static IResult PhysicalFile(string path, string contentType) =>
         TypedResults.PhysicalFile(path, contentType);
 
-// --------------------------------------------------------------------------------------------------------------------------
-// Error responses
-// --------------------------------------------------------------------------------------------------------------------------
+    // Error responses
     public static IResult NotFound(string message) =>
         Error(StatusCodes.Status404NotFound, message);
 
@@ -68,8 +79,6 @@ public static class ApiResults
     public static IResult BadRequest(string message) =>
         Error(StatusCodes.Status400BadRequest, message);
 
-
-    // Custom IResult implementation for handling Location header
     private class HeaderResult : IResult
     {
         private readonly IResult _result;
@@ -88,11 +97,12 @@ public static class ApiResults
         }
     }
 }
-// ApiCollection class for results with multiple items
+
 public class ApiCollection<T>
 {
     public int TotalItems { get; }
     public IEnumerable<T> Items { get; }
+
     public ApiCollection(IEnumerable<T> items, int? total = null)
     {
         Items = items ?? Array.Empty<T>();
@@ -100,15 +110,14 @@ public class ApiCollection<T>
     }
 }
 
-// ApiError class for consistent error response structure
 public class ApiError
 {
     public int Code { get; }
     public string Message { get; }
+
     public ApiError(int code, string message)
     {
         Code = code;
         Message = message;
     }
 }
-

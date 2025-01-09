@@ -21,6 +21,8 @@ public class TmdbController : ControllerBase
     }
 
     [HttpGet("movie/{id}")]
+    [ProducesResponseType(typeof(SuccessResponse<TmdbMovieResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IResult> GetMovieById(int id)
     {
         var movie = await _tmdbService.GetMovieById(id);
