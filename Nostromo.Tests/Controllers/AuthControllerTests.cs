@@ -89,7 +89,7 @@ namespace Nostromo.Tests.Controllers
             var (statusCode, response) = await GetResultDetails(() => _controller.Register(request));
 
             // Assert
-            Assert.Equal(200, statusCode);
+            Assert.Equal(201, statusCode);
             Assert.Equal("1.0", response.RootElement.GetProperty("apiVersion").GetString());
             Assert.Equal("User registered successfully",
                 response.RootElement.GetProperty("data").GetProperty("message").GetString());
