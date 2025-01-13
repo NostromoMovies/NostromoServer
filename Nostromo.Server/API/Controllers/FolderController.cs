@@ -42,6 +42,14 @@ public class FolderController : ControllerBase
         _folderManager = folderManager;
     }
 
+    [HttpGet("get-all")]
+    public async Task<IActionResult> GetAllFolders()
+    {
+        var folders = await _folderManager.GetWatchedFoldersAsync();
+
+        return Ok(folders);
+    }
+
     [HttpGet("set")]
     public async Task<IResult> SetFolder([FromQuery] string path)
     {
