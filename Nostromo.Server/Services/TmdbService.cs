@@ -8,6 +8,7 @@ using System.Net.Http.Json;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
 using System.Net;
+using TMDbLib.Client;
 
 namespace Nostromo.Server.Services
 {
@@ -23,7 +24,8 @@ namespace Nostromo.Server.Services
 
     public class TmdbService : ITmdbService
     {
-        private readonly HttpClient _httpClient;
+        private readonly TMDbClient _tmdbClient;
+        private readonly HttpClient _httpClient; //TODO: remove
         private readonly IDatabaseService _databaseService; //TODO: remove
         private readonly IMovieRepository _movieRepository;
         private readonly ILogger<TmdbService> _logger;
@@ -50,6 +52,10 @@ namespace Nostromo.Server.Services
             _httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
             _settings = settings;
+
+            TMDbClient client = new TMDbClient(_tmdbApiKey);
+
+            _tmdbClient = client;
         }
 
         public async Task<Dictionary<int, string>> GetGenreDictionary()

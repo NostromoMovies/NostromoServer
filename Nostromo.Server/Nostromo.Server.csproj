@@ -70,6 +70,7 @@
 	<PackageReference Include="System.IO.Hashing" Version="8.0.0" />
 	  <PackageReference Include="Quartz" Version="3.13.1" />
 	  <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.13.1" />
+	  <PackageReference Include="TMDbLib" Version="2.2.0" />
 
   </ItemGroup>
 	
