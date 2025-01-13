@@ -25,7 +25,7 @@ namespace Nostromo.Server.API.Controllers
 
         public static string HashPassword(string password, string salt)
         {
-            using (var sha256 = SHA256.Create())
+            using (var sha256 = SHA512.Create())
             {
                 var combinedByte = Encoding.UTF8.GetBytes(password + salt);
                 var hashBytes = sha256.ComputeHash(combinedByte);
@@ -35,11 +35,8 @@ namespace Nostromo.Server.API.Controllers
        public static bool VerifyPassword(string password, string encoded_password,string salt)
         {
             string hashedPassword = HashPassword(password, salt);
-            if (hashedPassword == encoded_password)
-            {
-                return true; 
-            }
-            return false;
+
+            return String.Equals(hashedPassword, encoded_password, StringComparison.Ordinal);
         }
     }
 

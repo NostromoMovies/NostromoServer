@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
+using System.Net;
 
 namespace Nostromo.Server.Services
 {
@@ -109,6 +110,10 @@ namespace Nostromo.Server.Services
                     ?? throw new NotFoundException($"Images for movie with ID {id} not found");
                 return images;
             }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                throw new NotFoundException($"Movie with ID {id} not found");
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching images for movie with ID: {MovieId}", id);
@@ -134,6 +139,7 @@ namespace Nostromo.Server.Services
             }
         }
 
+            // weird
         public async Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query)
         {
             try
@@ -154,31 +160,32 @@ namespace Nostromo.Server.Services
 
                 var genreDict = await GetGenreDictionary();
 
+                             // apparently not thread-safe
                 // Process each movie
-                foreach (var movieResponse in response.results)
-                {
-                    try
-                    {                                     // why?
-                        movieResponse.runtime = await GetMovieRuntime(movieResponse.id);
-                        TMDBMovie movie = new TMDBMovie(movieResponse);
-                        await _movieRepository.AddAsync(movie);
+                //foreach (var movieResponse in response.results)
+                //{
+                //    try
+                //    {                                     // why?
+                //        movieResponse.runtime = await GetMovieRuntime(movieResponse.id);
+                //        TMDBMovie movie = new TMDBMovie(movieResponse);
+                //        await _movieRepository.AddAsync(movie);
 
-                        var genres = movieResponse.genreIds
-                            .Select(id => genreDict.ContainsKey(id) ? genreDict[id] : "Unknown")
-                            .ToList();
+                //        var genres = movieResponse.genreIds
+                //            .Select(id => genreDict.ContainsKey(id) ? genreDict[id] : "Unknown")
+                //            .ToList();
 
-                        _logger.LogDebug(
-                            "Processed movie: {Title}, Genres: {Genres}, Runtime: {Runtime}",
-                            movieResponse.title,
-                            string.Join(", ", genres),
-                            movieResponse.runtime);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error processing movie {Title} (ID: {Id})", movieResponse.title, movieResponse.id);
-                        // Continue processing other movies
-                    }
-                }
+                //        _logger.LogDebug(
+                //            "Processed movie: {Title}, Genres: {Genres}, Runtime: {Runtime}",
+                //            movieResponse.title,
+                //            string.Join(", ", genres),
+                //            movieResponse.runtime);
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        _logger.LogError(ex, "Error processing movie {Title} (ID: {Id})", movieResponse.title, movieResponse.id);
+                //        // Continue processing other movies
+                //    }
+                //}
 
                 return (response.results, response.results.Count);
             }

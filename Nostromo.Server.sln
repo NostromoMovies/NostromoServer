@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x86", "x86", "{014C0A52-DF7
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nostromo.TrayService", "Nostromo.TrayService\Nostromo.TrayService.csproj", "{19DA409C-7CA1-43FB-A132-8BEE98ADFD8D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nostromo.Tests", "Nostromo.Tests\Nostromo.Tests.csproj", "{AE415FC3-D192-488A-9DD7-61D9F8853F92}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{19DA409C-7CA1-43FB-A132-8BEE98ADFD8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19DA409C-7CA1-43FB-A132-8BEE98ADFD8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19DA409C-7CA1-43FB-A132-8BEE98ADFD8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE415FC3-D192-488A-9DD7-61D9F8853F92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE415FC3-D192-488A-9DD7-61D9F8853F92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE415FC3-D192-488A-9DD7-61D9F8853F92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE415FC3-D192-488A-9DD7-61D9F8853F92}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

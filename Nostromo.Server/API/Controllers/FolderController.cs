@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Nostromo.Server.API.Models;
 using Nostromo.Server.Services;
+
+namespace Nostromo.Server.API.Controllers;
 
 [ApiController]
 [Route("api/folders")]
@@ -48,49 +51,49 @@ public class FolderController : ControllerBase
     }
 
     [HttpGet("set")]
-    public async Task<IActionResult> SetFolder([FromQuery] string path)
+    public async Task<IResult> SetFolder([FromQuery] string path)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
-            return BadRequest("Folder path is required.");
+            return ApiResults.BadRequest("Folder path is required.");
         }
 
         var result = await _folderManager.AddImportFolderAsync(path);
         if (!result)
         {
-            return StatusCode(500, "Failed to add folder.");
+            return ApiResults.ServerError("Failed to add folder.");
         }
 
-        return Ok($"Folder added successfully: {path}");
+        return ApiResults.Success(new { message = $"Folder added successfully: {path}" });
     }
 
     [HttpGet("test")]
-    public IActionResult TestEndpoint()
+    public IResult TestEndpoint()
     {
-        return Ok("Test endpoint hit!");
+        return ApiResults.Success(new { message = "Test endpoint hit!" });
     }
 
     [HttpGet("remove")]
-    public async Task<IActionResult> RemoveFolder([FromQuery] string path)
+    public async Task<IResult> RemoveFolder([FromQuery] string path)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
-            return BadRequest("Folder path is required.");
+            return ApiResults.BadRequest("Folder path is required.");
         }
 
         var result = await _folderManager.RemoveImportFolderAsync(path);
         if (!result)
         {
-            return NotFound($"Folder not found or could not be removed: {path}");
+            return ApiResults.NotFound($"Folder not found or could not be removed: {path}");
         }
 
-        return Ok($"Folder removed successfully: {path}");
+        return ApiResults.Success(new { message = $"Folder removed successfully: {path}" });
     }
 
     [HttpGet("Drives")]
-    public ActionResult<IEnumerable<Drive>> GetMountPoints()
+    public IResult GetMountPoints()
     {
-        return DriveInfo.GetDrives()
+        var drives = DriveInfo.GetDrives()
             .Select(d =>
             {
                 if (d.DriveType == DriveType.Unknown)
@@ -151,18 +154,20 @@ public class FolderController : ControllerBase
             .Where(mountPoint => mountPoint != null)
             .OrderBy(mountPoint => mountPoint.Path)
             .ToList();
+
+        return ApiResults.SuccessCollection(drives);
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Folder>> GetFolder([FromQuery] string path)
+    public IResult GetFolder([FromQuery] string path)
     {
         if (!Directory.Exists(path))
         {
-            return NotFound("Directory not found");
+            return ApiResults.NotFound("Directory not found");
         }
 
         var root = new DirectoryInfo(path);
-        return root.GetDirectories()
+        var folders = root.GetDirectories()
             .Select(dir =>
             {
                 FoldersAndFiles childItems = null;
@@ -183,5 +188,7 @@ public class FolderController : ControllerBase
             })
             .OrderBy(folder => folder.Path)
             .ToList();
+
+        return ApiResults.SuccessCollection(folders);
     }
 }

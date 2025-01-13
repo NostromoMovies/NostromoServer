@@ -8,6 +8,10 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <OutputType>Library</OutputType>
   </PropertyGroup>
+
+  <PropertyGroup>
+	<IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+  </PropertyGroup>
 	
   <ItemGroup>
 		<Content Include="$(MSBuildThisFileDirectory)..\Dependencies\**\*" CopyToOutputDirectory="PreserveNewest" />

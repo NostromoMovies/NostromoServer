@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Nostromo.Models;
 using Nostromo.Server.Services;
 using Nostromo.Server.Database;
+using Nostromo.Server.API.Models;
 
 namespace Nostromo.Server.API.Controllers
 {
@@ -26,27 +24,19 @@ namespace Nostromo.Server.API.Controllers
         }
 
         [HttpGet("searchMedia")]
-        public async Task<ActionResult<IEnumerable<TmdbMovieResponse>>> SearchMedia([FromQuery] string mediaName)
+        public async Task<IResult> SearchMedia([FromQuery] string mediaName)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(mediaName))
-                {
-                    return BadRequest(new { Message = "Search term is required" });
-                }
+                if ( string.IsNullOrWhiteSpace(mediaName) )
+                    return ApiResults.BadRequest("Search term is required" );
 
                 _logger.LogInformation("Searching for media with name: {MediaName}", mediaName);
 
                 var movies = await _databaseService.SearchMoviesAsync(mediaName);
 
-                if (!movies.Any())
-                {
-                    return Ok(new
-                    {
-                        Message = "No movies found matching the search criteria",
-                        Results = Array.Empty<TmdbMovieResponse>()
-                    });
-                }
+                if ( !movies.Any() )
+                    return ApiResults.SuccessCollection<TmdbMovieResponse>( [] );
 
                 // Convert database entities to API model
                 var results = movies.Select(movie => new TmdbMovieResponse
@@ -69,22 +59,18 @@ namespace Nostromo.Server.API.Controllers
                 _logger.LogInformation("Found {Count} movies matching search term: {MediaName}",
                     results.Count, mediaName);
 
-                return Ok(new
-                {
-                    Message = $"Found {results.Count} results",
-                    Results = results
-                });
+                return ApiResults.SuccessCollection<TmdbMovieResponse>(results);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error searching for media with name: {MediaName}", mediaName);
-                return StatusCode(500, new { Message = "An error occurred while searching for media" });
+                return ApiResults.ServerError("An error occurred while searching for media");
             }
         }
 
         // You might want to add other endpoints for getting movie details, genres, etc.
         [HttpGet("{id}")]
-        public async Task<ActionResult<TmdbMovieResponse>> GetMovie(int id)
+        public async Task<IResult> GetMovie(int id)
         {
             try
             {
@@ -92,7 +78,7 @@ namespace Nostromo.Server.API.Controllers
 
                 if (movie == null)
                 {
-                    return NotFound(new { Message = $"Movie with ID {id} not found" });
+                    return ApiResults.NotFound($"Movie with ID {id} not found");
                 }
 
                 var result = new TmdbMovieResponse
@@ -112,12 +98,12 @@ namespace Nostromo.Server.API.Controllers
                     genreIds = movie.Genres?.Select(g => g.GenreID).ToList() ?? new List<int>()
                 };
 
-                return Ok(result);
+                return ApiResults.Success(result);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving movie with ID: {MovieId}", id);
-                return StatusCode(500, new { Message = "An error occurred while retrieving the movie" });
+                return ApiResults.ServerError("An error occurred while retrieving the movie");
             }
         }
        
