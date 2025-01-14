@@ -56,6 +56,7 @@ namespace Nostromo.Server.Server
                 builder.AddConsole();
                 builder.AddDebug();
             });
+            services.AddSingleton<IProgressStore,InMemoryProgressStore>();
 
             services.AddSingleton(_configuration);
 
