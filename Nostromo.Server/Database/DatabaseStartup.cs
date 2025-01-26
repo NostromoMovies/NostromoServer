@@ -13,7 +13,9 @@ public static class DatabaseStartup
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var dbDirectory = Path.Combine(Utils.ApplicationPath, "Database");
+        
+       
+        var dbDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nostromo", "Database");
         var dbPath = Path.Combine(dbDirectory, "nostromo.db");
 
         // Ensure directory exists

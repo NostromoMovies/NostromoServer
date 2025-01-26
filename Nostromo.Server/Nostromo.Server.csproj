@@ -33,7 +33,7 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.3.2" />
     <PackageReference Include="FluentNHibernate" Version="3.4.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.10" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
     <None Remove="appsettings.json" />
     <PackageReference Include="Quartz.AspNetCore" Version="3.13.1" />

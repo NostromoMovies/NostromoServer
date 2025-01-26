@@ -11,8 +11,8 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    [Migration("20241129073727_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250126001001__InitialCreate")]
+    partial class _InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
