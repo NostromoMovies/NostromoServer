@@ -61,6 +61,7 @@ namespace Nostromo.Server.Server
             services.AddSingleton(_configuration);
 
             services.AddNostromoDatabase(_configuration);
+            services.AddHttpContextAccessor();
             services.AddHttpClient();
 
             // add authentication
