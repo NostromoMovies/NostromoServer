@@ -22,7 +22,7 @@ namespace Nostromo.Server.API.Controllers
             _schedulerFactory = schedulerFactory;
         }
 
-        [HttpPost("download/tmdb/{movieId}/poster")]
+        [HttpGet("download/tmdb/{movieId}/poster")]
         public async Task<IResult> DownloadTmdbPoster(int movieId)
         {
             try
