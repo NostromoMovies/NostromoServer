@@ -63,7 +63,7 @@ namespace Nostromo.Server.API.Controllers
                 PasswordHash = hashedPassword,
                 Salt = salt,
                 IsAdmin = registerRequest.isAdmin
-            };
+            };  
             await _userRepository.AddAsync(user);
 
             _logger.LogInformation("User registered successfully: {Username}", user.Username);

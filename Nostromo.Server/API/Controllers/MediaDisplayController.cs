@@ -170,5 +170,68 @@ namespace Nostromo.Server.API.Controllers
             }
 
         }
+        [HttpGet("sortMovieByReleaseDateDecending")]
+        public async Task<ActionResult<List<TmdbMovieResponse>>> SortMovieByReleaseDateDecend()
+        {
+
+            try
+            {
+                List<TMDBMovie> tmbdMovie = new List<TMDBMovie>();
+                tmbdMovie = await _databaseService.ReleaseDateDescending();
+             
+                
+
+
+                return Ok(tmbdMovie);
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, new { Message = "An error occurred while retrieving the movie" });
+            }
+
+        }
+        [HttpGet(" sortMovieByReleaseDateAscending")]
+        public async Task<ActionResult<List<TmdbMovieResponse>>> SortMovieByReleaseDateAscend()
+        {
+
+            try
+            {
+                List<TMDBMovie> tmbdMovie = new List<TMDBMovie>();
+                tmbdMovie = await _databaseService.ReleaseDateAscending();
+             
+                
+
+
+                return Ok(tmbdMovie);
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, new { Message = "An error occurred while retrieving the movie" });
+            }
+
+        }
+        [HttpGet("recentlyAddedMovies")]
+        public async Task<ActionResult<List<Video>>> recentlyAddedMovies()
+        {
+
+            try
+            {
+                List<Video> tmbdMovie = new List<Video>();
+                tmbdMovie = await _databaseService.RecentlyAddedMovie();
+             
+                
+
+
+                return Ok(tmbdMovie);
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, new { Message = "An error occurred while retrieving the movie" });
+            }
+
+        }
     }
 }

@@ -9,4 +9,12 @@ public interface IMovieRepository : IRepository<TMDBMovie>
     Task<IEnumerable<TMDBMovie>> SearchGenreAsync(List<int> genreIds);
 
     Task<IEnumerable<TMDBMovie>> SortMovieByRatings();
+    
+    Task<IEnumerable<TMDBMovie>> SortMovieByReleaseDateAscending();
+    
+    Task<IEnumerable<TMDBMovie>> SortMovieByReleaseDateDescending();
+    
+    
+    
+    
 }

@@ -20,12 +20,17 @@ namespace Nostromo.Server.Services
         Task InsertCrossRefAsync(CrossRefVideoTMDBMovie crossRefModel);
         Task<List<TMDBMovie>> GetFilterMediaGenre(List<int> genresID);
         Task<List<TMDBMovie>> movieRatingsSorted();
+        Task<List<TMDBMovie>> ReleaseDateDescending();
+        Task<List<TMDBMovie>> ReleaseDateAscending();
+
+        Task<List<Video>> RecentlyAddedMovie();
     }
 
     public class DatabaseService : IDatabaseService
     {
         private readonly IMovieRepository _movieRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IVideoRepository _videoRepository;
         private readonly NostromoDbContext _context;
         private readonly ILogger<DatabaseService> _logger;
 
@@ -250,6 +255,56 @@ namespace Nostromo.Server.Services
 
 
 
+        }
+
+        public async Task<List<TMDBMovie>> ReleaseDateAscending()
+        {
+            try
+            {
+
+                var allMovies = await _movieRepository.SortMovieByReleaseDateAscending();
+
+
+                return allMovies.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while grabbing movie list.");
+                throw;
+            }
+        }
+        public async Task<List<TMDBMovie>> ReleaseDateDescending()
+        {
+            try
+            {
+
+                var allMovies = await _movieRepository.SortMovieByReleaseDateDescending();
+
+
+                return allMovies.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while grabbing movie list.");
+                throw;
+            }
+        }
+
+        public async Task<List<Video>> RecentlyAddedMovie()
+        {
+            try
+            {
+
+                var allMovies = await _videoRepository.RecentlyAddedMoviesAsync();
+
+
+                return allMovies.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while grabbing movie list.");
+                throw;
+            }
         }
     }
 }

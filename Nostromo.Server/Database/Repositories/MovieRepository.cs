@@ -62,5 +62,30 @@ public class MovieRepository : Repository<TMDBMovie>, IMovieRepository
             .Where(m => m.Genres != null && m.Genres.Any(g => genreIds.Contains(g.GenreID)))
             .ToListAsync(); 
     }
+    public async Task<IEnumerable<TMDBMovie>> SortMovieByReleaseDateAscending()
+    {
+
+        var movies = await _context.Movies
+            .OrderBy(m => m.ReleaseDate)
+            .ToListAsync();
+
+
+
+        return movies;
+
+
+    }
+    public async Task<IEnumerable<TMDBMovie>> SortMovieByReleaseDateDescending()
+    {
+
+        var movies = await _context.Movies
+            .OrderByDescending(m => m.ReleaseDate)
+            .ToListAsync();
+
+
+        return movies;
+
+
+    }
 
 }
