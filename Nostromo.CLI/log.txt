@@ -1,0 +1,24 @@
+Using launch settings from /Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.CLI/Properties/launchSettings.json...
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.Server/Nostromo.Server.csproj : warning NU1504: Duplicate 'PackageReference' items found. Remove the duplicate items or use the Update functionality to ensure a consistent restore behavior. The duplicate 'PackageReference' items are: Quartz.Extensions.DependencyInjection 3.13.1, Quartz.Extensions.DependencyInjection 3.13.1; Quartz 3.13.1, Quartz 3.13.1.
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.CLI/Nostromo.CLI.csproj : warning NU1903: Package 'System.Formats.Asn1' 5.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-447r-wph3-92pm
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.Server/Nostromo.Server.csproj : warning NU1903: Package 'System.Formats.Asn1' 5.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-447r-wph3-92pm [/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.CLI/Nostromo.CLI.csproj]
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.CLI/Nostromo.CLI.csproj : warning NU1903: Package 'System.Net.Http' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7jgj-8wvc-jh57
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.Server/Nostromo.Server.csproj : warning NU1903: Package 'System.Net.Http' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7jgj-8wvc-jh57 [/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.CLI/Nostromo.CLI.csproj]
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.CLI/Nostromo.CLI.csproj : warning NU1903: Package 'System.Text.RegularExpressions' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-cmhx-cq75-c4mj
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.Server/Nostromo.Server.csproj : warning NU1903: Package 'System.Text.RegularExpressions' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-cmhx-cq75-c4mj [/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.CLI/Nostromo.CLI.csproj]
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.CLI/Nostromo.CLI.csproj : warning NU1903: Package 'System.Formats.Asn1' 5.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-447r-wph3-92pm
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.CLI/Nostromo.CLI.csproj : warning NU1903: Package 'System.Net.Http' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7jgj-8wvc-jh57
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.CLI/Nostromo.CLI.csproj : warning NU1903: Package 'System.Text.RegularExpressions' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-cmhx-cq75-c4mj
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.Server/Nostromo.Server.csproj : warning NU1504: Duplicate 'PackageReference' items found. Remove the duplicate items or use the Update functionality to ensure a consistent restore behavior. The duplicate 'PackageReference' items are: Quartz.Extensions.DependencyInjection 3.13.1, Quartz.Extensions.DependencyInjection 3.13.1; Quartz 3.13.1, Quartz 3.13.1.
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.Server/Nostromo.Server.csproj : warning NU1903: Package 'System.Formats.Asn1' 5.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-447r-wph3-92pm
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.Server/Nostromo.Server.csproj : warning NU1903: Package 'System.Net.Http' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-7jgj-8wvc-jh57
+/Users/dominicpham/RiderProjects/NostromoServerF/Nostromo.Server/Nostromo.Server.csproj : warning NU1903: Package 'System.Text.RegularExpressions' 4.3.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-cmhx-cq75-c4mj
+dbug: Microsoft.EntityFrameworkCore.Infrastructure[10401]
+      An 'IServiceProvider' was created for internal use by Entity Framework.
+dbug: Microsoft.EntityFrameworkCore.Model[10601]
+      The index {'GenreID'} was not created on entity type 'MovieGenre' as the properties are already covered by the index {'GenreID', 'MovieID'}.
+dbug: Microsoft.EntityFrameworkCore.Infrastructure[10403]
+      Entity Framework Core 9.0.0 initialized 'NostromoDbContext' using provider 'Microsoft.EntityFrameworkCore.Sqlite:9.0.0' with options: None
+dbug: Microsoft.EntityFrameworkCore.Infrastructure[10407]
+      'NostromoDbContext' disposed.
+Critical error occurred. Check logs for details.
