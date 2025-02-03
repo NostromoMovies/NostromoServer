@@ -124,6 +124,9 @@ namespace Nostromo.Server.Server
             services.AddQuartz();
             services.AddQuartzServices();
 
+            services.AddSingleton<JobChainListener>();
+            services.AddTransient<IJobListener>(sp => sp.GetRequiredService<JobChainListener>());
+
             services.Configure<TmdbSettings>(_configuration.GetSection("TMDB"));
             services.AddHttpClient<ITmdbService, TmdbService>(client => {
                 var tmdbSettings = _configuration.GetSection("TMDB").Get<TmdbSettings>();
@@ -140,6 +143,10 @@ namespace Nostromo.Server.Server
             {
                 ConfigureServices(_services);
                 _serviceProvider = _services.BuildServiceProvider();
+
+                var scheduler = _serviceProvider.GetRequiredService<IScheduler>();
+                var chainListener = _serviceProvider.GetRequiredService<JobChainListener>();
+                scheduler.ListenerManager.AddJobListener(chainListener);
 
                 // Initialize database
                 using (var scope = _serviceProvider.CreateScope())
