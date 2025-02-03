@@ -1,9 +1,9 @@
-﻿// DatabaseStartup.cs
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nostromo.Server.Database.Repositories;
 using Nostromo.Server.Utilities;
+using System.IO;
 
 namespace Nostromo.Server.Database;
 
@@ -13,17 +13,18 @@ public static class DatabaseStartup
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        
-       
-        var dbDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nostromo", "Database");
+        // Get the connection string directly
+        var dbDirectory = Path.Combine(Utils.ApplicationPath, "Database");
         var dbPath = Path.Combine(dbDirectory, "nostromo.db");
-
-        // Ensure directory exists
         Directory.CreateDirectory(dbDirectory);
 
-        // Add DbContext
+        var connectionString = $"Data Source={dbPath}";
+
+        // Register the DbContext with the connection string
         services.AddDbContext<NostromoDbContext>(options =>
-            options.UseSqlite($"Data Source={dbPath}"));
+        {
+            options.UseSqlite(connectionString);
+        });
 
         // Add Repository services
         services.AddScoped<IMovieRepository, MovieRepository>();
@@ -32,6 +33,5 @@ public static class DatabaseStartup
         services.AddScoped<IImportFolderRepository, ImportFolderRepository>();
 
         return services;
-
     }
 }
