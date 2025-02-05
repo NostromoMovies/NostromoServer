@@ -14,6 +14,9 @@ Stolan Belikove, Nicholas Moore, Dominic Pham
 
 Nostromo is a self-hosted, full-stack application for organizing digital movie and television collections. It is deployable on Windows, Linux, or Docker, and accessible via a web browser. Nostromo simplifies file management using file hashing for identification, maintaining collection integrity despite renaming or format changes. It focuses exclusively on management and organization, serving as middleware between your media collection and media server. We aim to refine core functionality, enhance metadata for an improved frontend, integrate with Jellyfin via a plug-in, and develop filtering and recommendation features based on trends, seasons, and user watch history.
 
+# Front end
+https://github.com/NostromoMovies/NostromoVuetify
+
 # Project related resources
 BillWagner. (n.d.). C# docs - get started, tutorials, reference. C# docs - get started, tutorials, reference. | Microsoft Learn. https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/ 
 
