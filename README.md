@@ -1,7 +1,9 @@
 # CS 426 Senior Project
 # Instructors
 Sara Davis, Dave Feil-Seifer, Vinh Le
+
 Computer Science, Spring 2025, at UNR, CSE Department
+
 # External Advisor
 Levi Scully with the Department of CSE
 # Collaborators
