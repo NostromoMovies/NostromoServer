@@ -4,6 +4,7 @@ using Quartz;
 using Nostromo.Server.Scheduling.Jobs;
 using Microsoft.AspNetCore.Http;
 using Nostromo.Server.API.Models;
+using Nostromo.Server.Services;
 
 namespace Nostromo.Server.API.Controllers
 {
@@ -13,13 +14,16 @@ namespace Nostromo.Server.API.Controllers
     {
         private readonly ILogger<FileController> _logger;
         private readonly ISchedulerFactory _schedulerFactory;
+        private readonly IFileRenamerService _fileRenamerService;
 
         public FileController(
             ILogger<FileController> logger,
-            ISchedulerFactory schedulerFactory)
+            ISchedulerFactory schedulerFactory,
+            IFileRenamerService fileRenamerService)
         {
             _logger = logger;
             _schedulerFactory = schedulerFactory;
+            _fileRenamerService = fileRenamerService;
         }
 
         [HttpGet("download/tmdb/{movieId}/poster")]
@@ -87,6 +91,13 @@ namespace Nostromo.Server.API.Controllers
                 _logger.LogError(ex, "Error checking job status for {Group}/{Name}", group, name);
                 return ApiResults.ServerError($"Error checking job status: {ex.Message}");
             }
+        }
+
+        [HttpPost("move")]
+        public async Task<IResult> MoveFile(string file, string newFile)
+        {
+            var result = await _fileRenamerService.RenameFile(file, newFile);
+            return result ? ApiResults.Success("File renamed") : ApiResults.ServerError("Error");
         }
     }
 }

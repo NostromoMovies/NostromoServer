@@ -106,6 +106,7 @@ namespace Nostromo.Server.Server
             services.AddScoped<IDatabaseService, DatabaseService>();
             services.AddSingleton<ISettingsProvider>(_settingsProvider);
             services.AddSingleton<IFileWatcherService, FileWatcherService>();
+            services.AddSingleton<IFileRenamerService, FileRenamerService>();
             services.AddScoped<IImportFolderManager, ImportFolderManager>();
             services.AddSingleton<NostromoServer>();
 
