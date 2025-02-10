@@ -19,6 +19,7 @@ namespace Nostromo.Server.Services
         Task<int?> GetMovieRuntime(int movieId);
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query);
         Task<Dictionary<int, string>> GetGenreDictionary();
+        Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> GetRecommendation(string query);
     }
 
     public class TmdbService : ITmdbService
@@ -192,6 +193,43 @@ namespace Nostromo.Server.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error searching movies with query: {Query}", query);
+                throw;
+            }
+        }
+
+        public async Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> GetRecommendation(string query)
+        {
+            try
+            {
+                string tmdbUrl;
+        
+                if (!string.IsNullOrWhiteSpace(query))
+                {
+                    // Search for movies based on user query
+                    tmdbUrl = $"search/movie?api_key={_tmdbApiKey}&query={Uri.EscapeDataString(query)}";
+                }
+                else
+                {
+                    // Discover random popular movies
+                    var randomPage = new Random().Next(1, 10); 
+                    tmdbUrl = $"discover/movie?api_key={_tmdbApiKey}&sort_by=popularity.desc&page={randomPage}";
+                }
+
+                var response = await _httpClient.GetFromJsonAsync<TmdbResponse>(tmdbUrl)
+                               ?? throw new NotFoundException("No search results found");
+
+                if (response.results == null || !response.results.Any())
+                {
+                    return (Array.Empty<TmdbMovieResponse>(), 0);
+                }
+
+               
+
+                return (response.results, response.results.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching movies with query: {Query}", query);
                 throw;
             }
         }

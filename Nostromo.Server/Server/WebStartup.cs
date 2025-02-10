@@ -6,6 +6,8 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Nostromo.Server.API.Middleware;
+using Nostromo.Server.Services;
+
 
 namespace Nostromo.Server.Server
 {
@@ -43,7 +45,10 @@ namespace Nostromo.Server.Server
                     Description = "API endpoints for Nostromo Server"
                 });
             });
-
+            
+            //Signal R
+            services.AddSignalR();
+            
             // CORS
             services.AddCors(options =>
             {
@@ -94,6 +99,10 @@ namespace Nostromo.Server.Server
             });
 
             app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHub<ProgressHub>("/progressHub"); 
+            });
 
             app.UseAuthentication();
             app.UseAuthorization();

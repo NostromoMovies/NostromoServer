@@ -54,4 +54,12 @@ public class TmdbController : ControllerBase
         var (results, totalResults) = await _tmdbService.SearchMovies(query);
         return ApiResults.SuccessCollection(results);
     }
+
+    [HttpGet("getMoviesReccomendation")]
+    public async Task<IResult> GetMoviesReccomendation(string query )
+    {
+        var results = await _tmdbService.GetRecommendation(query);
+        return ApiResults.Success(results);
+        
+    }
 }
