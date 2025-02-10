@@ -20,6 +20,9 @@ namespace Nostromo.Server.Services
         Task InsertCrossRefAsync(CrossRefVideoTMDBMovie crossRefModel);
         Task<List<TMDBMovie>> GetFilterMediaGenre(List<int> genresID);
         Task<List<TMDBMovie>> movieRatingsSorted();
+        Task<List<Video>> GetAllVideosAsync();
+        Task<HashSet<int>> GetAllRecognizedVideoIdsAsync();
+        Task<bool> CheckCrossRefExistsAsync(int videoID, int tmdbMovieID);
     }
 
     public class DatabaseService : IDatabaseService
@@ -250,6 +253,21 @@ namespace Nostromo.Server.Services
 
 
 
+        }
+        public async Task<List<Video>> GetAllVideosAsync()
+        {
+            return await _context.Videos.ToListAsync();
+        }
+        public async Task<HashSet<int>> GetAllRecognizedVideoIdsAsync()
+        {
+            return await _context.CrossRefVideoTMDBMovies
+                .Select(crossRef => crossRef.VideoID)
+                .ToHashSetAsync();
+        }
+        public async Task<bool> CheckCrossRefExistsAsync(int videoID, int tmdbMovieID)
+        {
+            return await _context.CrossRefVideoTMDBMovies
+                .AnyAsync(x => x.VideoID == videoID && x.TMDBMovieID == tmdbMovieID);
         }
     }
 }
