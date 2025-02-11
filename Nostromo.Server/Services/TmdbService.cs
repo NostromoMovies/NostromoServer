@@ -20,6 +20,8 @@ namespace Nostromo.Server.Services
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query);
         Task<Dictionary<int, string>> GetGenreDictionary();
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> GetRecommendation(string query);
+        Task<int?> GetKeywordId(string keyword);
+        Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesByKeyword(string keyword);
     }
 
     public class TmdbService : ITmdbService
@@ -230,6 +232,57 @@ namespace Nostromo.Server.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching movies with query: {Query}", query);
+                throw;
+            }
+        }
+
+        public async Task<int?> GetKeywordId(string keyword)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(keyword))
+                    throw new ArgumentException("Keyword cannot be empty", nameof(keyword));
+
+                var keywordUrl = $"search/keyword?api_key={_tmdbApiKey}&query={Uri.EscapeDataString(keyword)}";
+                var response = await _httpClient.GetFromJsonAsync<TmdbKeywordResponse>(keywordUrl);
+
+                if (response?.results == null || response.results.Count == 0)
+                {
+                    _logger.LogWarning("No keyword found for query: {Keyword}", keyword);
+                    return null;
+                }
+
+                return response.results.First().id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching keyword ID for: {Keyword}", keyword);
+                throw;
+            }
+        }
+
+
+        public async Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesByKeyword(string keyword)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(keyword))
+                    throw new ArgumentException("Keyword cannot be empty", nameof(keyword));
+
+                var keywordId = await GetKeywordId(keyword);
+                if (keywordId == null)
+                    return (Array.Empty<TmdbMovieResponse>(), 0);
+
+                var tmdbUrl = $"discover/movie?api_key={_tmdbApiKey}&with_keywords={keywordId}";
+                var response = await _httpClient.GetFromJsonAsync<TmdbResponse>(tmdbUrl)
+                    ?? throw new NotFoundException("No movies found for keyword");
+
+                var movieResults = response.results ?? new List<TmdbMovieResponse>();
+                return (movieResults, movieResults.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching movies for keyword: {Keyword}", keyword);
                 throw;
             }
         }
