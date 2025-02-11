@@ -62,4 +62,24 @@ public class TmdbController : ControllerBase
         return ApiResults.Success(results);
         
     }
+
+    [HttpGet("search/keyword")]
+    [ProducesResponseType(typeof(SuccessResponse<IEnumerable<TmdbMovieResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IResult> SearchMoviesByKeyword([FromQuery] string keyword)
+    {
+        if (string.IsNullOrWhiteSpace(keyword))
+        {
+            return ApiResults.BadRequest("Keyword is required");
+        }
+
+        var (results, totalResults) = await _tmdbService.SearchMoviesByKeyword(keyword);
+
+        if (totalResults == 0)
+        {
+            return ApiResults.NotFound($"No movies found for keyword: {keyword}");
+        }
+
+        return ApiResults.SuccessCollection(results);
+    }
 }
