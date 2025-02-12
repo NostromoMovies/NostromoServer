@@ -8,6 +8,7 @@ using System.Net.Http.Json;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
 using System.Net;
+using System.Text.Json;
 
 namespace Nostromo.Server.Services
 {
@@ -22,6 +23,8 @@ namespace Nostromo.Server.Services
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> GetRecommendation(string query);
         Task<int?> GetKeywordId(string keyword);
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesByKeyword(string keyword);
+        Task<TmdbCastWrapper> GetMovieCastAsync(int movieId);
+        Task<List<TmdbCrewMember>> GetMovieCrewAsync(int movieId);
     }
 
     public class TmdbService : ITmdbService
@@ -285,6 +288,30 @@ namespace Nostromo.Server.Services
                 _logger.LogError(ex, "Error fetching movies for keyword: {Keyword}", keyword);
                 throw;
             }
+        }
+
+        public async Task<TmdbCastWrapper> GetMovieCastAsync(int movieId)
+        {
+            string url = $"movie/{movieId}/credits?api_key={_tmdbApiKey}";
+
+            HttpResponseMessage response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<TmdbCastWrapper>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+
+        public async Task<List<TmdbCrewMember>> GetMovieCrewAsync(int movieId)
+        {
+            string url = $"movie/{movieId}/credits?api_key={_tmdbApiKey}";
+
+            HttpResponseMessage response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+            var castWrapper = JsonSerializer.Deserialize<TmdbCastWrapper>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            return castWrapper?.Crew ?? new List<TmdbCrewMember>();
         }
     }
 
