@@ -181,9 +181,29 @@ namespace Nostromo.Server.Database
                 entity.Property(e => e.Title);
                 entity.Property(e => e.ED2K);
 
-                //SEED DATA
+                // SEED DATA
                 entity.HasData(
-                    new ExampleHash {Id = 1, Title = "Alien", TmdbId = 348, ED2K = "5d886780825db91bbc390f10f1b6c95c" }
+                    new ExampleHash
+                    {
+                        Id = 1,
+                        Title = "Alien",
+                        TmdbId = 348,
+                        ED2K = "5d886780825db91bbc390f10f1b6c95c"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 2,
+                        Title = "Aliens",
+                        TmdbId = 679,
+                        ED2K = "da1a506c0ee1fe6c46ec64fd57faa924"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 3,
+                        Title = "Alien 3",
+                        TmdbId = 8077,
+                        ED2K = "b33d9c30eb480eca99e82dbbab3aad0e"
+                    }
                 );
             });
         }
