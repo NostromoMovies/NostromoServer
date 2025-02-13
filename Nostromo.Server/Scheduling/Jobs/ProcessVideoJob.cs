@@ -101,8 +101,8 @@ public class ProcessVideoJob : BaseJob
     private async Task<string> WaitForHashCompletion(string filePath)
     {
         string computedHash = null;
-        int retries = 30; // Allow up to 30 retries
-        int delay = 2000; // 2 seconds delay between retries
+        int retries = 120; // Allow up to 120 retries
+        int delay = 5000; // 5 seconds delay between retries
 
         var fileName = Path.GetFileName(filePath);
 
