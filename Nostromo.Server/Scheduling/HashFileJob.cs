@@ -119,7 +119,8 @@ public class HashFileJob : BaseJob
                     ED2K = result.ED2K,
                     CRC32 = result.CRC32,
                     MD5 = result.MD5,
-                    SHA1 = result.SHA1
+                    SHA1 = result.SHA1,
+                    FileSize = fileInfo.Length
                 };
 
                 _dbContext.Videos.Add(video);

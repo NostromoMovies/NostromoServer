@@ -2,10 +2,16 @@ namespace Nostromo.Server.API.Models;
 
 public class TmdbCastMember
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Character { get; set; }
-    public string OriginalName { get; set; }
-    public int Order { get; set; }
-    public string ProfilePath { get; set; }
+    public bool adult { get; set; }
+    public int gender { get; set; }
+    public int id { get; set; }
+    public string known_for_department { get; set; }
+    public string name { get; set; }
+    public string original_name { get; set; }
+    public double popularity { get; set; }
+    public string profile_path { get; set; }
+    public int cast_id { get; set; }
+    public string character { get; set; }
+    public string credit_id { get; set; }
+    public int order { get; set; }
 }

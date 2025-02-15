@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Nostromo.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class _InitialCreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -73,22 +75,6 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MovieCasts",
-                columns: table => new
-                {
-                    TMDBMovieCastID = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    TMDBPersonID = table.Column<int>(type: "INTEGER", nullable: false),
-                    TMDBCreditID = table.Column<int>(type: "INTEGER", nullable: false),
-                    CharacterName = table.Column<string>(type: "TEXT", nullable: false),
-                    Ordering = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MovieCasts", x => x.TMDBMovieCastID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Movies",
                 columns: table => new
                 {
@@ -126,15 +112,17 @@ namespace Nostromo.Server.Migrations
                     TMDBPersonID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     TMDBID = table.Column<int>(type: "INTEGER", nullable: false),
-                    EnglishName = table.Column<string>(type: "TEXT", nullable: false),
-                    EnglishBio = table.Column<string>(type: "TEXT", nullable: false),
-                    Aliases = table.Column<string>(type: "TEXT", nullable: false),
-                    Gender = table.Column<int>(type: "INTEGER", nullable: false),
-                    IsRestricted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    BirthDay = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    PlaceOfBirth = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    LastUpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    EnglishName = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    Aliases = table.Column<string>(type: "TEXT", nullable: true),
+                    EnglishBio = table.Column<string>(type: "TEXT", nullable: true),
+                    Gender = table.Column<int>(type: "INTEGER", nullable: true),
+                    IsRestricted = table.Column<bool>(type: "INTEGER", nullable: true, defaultValue: false),
+                    BirthDay = table.Column<string>(type: "TEXT", maxLength: 10, nullable: true),
+                    DeathDay = table.Column<string>(type: "TEXT", nullable: true),
+                    PlaceOfBirth = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    ProfilePath = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    LastUpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
@@ -170,8 +158,8 @@ namespace Nostromo.Server.Migrations
                     MD5 = table.Column<string>(type: "TEXT", nullable: false),
                     SHA1 = table.Column<string>(type: "TEXT", nullable: false),
                     FileSize = table.Column<long>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
@@ -199,6 +187,44 @@ namespace Nostromo.Server.Migrations
                         column: x => x.MovieID,
                         principalTable: "Movies",
                         principalColumn: "TMDBMovieID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MovieCasts",
+                columns: table => new
+                {
+                    TMDBMovieCastID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    TMDBMovieID = table.Column<int>(type: "INTEGER", nullable: false),
+                    TMDBPersonID = table.Column<int>(type: "INTEGER", nullable: false),
+                    Adult = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Gender = table.Column<int>(type: "INTEGER", nullable: false),
+                    Id = table.Column<int>(type: "INTEGER", nullable: false),
+                    KnownForDepartment = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    OriginalName = table.Column<string>(type: "TEXT", nullable: true),
+                    Popularity = table.Column<double>(type: "REAL", nullable: false),
+                    ProfilePath = table.Column<string>(type: "TEXT", nullable: true),
+                    CastId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Character = table.Column<string>(type: "TEXT", nullable: true),
+                    CreditID = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    Order = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MovieCasts", x => x.TMDBMovieCastID);
+                    table.ForeignKey(
+                        name: "FK_MovieCasts_Movies_TMDBMovieID",
+                        column: x => x.TMDBMovieID,
+                        principalTable: "Movies",
+                        principalColumn: "TMDBMovieID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MovieCasts_People_TMDBPersonID",
+                        column: x => x.TMDBPersonID,
+                        principalTable: "People",
+                        principalColumn: "TMDBPersonID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -274,7 +300,12 @@ namespace Nostromo.Server.Migrations
             migrationBuilder.InsertData(
                 table: "ExampleHash",
                 columns: new[] { "Id", "ED2K", "Title", "TmdbId" },
-                values: new object[] { 1, "5d886780825db91bbc390f10f1b6c95c", "Alien", 348 });
+                values: new object[,]
+                {
+                    { 1, "5d886780825db91bbc390f10f1b6c95c", "Alien", 348 },
+                    { 2, "da1a506c0ee1fe6c46ec64fd57faa924", "Aliens", 679 },
+                    { 3, "b33d9c30eb480eca99e82dbbab3aad0e", "Alien 3", 8077 }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuthTokens_UserId",
@@ -290,6 +321,16 @@ namespace Nostromo.Server.Migrations
                 name: "IX_CrossRefVideoTMDBMovies_VideoID",
                 table: "CrossRefVideoTMDBMovies",
                 column: "VideoID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MovieCasts_TMDBMovieID",
+                table: "MovieCasts",
+                column: "TMDBMovieID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MovieCasts_TMDBPersonID",
+                table: "MovieCasts",
+                column: "TMDBPersonID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MovieGenre_MovieID",
@@ -327,13 +368,13 @@ namespace Nostromo.Server.Migrations
                 name: "MovieGenre");
 
             migrationBuilder.DropTable(
-                name: "People");
-
-            migrationBuilder.DropTable(
                 name: "VideoPlaces");
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "People");
 
             migrationBuilder.DropTable(
                 name: "Genres");
