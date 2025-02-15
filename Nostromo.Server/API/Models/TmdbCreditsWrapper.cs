@@ -1,6 +1,6 @@
 namespace Nostromo.Server.API.Models;
 
-public class TmdbCastWrapper
+public class TmdbCreditsWrapper
 {
     public int Id { get; set; }
     public List<TmdbCastMember> Cast { get; set; }

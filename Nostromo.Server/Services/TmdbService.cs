@@ -23,7 +23,7 @@ namespace Nostromo.Server.Services
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> GetRecommendation(string query);
         Task<int?> GetKeywordId(string keyword);
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesByKeyword(string keyword);
-        Task<TmdbCastWrapper> GetMovieCastAsync(int movieId);
+        Task<TmdbCreditsWrapper> GetMovieCreditsAsync(int movieId);
     }
 
     public class TmdbService : ITmdbService
@@ -289,14 +289,14 @@ namespace Nostromo.Server.Services
             }
         }
 
-        public async Task<TmdbCastWrapper> GetMovieCastAsync(int movieId)
+        public async Task<TmdbCreditsWrapper> GetMovieCreditsAsync(int movieId)
         {
             string url = $"movie/{movieId}/credits?api_key={_tmdbApiKey}";
             HttpResponseMessage response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
             string jsonResponse = await response.Content.ReadAsStringAsync();
 
-            return JsonSerializer.Deserialize<TmdbCastWrapper>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            return JsonSerializer.Deserialize<TmdbCreditsWrapper>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
     }
 

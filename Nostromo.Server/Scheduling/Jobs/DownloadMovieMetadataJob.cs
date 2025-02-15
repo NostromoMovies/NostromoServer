@@ -71,11 +71,13 @@ public class DownloadMovieMetadataJob : BaseJob
 
                 try
                 {
-                    var castWrapper = await _tmdbService.GetMovieCastAsync(movieId.Value);
-                    if (castWrapper?.Cast != null)
+                    var creditsWrapper = await _tmdbService.GetMovieCreditsAsync(movieId.Value);
+                    if (creditsWrapper?.Cast != null)
                     {
-                        await _databaseService.StoreMovieCastAsync(movieId.Value, castWrapper.Cast);
+                        await _databaseService.StoreMovieCastAsync(movieId.Value, creditsWrapper.Cast);
                         _logger.LogInformation("Successfully processed and stored cast for movie ID {MovieId}", movieId);
+                        await _databaseService.StoreMovieCrewAsync(movieId.Value, creditsWrapper.Crew);
+                        _logger.LogInformation("Successfully processed and stored crew for movie ID {MovieId}", movieId);
                     }
                 }
                 catch (Exception ex)
