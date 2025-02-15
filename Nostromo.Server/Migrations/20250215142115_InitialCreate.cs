@@ -229,6 +229,43 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "MovieCrews",
+                columns: table => new
+                {
+                    TMDBMovieCrewID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    TMDBMovieID = table.Column<int>(type: "INTEGER", nullable: false),
+                    TMDBPersonID = table.Column<int>(type: "INTEGER", nullable: false),
+                    Adult = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Gender = table.Column<int>(type: "INTEGER", nullable: false),
+                    Id = table.Column<int>(type: "INTEGER", nullable: false),
+                    KnownForDepartment = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    OriginalName = table.Column<string>(type: "TEXT", nullable: true),
+                    Popularity = table.Column<double>(type: "REAL", nullable: false),
+                    ProfilePath = table.Column<string>(type: "TEXT", nullable: true),
+                    CreditID = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    Department = table.Column<string>(type: "TEXT", nullable: true),
+                    Job = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MovieCrews", x => x.TMDBMovieCrewID);
+                    table.ForeignKey(
+                        name: "FK_MovieCrews_Movies_TMDBMovieID",
+                        column: x => x.TMDBMovieID,
+                        principalTable: "Movies",
+                        principalColumn: "TMDBMovieID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MovieCrews_People_TMDBPersonID",
+                        column: x => x.TMDBPersonID,
+                        principalTable: "People",
+                        principalColumn: "TMDBPersonID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AuthTokens",
                 columns: table => new
                 {
@@ -333,6 +370,16 @@ namespace Nostromo.Server.Migrations
                 column: "TMDBPersonID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_MovieCrews_TMDBMovieID",
+                table: "MovieCrews",
+                column: "TMDBMovieID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MovieCrews_TMDBPersonID",
+                table: "MovieCrews",
+                column: "TMDBPersonID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MovieGenre_MovieID",
                 table: "MovieGenre",
                 column: "MovieID");
@@ -363,6 +410,9 @@ namespace Nostromo.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "MovieCasts");
+
+            migrationBuilder.DropTable(
+                name: "MovieCrews");
 
             migrationBuilder.DropTable(
                 name: "MovieGenre");

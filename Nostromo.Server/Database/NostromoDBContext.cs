@@ -22,6 +22,7 @@ namespace Nostromo.Server.Database
         public DbSet<ImportFolder> ImportFolders { get; set; }
         public DbSet<DuplicateFile> DuplicateFiles { get; set; }
         public DbSet<TMDBMovieCast> MovieCasts { get; set; }
+        public DbSet<TMDBMovieCrew> MovieCrews { get; set; }
         public DbSet<TMDBPerson> People { get; set; }
         public DbSet<CrossRefVideoTMDBMovie> CrossRefVideoTMDBMovies { get; set; }
         public DbSet<ExampleHash> ExampleHash { get; set; }
@@ -154,6 +155,31 @@ namespace Nostromo.Server.Database
                         .IsRequired(false);
 
                 entity.Property(e => e.Order)
+                        .IsRequired(false);
+
+                entity.HasOne<TMDBPerson>()
+                        .WithMany()
+                        .HasForeignKey(e => e.TMDBPersonID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne<TMDBMovie>()
+                        .WithMany()
+                        .HasForeignKey(e => e.TMDBMovieID)
+                        .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<TMDBMovieCrew>(entity =>
+            {
+                entity.HasKey(e => e.TMDBMovieCrewID);
+
+                entity.Property(e => e.TMDBMovieID)
+                        .IsRequired();
+
+                entity.Property(e => e.TMDBPersonID)
+                        .IsRequired();
+
+                entity.Property(e => e.CreditID)
+                        .HasMaxLength(50)
                         .IsRequired(false);
 
                 entity.HasOne<TMDBPerson>()
@@ -412,8 +438,23 @@ namespace Nostromo.Server.Database
         public int? Order { get; set; }
     }
 
-
-
+    public class TMDBMovieCrew
+    {
+        public int TMDBMovieCrewID { get; set; }
+        public int TMDBMovieID { get; set; }
+        public int TMDBPersonID { get; set; }
+        public bool Adult { get; set; }
+        public int Gender { get; set; }
+        public int Id { get; set; }
+        public string? KnownForDepartment { get; set; }
+        public string? Name { get; set; }
+        public string? OriginalName { get; set; }
+        public double Popularity { get; set; }
+        public string? ProfilePath { get; set; }
+        public string? CreditID { get; set; }
+        public string? Department { get; set; }
+        public string? Job { get; set; }
+    }
 
     public class TMDBPerson
     {

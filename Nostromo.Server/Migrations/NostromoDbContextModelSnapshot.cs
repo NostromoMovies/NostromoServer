@@ -324,6 +324,61 @@ namespace Nostromo.Server.Migrations
                     b.ToTable("MovieCasts");
                 });
 
+            modelBuilder.Entity("Nostromo.Server.Database.TMDBMovieCrew", b =>
+                {
+                    b.Property<int>("TMDBMovieCrewID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Adult")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CreditID")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Department")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Job")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("KnownForDepartment")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OriginalName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Popularity")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("ProfilePath")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TMDBMovieID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TMDBPersonID")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("TMDBMovieCrewID");
+
+                    b.HasIndex("TMDBMovieID");
+
+                    b.HasIndex("TMDBPersonID");
+
+                    b.ToTable("MovieCrews");
+                });
+
             modelBuilder.Entity("Nostromo.Server.Database.TMDBPerson", b =>
                 {
                     b.Property<int>("TMDBPersonID")
@@ -530,6 +585,21 @@ namespace Nostromo.Server.Migrations
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.TMDBMovieCast", b =>
+                {
+                    b.HasOne("Nostromo.Server.Database.TMDBMovie", null)
+                        .WithMany()
+                        .HasForeignKey("TMDBMovieID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Nostromo.Server.Database.TMDBPerson", null)
+                        .WithMany()
+                        .HasForeignKey("TMDBPersonID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.TMDBMovieCrew", b =>
                 {
                     b.HasOne("Nostromo.Server.Database.TMDBMovie", null)
                         .WithMany()

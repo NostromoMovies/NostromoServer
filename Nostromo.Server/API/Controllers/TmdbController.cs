@@ -82,19 +82,4 @@ public class TmdbController : ControllerBase
 
         return ApiResults.SuccessCollection(results);
     }
-
-    [HttpGet("movie/{id}/credits")]
-    [ProducesResponseType(typeof(SuccessResponse<TmdbCastWrapper>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IResult> GetMovieCast(int id)
-    {
-        var cast = await _tmdbService.GetMovieCastAsync(id);
-
-        if (cast == null)
-        {
-            return ApiResults.NotFound($"No cast found for movie ID: {id}");
-        }
-
-        return ApiResults.Success(cast);
-    }
 }
