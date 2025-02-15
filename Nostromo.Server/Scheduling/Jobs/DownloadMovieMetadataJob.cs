@@ -66,25 +66,43 @@ public class DownloadMovieMetadataJob : BaseJob
             try
             {
                 // Step 3: Fetch metadata from TMDB and save to database
-                // Note: GetMovieById already saves to database via MovieRepository
                 var movieResponse = await _tmdbService.GetMovieById(movieId.Value);
                 _logger.LogInformation("Movie metadata saved to database for MovieID: {MovieID}", movieId);
 
-                // Step 4: Save cross-reference entry
-                var crossRef = new CrossRefVideoTMDBMovie
+                try
                 {
-                    TMDBMovieID = movieId.Value,
-                    VideoID = videoId.Value
-                };
-
-                await _databaseService.InsertCrossRefAsync(crossRef);
-                _logger.LogInformation("Linked TMDBMovieID {TMDBMovieID} to VideoID {VideoID}", movieId, videoId);
+                    var castWrapper = await _tmdbService.GetMovieCastAsync(movieId.Value);
+                    if (castWrapper?.Cast != null)
+                    {
+                        await _databaseService.StoreMovieCastAsync(movieId.Value, castWrapper.Cast);
+                        _logger.LogInformation("Successfully processed and stored cast for movie ID {MovieId}", movieId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error processing movie cast for ID {MovieId}", movieId);
+                }
             }
-            catch (NotFoundException ex)
+            catch (Exception ex)
             {
-                _logger.LogWarning("Movie with ID {MovieID} not found on TMDB: {Message}", movieId, ex.Message);
+                _logger.LogError(ex, "Error fetching movie metadata for MovieID: {MovieID}", movieId);
                 return;
             }
+
+            // Step 4: Save cross-reference entry
+            var crossRef = new CrossRefVideoTMDBMovie
+            {
+                TMDBMovieID = movieId.Value,
+                VideoID = videoId.Value
+            };
+
+            await _databaseService.InsertCrossRefAsync(crossRef);
+            _logger.LogInformation("Linked TMDBMovieID {TMDBMovieID} to VideoID {VideoID}", movieId, videoId);
+        }
+        catch (NotFoundException ex)
+        {
+            _logger.LogWarning("Movie ID not found on TMDB: {Message}", ex.Message);
+            return;
         }
         catch (Exception ex)
         {

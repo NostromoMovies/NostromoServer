@@ -24,7 +24,6 @@ namespace Nostromo.Server.Services
         Task<int?> GetKeywordId(string keyword);
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesByKeyword(string keyword);
         Task<TmdbCastWrapper> GetMovieCastAsync(int movieId);
-        Task<List<TmdbCrewMember>> GetMovieCrewAsync(int movieId);
     }
 
     public class TmdbService : ITmdbService
@@ -145,7 +144,7 @@ namespace Nostromo.Server.Services
             }
         }
 
-            // weird
+        // weird
         public async Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query)
         {
             try
@@ -166,7 +165,7 @@ namespace Nostromo.Server.Services
 
                 var genreDict = await GetGenreDictionary();
 
-                             // apparently not thread-safe
+                // apparently not thread-safe
                 // Process each movie
                 //foreach (var movieResponse in response.results)
                 //{
@@ -207,7 +206,7 @@ namespace Nostromo.Server.Services
             try
             {
                 string tmdbUrl;
-        
+
                 if (!string.IsNullOrWhiteSpace(query))
                 {
                     // Search for movies based on user query
@@ -216,7 +215,7 @@ namespace Nostromo.Server.Services
                 else
                 {
                     // Discover random popular movies
-                    var randomPage = new Random().Next(1, 10); 
+                    var randomPage = new Random().Next(1, 10);
                     tmdbUrl = $"discover/movie?api_key={_tmdbApiKey}&sort_by=popularity.desc&page={randomPage}";
                 }
 
@@ -228,7 +227,7 @@ namespace Nostromo.Server.Services
                     return (Array.Empty<TmdbMovieResponse>(), 0);
                 }
 
-               
+
 
                 return (response.results, response.results.Count);
             }
@@ -293,25 +292,11 @@ namespace Nostromo.Server.Services
         public async Task<TmdbCastWrapper> GetMovieCastAsync(int movieId)
         {
             string url = $"movie/{movieId}/credits?api_key={_tmdbApiKey}";
-
             HttpResponseMessage response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
-
             string jsonResponse = await response.Content.ReadAsStringAsync();
+
             return JsonSerializer.Deserialize<TmdbCastWrapper>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        }
-
-        public async Task<List<TmdbCrewMember>> GetMovieCrewAsync(int movieId)
-        {
-            string url = $"movie/{movieId}/credits?api_key={_tmdbApiKey}";
-
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-
-            string jsonResponse = await response.Content.ReadAsStringAsync();
-            var castWrapper = JsonSerializer.Deserialize<TmdbCastWrapper>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            return castWrapper?.Crew ?? new List<TmdbCrewMember>();
         }
     }
 
