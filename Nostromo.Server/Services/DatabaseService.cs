@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Nostromo.Models;
+using Nostromo.Server.API.Models;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,11 @@ namespace Nostromo.Server.Services
         Task InsertCrossRefAsync(CrossRefVideoTMDBMovie crossRefModel);
         Task<List<TMDBMovie>> GetFilterMediaGenre(List<int> genresID);
         Task<List<TMDBMovie>> movieRatingsSorted();
+        Task<List<Video>> GetAllVideosAsync();
+        Task<HashSet<int>> GetAllRecognizedVideoIdsAsync();
+        Task<bool> CheckCrossRefExistsAsync(int videoID, int tmdbMovieID);
+        Task StoreMovieCastAsync(int movieId, List<TmdbCastMember> cast);
+        Task StoreMovieCrewAsync(int movieId, List<TmdbCrewMember> crew);
     }
 
     public class DatabaseService : IDatabaseService
@@ -214,7 +220,7 @@ namespace Nostromo.Server.Services
         {
             try
             {
-            
+
                 var allMovies = await _movieRepository.SearchGenreAsync(genresID);
 
                 // Filter duplicates based on TMDBID
@@ -228,7 +234,7 @@ namespace Nostromo.Server.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while filtering movies by genres.");
-                throw; 
+                throw;
             }
         }
         public async Task<List<TMDBMovie>> movieRatingsSorted()
@@ -250,6 +256,122 @@ namespace Nostromo.Server.Services
 
 
 
+        }
+        public async Task<List<Video>> GetAllVideosAsync()
+        {
+            return await _context.Videos.ToListAsync();
+        }
+        public async Task<HashSet<int>> GetAllRecognizedVideoIdsAsync()
+        {
+            return await _context.CrossRefVideoTMDBMovies
+                .Select(crossRef => crossRef.VideoID)
+                .ToHashSetAsync();
+        }
+        public async Task<bool> CheckCrossRefExistsAsync(int videoID, int tmdbMovieID)
+        {
+            return await _context.CrossRefVideoTMDBMovies
+                .AnyAsync(x => x.VideoID == videoID && x.TMDBMovieID == tmdbMovieID);
+        }
+
+        public async Task StoreMovieCastAsync(int movieId, List<TmdbCastMember> cast)
+        {
+            var movie = await _context.Movies.FirstOrDefaultAsync(m => m.MovieID == movieId);
+            if (movie == null)
+            {
+                _logger.LogWarning("Movie with ID {MovieId} not found in database, skipping cast storage", movieId);
+                return;
+            }
+
+            foreach (var castMember in cast)
+            {
+                var tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == castMember.id);
+                if (tmdbPerson == null)
+                {
+                    tmdbPerson = new TMDBPerson
+                    {
+                        TMDBID = castMember.id,
+                        EnglishName = castMember.name,
+                        ProfilePath = castMember.profile_path,
+                        CreatedAt = DateTime.UtcNow,
+                        LastUpdatedAt = DateTime.UtcNow
+                    };
+                    await _context.People.AddAsync(tmdbPerson);
+                    await _context.SaveChangesAsync();
+                }
+
+                var movieCast = new TMDBMovieCast
+                {
+                    TMDBPersonID = tmdbPerson.TMDBPersonID,
+                    TMDBMovieID = movie.MovieID,
+                    Adult = castMember.adult,
+                    Gender = castMember.gender,
+                    Id = castMember.id,
+                    KnownForDepartment = castMember.known_for_department,
+                    Name = castMember.name,
+                    OriginalName = castMember.original_name,
+                    Popularity = castMember.popularity,
+                    ProfilePath = castMember.profile_path,
+                    CastId = castMember.cast_id,
+                    Character = castMember.character,
+                    CreditID = castMember.credit_id,
+                    Order = castMember.order
+                };
+
+                await _context.MovieCasts.AddAsync(movieCast);
+            }
+
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("Stored {Count} cast members for movie ID {MovieId}", cast.Count, movieId);
+        }
+
+        public async Task StoreMovieCrewAsync(int movieId, List<TmdbCrewMember> crew)
+        {
+            var movie = await _context.Movies.FirstOrDefaultAsync(m => m.MovieID == movieId);
+            if (movie == null)
+            {
+                _logger.LogWarning("Movie with ID {MovieId} not found in database, skipping cast storage", movieId);
+                return;
+            }
+
+            foreach (var crewMember in crew)
+            {
+                var tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == crewMember.id);
+                if (tmdbPerson == null)
+                {
+                    tmdbPerson = new TMDBPerson
+                    {
+                        TMDBID = crewMember.id,
+                        EnglishName = crewMember.name,
+                        ProfilePath = crewMember.profile_path,
+                        CreatedAt = DateTime.UtcNow,
+                        LastUpdatedAt = DateTime.UtcNow
+                    };
+                    await _context.People.AddAsync(tmdbPerson);
+                    await _context.SaveChangesAsync();
+                }
+
+                var movieCrew = new TMDBMovieCrew
+                {
+                    TMDBPersonID = tmdbPerson.TMDBPersonID,
+                    TMDBMovieID = movie.MovieID,
+                    Adult = crewMember.adult,
+                    Gender = crewMember.gender,
+                    Id = crewMember.id,
+                    KnownForDepartment = crewMember.known_for_department,
+                    Name = crewMember.name,
+                    OriginalName = crewMember.original_name,
+                    Popularity = crewMember.popularity,
+                    ProfilePath = crewMember.profile_path,
+                    CreditID = crewMember.credit_id,
+                    Department = crewMember.department,
+                    Job = crewMember.job
+                };
+
+                await _context.MovieCrews.AddAsync(movieCrew);
+            }
+
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("Stored {Count} cast members for movie ID {MovieId}", crew.Count, movieId);
         }
     }
 }

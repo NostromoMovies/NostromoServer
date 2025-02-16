@@ -106,7 +106,6 @@ namespace Nostromo.Server.API.Controllers
                 return ApiResults.ServerError("An error occurred while retrieving the movie");
             }
         }
-       
    
         [HttpGet("filtered-genre")]
         public async Task<ActionResult<List<TmdbMovieResponse>>> GetFilteredGenre([FromQuery] List<int> genres)
@@ -149,6 +148,7 @@ namespace Nostromo.Server.API.Controllers
                 return StatusCode(500, new { Message = "An error occurred while retrieving the movie" });
             }
         }
+
         [HttpGet("filtered-highestRatings")]
         public async Task<ActionResult<List<TmdbMovieResponse>>> HighestRatings()
         {
@@ -170,5 +170,38 @@ namespace Nostromo.Server.API.Controllers
             }
 
         }
+
+        [HttpGet("unrecognized-movies")]
+        public async Task<ActionResult<List<Video>>> GetUnrecognizedMovies()
+        {
+            try
+            {
+                var allVideos = await _databaseService.GetAllVideosAsync();
+
+                var recognizedVideoIds = await _databaseService.GetAllRecognizedVideoIdsAsync();
+
+                var unrecognizedVideos = allVideos
+                    .Where(video => !recognizedVideoIds.Contains(video.VideoID))
+                    .ToList();
+
+                if (!unrecognizedVideos.Any())
+                {
+                    return NotFound(new { Message = "No unrecognized movies found" });
+                }
+
+                return Ok(unrecognizedVideos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving unrecognized movies");
+                return StatusCode(500, new { Message = "An error occurred while retrieving unrecognized movies" });
+            }
+        }
+
+        //[HttpPost("linkMovie")]
+        //public async Task<IActionResult> LinkMovie([FromBody] CrossRefVideoTMDBMovieRequest request)
+        //{
+
+        //}
     }
 }

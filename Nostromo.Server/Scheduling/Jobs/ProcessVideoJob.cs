@@ -52,8 +52,10 @@ public class ProcessVideoJob : BaseJob
 
     private async Task<string> ComputeHashAndScheduleMetadataJob(string filePath)
     {
-        // Schedule HashFileJob
-        var hashJobKey = new JobKey($"HashJob_{filePath}", "ConsolidateGroup");
+        var jobId = Guid.NewGuid().ToString();
+
+        var hashJobKey = new JobKey(jobId, "ConsolidateGroup");
+
         var hashJob = JobBuilder.Create<HashFileJob>()
             .UsingJobData(HashFileJob.FILE_PATH_KEY, filePath)
             .WithIdentity(hashJobKey)
@@ -61,12 +63,12 @@ public class ProcessVideoJob : BaseJob
 
         var hashTrigger = TriggerBuilder.Create()
             .StartNow()
-            .WithIdentity(new TriggerKey($"HashTrigger_{filePath}", "ConsolidateGroup"))
+            .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "ConsolidateGroup"))
             .Build();
 
         await Context.Scheduler.ScheduleJob(hashJob, hashTrigger);
 
-        _logger.LogInformation("Scheduled HashFileJob for file: {FilePath}", filePath);
+        _logger.LogInformation("Scheduled HashFileJob with Job ID: {JobId} for file: {FilePath}", jobId, filePath);
 
         // Wait for the hash to be computed
         string computedHash = await WaitForHashCompletion(filePath);
@@ -79,8 +81,9 @@ public class ProcessVideoJob : BaseJob
 
         _logger.LogInformation("Computed hash for file {FilePath}: {Hash}", filePath, computedHash);
 
-        // Schedule DownloadMovieMetadataJob with the computed hash
-        var metadataJobKey = new JobKey($"MetadataJob_{computedHash}", "ConsolidateGroup");
+        var metadataJobId = Guid.NewGuid().ToString();
+        var metadataJobKey = new JobKey(metadataJobId, "ConsolidateGroup");
+
         var metadataJob = JobBuilder.Create<DownloadMovieMetadataJob>()
             .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, computedHash)
             .WithIdentity(metadataJobKey)
@@ -88,12 +91,12 @@ public class ProcessVideoJob : BaseJob
 
         var metadataTrigger = TriggerBuilder.Create()
             .StartNow()
-            .WithIdentity(new TriggerKey($"MetadataTrigger_{computedHash}", "ConsolidateGroup"))
+            .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "ConsolidateGroup"))
             .Build();
 
         await Context.Scheduler.ScheduleJob(metadataJob, metadataTrigger);
 
-        _logger.LogInformation("Scheduled DownloadMovieMetadataJob for hash: {Hash}", computedHash);
+        _logger.LogInformation("Scheduled DownloadMovieMetadataJob with Job ID: {JobId} for hash: {Hash}", metadataJobId, computedHash);
 
         return computedHash;
     }
@@ -101,8 +104,8 @@ public class ProcessVideoJob : BaseJob
     private async Task<string> WaitForHashCompletion(string filePath)
     {
         string computedHash = null;
-        int retries = 30; // Allow up to 30 retries
-        int delay = 2000; // 2 seconds delay between retries
+        int retries = 120; // Allow up to 120 retries
+        int delay = 5000; // 5 seconds delay between retries
 
         var fileName = Path.GetFileName(filePath);
 

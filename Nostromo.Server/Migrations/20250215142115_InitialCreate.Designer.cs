@@ -11,8 +11,8 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    [Migration("20250126001001__InitialCreate")]
-    partial class _InitialCreate
+    [Migration("20250215142115_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -118,6 +118,20 @@ namespace Nostromo.Server.Migrations
                             ED2K = "5d886780825db91bbc390f10f1b6c95c",
                             Title = "Alien",
                             TmdbId = 348
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ED2K = "da1a506c0ee1fe6c46ec64fd57faa924",
+                            Title = "Aliens",
+                            TmdbId = 679
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ED2K = "b33d9c30eb480eca99e82dbbab3aad0e",
+                            Title = "Alien 3",
+                            TmdbId = 8077
                         });
                 });
 
@@ -261,14 +275,44 @@ namespace Nostromo.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("CharacterName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Ordering")
+                    b.Property<bool>("Adult")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TMDBCreditID")
+                    b.Property<int>("CastId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Character")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreditID")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("KnownForDepartment")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("OriginalName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Popularity")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("ProfilePath")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TMDBMovieID")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("TMDBPersonID")
@@ -276,7 +320,66 @@ namespace Nostromo.Server.Migrations
 
                     b.HasKey("TMDBMovieCastID");
 
+                    b.HasIndex("TMDBMovieID");
+
+                    b.HasIndex("TMDBPersonID");
+
                     b.ToTable("MovieCasts");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.TMDBMovieCrew", b =>
+                {
+                    b.Property<int>("TMDBMovieCrewID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Adult")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CreditID")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Department")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Job")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("KnownForDepartment")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OriginalName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Popularity")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("ProfilePath")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TMDBMovieID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TMDBPersonID")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("TMDBMovieCrewID");
+
+                    b.HasIndex("TMDBMovieID");
+
+                    b.HasIndex("TMDBPersonID");
+
+                    b.ToTable("MovieCrews");
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.TMDBPerson", b =>
@@ -285,36 +388,47 @@ namespace Nostromo.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Alias")
-                        .IsRequired()
+                    b.Property<string>("Aliases")
                         .HasColumnType("TEXT")
                         .HasColumnName("Aliases");
 
-                    b.Property<DateTime?>("BirthDay")
+                    b.Property<string>("BirthDay")
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("DeathDay")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EnglishBio")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EnglishName")
-                        .IsRequired()
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Gender")
+                    b.Property<int?>("Gender")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("IsRestricted")
-                        .HasColumnType("INTEGER");
+                    b.Property<bool?>("IsRestricted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime>("LastUpdatedAt")
-                        .HasColumnType("TEXT");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("PlaceOfBirth")
-                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProfilePath")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("TMDBID")
@@ -365,7 +479,9 @@ namespace Nostromo.Server.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("ED2K")
                         .IsRequired()
@@ -387,7 +503,9 @@ namespace Nostromo.Server.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("VideoID");
 
@@ -467,6 +585,36 @@ namespace Nostromo.Server.Migrations
                     b.Navigation("Genre");
 
                     b.Navigation("Movie");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.TMDBMovieCast", b =>
+                {
+                    b.HasOne("Nostromo.Server.Database.TMDBMovie", null)
+                        .WithMany()
+                        .HasForeignKey("TMDBMovieID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Nostromo.Server.Database.TMDBPerson", null)
+                        .WithMany()
+                        .HasForeignKey("TMDBPersonID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.TMDBMovieCrew", b =>
+                {
+                    b.HasOne("Nostromo.Server.Database.TMDBMovie", null)
+                        .WithMany()
+                        .HasForeignKey("TMDBMovieID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Nostromo.Server.Database.TMDBPerson", null)
+                        .WithMany()
+                        .HasForeignKey("TMDBPersonID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.VideoPlace", b =>

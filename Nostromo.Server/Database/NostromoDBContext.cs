@@ -22,10 +22,11 @@ namespace Nostromo.Server.Database
         public DbSet<ImportFolder> ImportFolders { get; set; }
         public DbSet<DuplicateFile> DuplicateFiles { get; set; }
         public DbSet<TMDBMovieCast> MovieCasts { get; set; }
+        public DbSet<TMDBMovieCrew> MovieCrews { get; set; }
         public DbSet<TMDBPerson> People { get; set; }
         public DbSet<CrossRefVideoTMDBMovie> CrossRefVideoTMDBMovies { get; set; }
         public DbSet<ExampleHash> ExampleHash { get; set; }
-       
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -99,8 +100,13 @@ namespace Nostromo.Server.Database
                 entity.Property(e => e.MD5).IsRequired();
                 entity.Property(e => e.SHA1).IsRequired();
                 entity.Property(e => e.FileSize);
-                entity.Property(e => e.CreatedAt);
-                entity.Property(e => e.UpdatedAt);
+                entity.Property(e => e.CreatedAt)
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                        .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.UpdatedAt)
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                        .ValueGeneratedOnAddOrUpdate();
             });
 
             modelBuilder.Entity<VideoPlace>(entity =>
@@ -137,25 +143,98 @@ namespace Nostromo.Server.Database
             modelBuilder.Entity<TMDBMovieCast>(entity =>
             {
                 entity.HasKey(e => e.TMDBMovieCastID);
-                entity.Property(e => e.TMDBPersonID);
-                entity.Property(e => e.TMDBCreditID);
-                entity.Property(e => e.CharacterName);
-                entity.Property(e => e.Ordering);
+
+                entity.Property(e => e.TMDBMovieID)
+                        .IsRequired();
+
+                entity.Property(e => e.TMDBPersonID)
+                        .IsRequired();
+
+                entity.Property(e => e.CreditID)
+                        .HasMaxLength(50)
+                        .IsRequired(false);
+
+                entity.Property(e => e.Order)
+                        .IsRequired(false);
+
+                entity.HasOne<TMDBPerson>()
+                        .WithMany()
+                        .HasForeignKey(e => e.TMDBPersonID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne<TMDBMovie>()
+                        .WithMany()
+                        .HasForeignKey(e => e.TMDBMovieID)
+                        .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<TMDBMovieCrew>(entity =>
+            {
+                entity.HasKey(e => e.TMDBMovieCrewID);
+
+                entity.Property(e => e.TMDBMovieID)
+                        .IsRequired();
+
+                entity.Property(e => e.TMDBPersonID)
+                        .IsRequired();
+
+                entity.Property(e => e.CreditID)
+                        .HasMaxLength(50)
+                        .IsRequired(false);
+
+                entity.HasOne<TMDBPerson>()
+                        .WithMany()
+                        .HasForeignKey(e => e.TMDBPersonID)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne<TMDBMovie>()
+                        .WithMany()
+                        .HasForeignKey(e => e.TMDBMovieID)
+                        .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<TMDBPerson>(entity =>
             {
                 entity.HasKey(e => e.TMDBPersonID);
-                entity.Property(e => e.TMDBID);
-                entity.Property(e => e.EnglishName);
-                entity.Property(e => e.EnglishBio);
-                entity.Property(e => e.Alias).HasColumnName("Aliases");
-                entity.Property(e => e.Gender);
-                entity.Property(e => e.IsRestricted);
-                entity.Property(e => e.BirthDay);
-                entity.Property(e => e.PlaceOfBirth);
-                entity.Property(e => e.CreatedAt);
-                entity.Property(e => e.LastUpdatedAt);
+
+                entity.Property(e => e.TMDBID)
+                        .IsRequired();
+
+                entity.Property(e => e.EnglishName)
+                        .HasMaxLength(255)
+                        .IsRequired(false);
+
+                entity.Property(e => e.EnglishBio)
+                        .HasColumnType("TEXT")
+                        .IsRequired(false);
+
+                entity.Property(e => e.Aliases)
+                        .HasColumnName("Aliases")
+                        .HasColumnType("TEXT")
+                        .IsRequired(false);
+
+                entity.Property(e => e.Gender)
+                        .IsRequired(false);
+
+                entity.Property(e => e.IsRestricted)
+                        .HasDefaultValue(false)
+                        .IsRequired(false);
+
+                entity.Property(e => e.BirthDay)
+                        .HasMaxLength(10)
+                        .IsRequired(false);
+
+                entity.Property(e => e.PlaceOfBirth)
+                        .HasMaxLength(255)
+                        .IsRequired(false);
+
+                entity.Property(e => e.CreatedAt)
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                        .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.LastUpdatedAt)
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                        .ValueGeneratedOnAddOrUpdate();
             });
 
             modelBuilder.Entity<CrossRefVideoTMDBMovie>(entity =>
@@ -181,9 +260,29 @@ namespace Nostromo.Server.Database
                 entity.Property(e => e.Title);
                 entity.Property(e => e.ED2K);
 
-                //SEED DATA
+                // SEED DATA
                 entity.HasData(
-                    new ExampleHash {Id = 1, Title = "Alien", TmdbId = 348, ED2K = "5d886780825db91bbc390f10f1b6c95c" }
+                    new ExampleHash
+                    {
+                        Id = 1,
+                        Title = "Alien",
+                        TmdbId = 348,
+                        ED2K = "5d886780825db91bbc390f10f1b6c95c"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 2,
+                        Title = "Aliens",
+                        TmdbId = 679,
+                        ED2K = "da1a506c0ee1fe6c46ec64fd57faa924"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 3,
+                        Title = "Alien 3",
+                        TmdbId = 8077,
+                        ED2K = "b33d9c30eb480eca99e82dbbab3aad0e"
+                    }
                 );
             });
         }
@@ -323,26 +422,60 @@ namespace Nostromo.Server.Database
     public class TMDBMovieCast
     {
         public int TMDBMovieCastID { get; set; }
+        public int TMDBMovieID { get; set; }
         public int TMDBPersonID { get; set; }
-        public int TMDBCreditID { get; set; }
-        public string CharacterName { get; set; }
-        public int Ordering { get; set; }
+        public bool Adult { get; set; }
+        public int Gender { get; set; }
+        public int Id { get; set; }
+        public string? KnownForDepartment { get; set; }
+        public string? Name { get; set; }
+        public string? OriginalName { get; set; }
+        public double Popularity { get; set; }
+        public string? ProfilePath { get; set; }
+        public int CastId { get; set; }
+        public string? Character { get; set; }
+        public string? CreditID { get; set; }
+        public int? Order { get; set; }
+    }
+
+    public class TMDBMovieCrew
+    {
+        public int TMDBMovieCrewID { get; set; }
+        public int TMDBMovieID { get; set; }
+        public int TMDBPersonID { get; set; }
+        public bool Adult { get; set; }
+        public int Gender { get; set; }
+        public int Id { get; set; }
+        public string? KnownForDepartment { get; set; }
+        public string? Name { get; set; }
+        public string? OriginalName { get; set; }
+        public double Popularity { get; set; }
+        public string? ProfilePath { get; set; }
+        public string? CreditID { get; set; }
+        public string? Department { get; set; }
+        public string? Job { get; set; }
     }
 
     public class TMDBPerson
     {
         public int TMDBPersonID { get; set; }
+
         public int TMDBID { get; set; }
-        public string EnglishName { get; set; }
-        public string EnglishBio { get; set; }
-        public string Alias { get; set; }
-        public int Gender { get; set; }
-        public bool IsRestricted { get; set; }
-        public DateTime? BirthDay { get; set; }
-        public string PlaceOfBirth { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime LastUpdatedAt { get; set; }
+        public string? EnglishName { get; set; }
+        public string? Aliases { get; set; }
+        public string? EnglishBio { get; set; }
+        public int? Gender { get; set; }
+        public bool? IsRestricted { get; set; }
+        public string? BirthDay { get; set; }
+        public string? DeathDay { get; set; }
+        public string? PlaceOfBirth { get; set; }
+        public string? ProfilePath { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime LastUpdatedAt { get; set; } = DateTime.UtcNow;
     }
+
+
 
     public class ImportFolder
     {

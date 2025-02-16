@@ -4,8 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Quartz;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Nostromo.Server.Scheduling;
+using Nostromo.Server.Database;
 
 namespace Nostromo.Server.Services
 {
@@ -21,12 +24,17 @@ namespace Nostromo.Server.Services
         private readonly List<FileSystemWatcher> _watchers;
         private readonly IScheduler _scheduler;
         private readonly ILogger<FileWatcherService> _logger;
+        private readonly IServiceProvider _serviceProvider;
 
-        public FileWatcherService(IScheduler scheduler, ILogger<FileWatcherService> logger)
+        public FileWatcherService(
+            IScheduler scheduler,
+            ILogger<FileWatcherService> logger,
+            IServiceProvider serviceProvider)
         {
-            _watchers = new List<FileSystemWatcher>();
             _scheduler = scheduler;
             _logger = logger;
+            _serviceProvider = serviceProvider;
+            _watchers = new List<FileSystemWatcher>();
         }
 
         public async Task StartWatchingPathsAsync(IEnumerable<string> paths, CancellationToken cancellationToken)
@@ -41,7 +49,7 @@ namespace Nostromo.Server.Services
         public async Task StartWatchingPathAsync(string path)
         {
             StartWatchingPath(path);
-            await TriggerProcessVideoJob(path);
+            await ProcessExistingFilesInPath(path);
         }
 
         public async Task StopWatchingPathAsync(string path)
@@ -123,6 +131,50 @@ namespace Nostromo.Server.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error triggering ProcessVideoJob for path: {Path}", path);
+            }
+        }
+
+        private async Task ProcessExistingFilesInPath(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                _logger.LogWarning($"Directory does not exist: {path}");
+                return;
+            }
+
+            var files = Directory.GetFiles(path);
+
+            List<string> processedFiles;
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<NostromoDbContext>();
+                processedFiles = await dbContext.Videos
+                    .AsNoTracking()
+                    .Where(v => !string.IsNullOrWhiteSpace(v.ED2K) || !string.IsNullOrWhiteSpace(v.CRC32) ||
+                                !string.IsNullOrWhiteSpace(v.MD5) || !string.IsNullOrWhiteSpace(v.SHA1))
+                    .Select(v => v.FileName)
+                    .ToListAsync();
+            }
+
+            foreach (var file in files)
+            {
+                var fileName = Path.GetFileName(file);
+
+                if (processedFiles.Contains(fileName))
+                {
+                    _logger.LogInformation($"Skipping already hashed file: {fileName}");
+                    continue;
+                }
+
+                if (IsFileReady(file))
+                {
+                    _logger.LogInformation($"Processing unhashed file: {fileName}");
+                    await TriggerProcessVideoJob(file);
+                }
+                else
+                {
+                    _logger.LogWarning($"File not ready for processing: {fileName}");
+                }
             }
         }
 

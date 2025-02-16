@@ -8,6 +8,7 @@ using System.Net.Http.Json;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
 using System.Net;
+using System.Text.Json;
 
 namespace Nostromo.Server.Services
 {
@@ -19,6 +20,10 @@ namespace Nostromo.Server.Services
         Task<int?> GetMovieRuntime(int movieId);
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query);
         Task<Dictionary<int, string>> GetGenreDictionary();
+        Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> GetRecommendation(string query);
+        Task<int?> GetKeywordId(string keyword);
+        Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesByKeyword(string keyword);
+        Task<TmdbCreditsWrapper> GetMovieCreditsAsync(int movieId);
     }
 
     public class TmdbService : ITmdbService
@@ -139,7 +144,7 @@ namespace Nostromo.Server.Services
             }
         }
 
-            // weird
+        // weird
         public async Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query)
         {
             try
@@ -160,7 +165,7 @@ namespace Nostromo.Server.Services
 
                 var genreDict = await GetGenreDictionary();
 
-                             // apparently not thread-safe
+                // apparently not thread-safe
                 // Process each movie
                 //foreach (var movieResponse in response.results)
                 //{
@@ -194,6 +199,104 @@ namespace Nostromo.Server.Services
                 _logger.LogError(ex, "Error searching movies with query: {Query}", query);
                 throw;
             }
+        }
+
+        public async Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> GetRecommendation(string query)
+        {
+            try
+            {
+                string tmdbUrl;
+
+                if (!string.IsNullOrWhiteSpace(query))
+                {
+                    // Search for movies based on user query
+                    tmdbUrl = $"search/movie?api_key={_tmdbApiKey}&query={Uri.EscapeDataString(query)}";
+                }
+                else
+                {
+                    // Discover random popular movies
+                    var randomPage = new Random().Next(1, 10);
+                    tmdbUrl = $"discover/movie?api_key={_tmdbApiKey}&sort_by=popularity.desc&page={randomPage}";
+                }
+
+                var response = await _httpClient.GetFromJsonAsync<TmdbResponse>(tmdbUrl)
+                               ?? throw new NotFoundException("No search results found");
+
+                if (response.results == null || !response.results.Any())
+                {
+                    return (Array.Empty<TmdbMovieResponse>(), 0);
+                }
+
+
+
+                return (response.results, response.results.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching movies with query: {Query}", query);
+                throw;
+            }
+        }
+
+        public async Task<int?> GetKeywordId(string keyword)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(keyword))
+                    throw new ArgumentException("Keyword cannot be empty", nameof(keyword));
+
+                var keywordUrl = $"search/keyword?api_key={_tmdbApiKey}&query={Uri.EscapeDataString(keyword)}";
+                var response = await _httpClient.GetFromJsonAsync<TmdbKeywordResponse>(keywordUrl);
+
+                if (response?.results == null || response.results.Count == 0)
+                {
+                    _logger.LogWarning("No keyword found for query: {Keyword}", keyword);
+                    return null;
+                }
+
+                return response.results.First().id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching keyword ID for: {Keyword}", keyword);
+                throw;
+            }
+        }
+
+
+        public async Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesByKeyword(string keyword)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(keyword))
+                    throw new ArgumentException("Keyword cannot be empty", nameof(keyword));
+
+                var keywordId = await GetKeywordId(keyword);
+                if (keywordId == null)
+                    return (Array.Empty<TmdbMovieResponse>(), 0);
+
+                var tmdbUrl = $"discover/movie?api_key={_tmdbApiKey}&with_keywords={keywordId}";
+                var response = await _httpClient.GetFromJsonAsync<TmdbResponse>(tmdbUrl)
+                    ?? throw new NotFoundException("No movies found for keyword");
+
+                var movieResults = response.results ?? new List<TmdbMovieResponse>();
+                return (movieResults, movieResults.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching movies for keyword: {Keyword}", keyword);
+                throw;
+            }
+        }
+
+        public async Task<TmdbCreditsWrapper> GetMovieCreditsAsync(int movieId)
+        {
+            string url = $"movie/{movieId}/credits?api_key={_tmdbApiKey}";
+            HttpResponseMessage response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+
+            return JsonSerializer.Deserialize<TmdbCreditsWrapper>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
     }
 
