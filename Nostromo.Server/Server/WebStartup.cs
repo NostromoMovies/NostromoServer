@@ -46,9 +46,6 @@ namespace Nostromo.Server.Server
                 });
             });
             
-            //Signal R
-            services.AddSignalR();
-            
             // CORS
             services.AddCors(options =>
             {
@@ -99,10 +96,6 @@ namespace Nostromo.Server.Server
             });
 
             app.UseRouting();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapHub<ProgressHub>("/progressHub"); 
-            });
 
             app.UseAuthentication();
             app.UseAuthorization();
