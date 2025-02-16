@@ -20,15 +20,13 @@ public class HashFileJob : BaseJob
     private readonly ILogger<HashFileJob> _logger;
     private readonly NostromoDbContext _dbContext;
     private readonly IProgressStore _progressStore;
-    private readonly IHubContext<ProgressHub> _progressHub;
 
 
-    public HashFileJob(ILogger<HashFileJob> logger, NostromoDbContext dbContext, IProgressStore progressStore, IHubContext<ProgressHub> progressHub)
+    public HashFileJob(ILogger<HashFileJob> logger, NostromoDbContext dbContext, IProgressStore progressStore)
     {
         _logger = logger;
         _dbContext = dbContext;
         _progressStore = progressStore;
-        _progressHub = progressHub;
     }
 
 
@@ -42,20 +40,17 @@ public class HashFileJob : BaseJob
         var filePath = Context.JobDetail.JobDataMap.GetString(FILE_PATH_KEY)
             ?? throw new InvalidOperationException("File path not provided in job data");
 
-        await _progressHub.Clients.All.SendAsync("ReceiveProgressUpdate", jobId, filePath, 2);
 
 
         try
         {
             _logger.LogInformation("HashFileJob started for {FilePath}", filePath);
-            await _progressHub.Clients.All.SendAsync("ReceiveProgressUpdate", jobId, filePath, 7);
 
 
             // Check if file exists
             if (!File.Exists(filePath))
             {
                 _logger.LogWarning("File not found: {FilePath}. Skipping job.", filePath);
-                await _progressHub.Clients.All.SendAsync("ReceiveProgressUpdate", jobId, filePath, 15);
 
                 return;
             }
@@ -69,7 +64,6 @@ public class HashFileJob : BaseJob
 
 
             _logger.LogInformation("Starting hash calculation for {FilePath}", filePath);
-            await _progressHub.Clients.All.SendAsync("ReceiveProgressUpdate", jobId, filePath, 24);
 
 
 
@@ -77,26 +71,25 @@ public class HashFileJob : BaseJob
             // Hashing process
             var result = await NativeHasher.CalculateHashesAsync(
                 filePath,
-                (filename, progress) =>
+                (filePath, progress) =>
                 {
-                    _progressStore.UpdateProgress(jobId,
-                        string.Format("Hashing progress for {0}: {1}%", filename, progress));
+                    string fileName = Path.GetFileName(filePath);
+
+                    _progressStore.UpdateProgress(jobId, fileName, progress);
                 },
                 Context.CancellationToken
             );
-            await _progressHub.Clients.All.SendAsync("ReceiveProgressUpdate", jobId, filePath, 40);
+
 
 
             _logger.LogInformation(
                 "Hash calculation completed for {FilePath}. MD5: {MD5}, SHA1: {SHA1}, CRC32: {CRC32}, ED2K: {ED2K}",
                 filePath, result.MD5, result.SHA1, result.CRC32, result.ED2K);
 
-            await _progressHub.Clients.All.SendAsync("ReceiveProgressUpdate", jobId, filePath, 70);
 
 
             // Check if file already exists in the database
             _logger.LogDebug("Checking database for existing entry for {FilePath}", filePath);
-            await _progressHub.Clients.All.SendAsync("ReceiveProgressUpdate", jobId, filePath, 84);
             var fileName = Path.GetFileName(filePath);
             var existingVideo = await _dbContext.Videos
                 .FirstOrDefaultAsync(v => v.FileName == fileName &&
@@ -110,7 +103,6 @@ public class HashFileJob : BaseJob
             if (existingVideo == null)
             {
                 _logger.LogInformation("No existing database entry found for {FilePath}. Adding new entry.", filePath);
-                await _progressHub.Clients.All.SendAsync("ReceiveProgressUpdate", jobId, filePath, 90);
 
                 // Create new video entry
                 var video = new Video
@@ -162,7 +154,6 @@ public class HashFileJob : BaseJob
                    result.ED2K,
                    result.ProcessingTime.TotalSeconds
                );
-                await _progressHub.Clients.All.SendAsync("ReceiveProgressUpdate", jobId, filePath, 100);
             }
             else
             {
@@ -170,20 +161,17 @@ public class HashFileJob : BaseJob
                     "File hash already exists in the database for {FilePath}. Skipping save.",
                     filePath
                 );
-                await _progressHub.Clients.All.SendAsync("ReceiveProgressUpdate", jobId, filePath, 100);
             }
         }
         catch (OperationCanceledException) when (Context.CancellationToken.IsCancellationRequested)
         {
             _logger.LogWarning("Hash calculation was cancelled for {FilePath}", filePath);
-            await _progressHub.Clients.All.SendAsync("ReceiveProgressUpdate", jobId, filePath, 0);
 
             throw;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while processing file: {FilePath}", filePath);
-            await _progressHub.Clients.All.SendAsync("ReceiveProgressUpdate", jobId, filePath, 0);
             throw;
         }
     }
