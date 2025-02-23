@@ -55,10 +55,10 @@ public class TmdbController : ControllerBase
         return ApiResults.SuccessCollection(results);
     }
 
-    [HttpGet("getMoviesReccomendation")]
-    public async Task<IResult> GetMoviesReccomendation(string query )
+    [HttpGet("getMoviesReccomendation{id}")]
+    public async Task<IResult> GetMoviesReccomendation(int id)
     {
-        var results = await _tmdbService.GetRecommendation(query);
+        var results = await _tmdbService.GetRecommendation(id);
         return ApiResults.Success(results);
         
     }
@@ -81,5 +81,18 @@ public class TmdbController : ControllerBase
         }
 
         return ApiResults.SuccessCollection(results);
+    }
+
+    [HttpGet("movie_cast/{id}")]
+    [ProducesResponseType(typeof(SuccessResponse<IEnumerable<TmdbCastMember>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IResult> SearchMoviesByKeyword([FromQuery] int id)
+
+    {
+    
+
+        var  results = await _tmdbService.GetMovieCreditsAsync(id);
+
+        return ApiResults.Success(results);
     }
 }
