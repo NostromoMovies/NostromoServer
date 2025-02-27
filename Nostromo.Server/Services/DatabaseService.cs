@@ -26,6 +26,8 @@ namespace Nostromo.Server.Services
         Task<bool> CheckCrossRefExistsAsync(int videoID, int tmdbMovieID);
         Task StoreMovieCastAsync(int movieId, List<TmdbCastMember> cast);
         Task StoreMovieCrewAsync(int movieId, List<TmdbCrewMember> crew);
+        Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int movieId);
+        Task<List<TmdbCrewMember>> GetCrewByMovieIdAsync(int movieId);
     }
 
     public class DatabaseService : IDatabaseService
@@ -373,5 +375,49 @@ namespace Nostromo.Server.Services
             await _context.SaveChangesAsync();
             _logger.LogInformation("Stored {Count} cast members for movie ID {MovieId}", crew.Count, movieId);
         }
+
+        public async Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int movieId)
+        {
+            return await _context.MovieCasts
+                .Where(mc => mc.TMDBMovieID == movieId)
+                .Select(mc => new TmdbCastMember
+                {
+                    id = mc.Id,
+                    name = mc.Name,
+                    original_name = mc.OriginalName,
+                    character = mc.Character,
+                    credit_id = mc.CreditID,
+                    cast_id = mc.CastId,
+                    profile_path = mc.ProfilePath,
+                    popularity = mc.Popularity,
+                    gender = mc.Gender,
+                    known_for_department = mc.KnownForDepartment,
+                    adult = mc.Adult,
+                    order = mc.Order ?? 0
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<TmdbCrewMember>> GetCrewByMovieIdAsync(int movieId)
+        {
+            return await _context.MovieCrews
+                .Where(mc => mc.TMDBMovieID == movieId)
+                .Select(mc => new TmdbCrewMember
+                {
+                    id = mc.Id,
+                    name = mc.Name,
+                    original_name = mc.OriginalName,
+                    credit_id = mc.CreditID,
+                    profile_path = mc.ProfilePath,
+                    popularity = mc.Popularity,
+                    gender = mc.Gender,
+                    known_for_department = mc.KnownForDepartment,
+                    department = mc.Department,
+                    job = mc.Job,
+                    adult = mc.Adult
+                })
+                .ToListAsync();
+        }
+
     }
 }
