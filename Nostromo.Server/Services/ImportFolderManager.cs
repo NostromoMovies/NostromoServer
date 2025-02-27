@@ -13,7 +13,7 @@ namespace Nostromo.Server.Services
 {
     public interface IImportFolderManager
     {
-        Task<bool> AddImportFolderAsync(string path);
+        Task<bool> AddImportFolderAsync(string path, int type);
         Task<bool> RemoveImportFolderAsync(string path);
         Task<List<string>> GetWatchedFoldersAsync();
         Task<bool> IsFolderWatchedAsync(string path);
@@ -51,7 +51,7 @@ namespace Nostromo.Server.Services
             }
         }
 
-        public async Task<bool> AddImportFolderAsync(string path)
+        public async Task<bool> AddImportFolderAsync(string path, int type)
         {
             try
             {
@@ -79,7 +79,7 @@ namespace Nostromo.Server.Services
                     IsDropSource = 0,
                     IsDropDestination = 0,
                     IsWatched = 1,
-                    ImportFolderType = 0
+                    ImportFolderType = type
                 };
 
                 await _importFolderRepository.AddAsync(newFolder);
