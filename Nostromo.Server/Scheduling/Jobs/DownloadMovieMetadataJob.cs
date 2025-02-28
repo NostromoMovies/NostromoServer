@@ -60,6 +60,7 @@ public class DownloadMovieMetadataJob : BaseJob
             if (movieId == null)
             {
                 _logger.LogWarning("No movie found in ExampleHashes table for hash: {FileHash}", fileHash);
+                await _databaseService.MarkVideoAsUnrecognizedAsync(videoId);
                 return;
             }
 

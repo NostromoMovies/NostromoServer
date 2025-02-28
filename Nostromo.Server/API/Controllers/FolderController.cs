@@ -51,14 +51,14 @@ public class FolderController : ControllerBase
     }
 
     [HttpGet("set")]
-    public async Task<IResult> SetFolder([FromQuery] string path, int type)
+    public async Task<IResult> SetFolder([FromQuery] string path)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
             return ApiResults.BadRequest("Folder path is required.");
         }
 
-        var result = await _folderManager.AddImportFolderAsync(path, type);
+        var result = await _folderManager.AddImportFolderAsync(path);
         if (!result)
         {
             return ApiResults.ServerError("Failed to add folder.");

@@ -399,6 +399,7 @@ namespace Nostromo.Server.Database
         public long FileSize { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public bool IsRecognized { get; set; } = true;
     }
 
     public class VideoPlace
