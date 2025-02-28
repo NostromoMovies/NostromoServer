@@ -121,9 +121,20 @@ namespace Nostromo.Server.Server
                 return new RecoveringFileSystemWatcher(watchPath);
             });
 
-            // Add Quartz services
-            services.AddQuartz();
             services.AddQuartzServices();
+
+            services.AddQuartz(q =>
+            {
+                q.UseMicrosoftDependencyInjectionJobFactory();
+
+                q.AddJob<DownloadMovieMetadataJob>(opts => opts.WithIdentity("DownloadMovieMetadataJob"));
+                q.AddJob<DownloadTMDBMetadataJob>(opts => opts.WithIdentity("DownloadTMDBMetadataJob"));
+            });
+
+            services.AddTransient<DownloadMovieMetadataJob>();
+            services.AddTransient<DownloadTMDBMetadataJob>();
+
+            services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
             services.Configure<TmdbSettings>(_configuration.GetSection("TMDB"));
             services.AddHttpClient<ITmdbService, TmdbService>(client => {

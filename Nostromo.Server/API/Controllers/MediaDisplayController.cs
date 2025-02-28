@@ -5,6 +5,11 @@ using Nostromo.Models;
 using Nostromo.Server.Services;
 using Nostromo.Server.Database;
 using Nostromo.Server.API.Models;
+using System;
+using Nostromo.Server.Scheduling.Jobs;
+using Quartz;
+using System.Threading.Tasks;
+
 
 namespace Nostromo.Server.API.Controllers
 {
@@ -14,13 +19,16 @@ namespace Nostromo.Server.API.Controllers
     {
         private readonly IDatabaseService _databaseService;
         private readonly ILogger<MediaDisplayController> _logger;
+        private readonly IScheduler _scheduler;
 
         public MediaDisplayController(
             IDatabaseService databaseService,
-            ILogger<MediaDisplayController> logger)
+            ILogger<MediaDisplayController> logger,
+            IScheduler scheduler)
         {
             _databaseService = databaseService;
             _logger = logger;
+            _scheduler = scheduler;
         }
 
         [HttpGet("searchMedia")]
@@ -198,10 +206,76 @@ namespace Nostromo.Server.API.Controllers
             }
         }
 
-        //[HttpPost("linkMovie")]
-        //public async Task<IActionResult> LinkMovie([FromBody] CrossRefVideoTMDBMovieRequest request)
-        //{
+        [HttpPost("linkMovie")]
+        public async Task<IActionResult> LinkMovie([FromBody] LinkMovieRequest request)
+        {
+            try
+            {
+                if (request == null)
+                    return BadRequest("Request cannot be null.");
 
-        //}
+                if (request.VideoID <= 0 || request.TMDBMovieID <= 0)
+                    return BadRequest("VideoID and TMDBMovieID must be greater than 0.");
+
+                var video = await _databaseService.GetVideoByIdAsync(request.VideoID);
+                if (video == null)
+                {
+                    return NotFound($"Video with ID {request.VideoID} not found.");
+                }
+
+                _logger.LogInformation("Scheduling metadata jobs for Video {VideoID} with TMDBMovie {TMDBMovieID}.",
+                    request.VideoID, request.TMDBMovieID);
+
+                var metadataJobId = Guid.NewGuid().ToString();
+                var metadataJobKey = new JobKey(metadataJobId, "ConsolidateGroup");
+
+                var metadataJob = JobBuilder.Create<DownloadMovieMetadataJob>()
+                    .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, video.ED2K)
+                    .WithIdentity(metadataJobKey)
+                    .Build();
+
+                var metadataTrigger = TriggerBuilder.Create()
+                    .StartNow()
+                    .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "ConsolidateGroup"))
+                    .Build();
+
+                await _scheduler.ScheduleJob(metadataJob, metadataTrigger);
+
+                var tmdbJobId = Guid.NewGuid().ToString();
+                var tmdbJobKey = new JobKey(tmdbJobId, "MetadataGroup");
+
+                var tmdbJob = JobBuilder.Create<DownloadTMDBMetadataJob>()
+                    .UsingJobData(DownloadTMDBMetadataJob.MOVIE_ID_KEY, request.TMDBMovieID)
+                    .WithIdentity(tmdbJobKey)
+                    .Build();
+
+                var tmdbTrigger = TriggerBuilder.Create()
+                    .StartNow()
+                    .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "MetadataGroup"))
+                    .Build();
+
+                await _scheduler.ScheduleJob(tmdbJob, tmdbTrigger);
+
+                _logger.LogInformation("Successfully scheduled metadata jobs for Video {VideoID} and TMDBMovie {TMDBMovieID}.",
+                    request.VideoID, request.TMDBMovieID);
+
+                return Ok(new
+                {
+                    Message = $"Metadata jobs scheduled for Video {request.VideoID} and TMDB movie {request.TMDBMovieID}."
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error scheduling metadata jobs for Video {VideoID} and TMDBMovie {TMDBMovieID}",
+                    request.VideoID, request.TMDBMovieID);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Message = "An error occurred while scheduling metadata jobs.",
+                    Error = ex.Message,
+                    StackTrace = ex.StackTrace
+                });
+            }
+        }
     }
 }

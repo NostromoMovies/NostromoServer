@@ -31,6 +31,7 @@ namespace Nostromo.Server.Services
         Task<List<TmdbCrewMember>> GetCrewByMovieIdAsync(int movieId);
         Task<int> GetImportFolderTypeByFilePathAsync(string filePath);
         Task<DateTime> GetCreatedAtByVideoIdAsync(int? videoId);
+        Task<Video?> GetVideoByIdAsync(int videoId);
     }
 
     public class DatabaseService : IDatabaseService
@@ -460,6 +461,21 @@ namespace Nostromo.Server.Services
 
             _logger.LogInformation("Found CreatedAt: {CreatedAt} for VideoID: {VideoId}", createdAt, videoId);
             return createdAt.Value;
+        }
+
+        public async Task<Video?> GetVideoByIdAsync(int videoId)
+        {
+            try
+            {
+                return await _context.Videos
+                    .Where(v => v.VideoID == videoId)
+                    .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving video with ID {VideoID}", videoId);
+                throw;
+            }
         }
     }
 }
