@@ -159,7 +159,8 @@ namespace Nostromo.Server.Migrations
                     SHA1 = table.Column<string>(type: "TEXT", nullable: false),
                     FileSize = table.Column<long>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    IsRecognized = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

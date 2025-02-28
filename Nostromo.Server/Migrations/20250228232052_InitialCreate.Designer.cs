@@ -11,7 +11,7 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    [Migration("20250228012755_InitialCreate")]
+    [Migration("20250228232052_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -495,6 +495,9 @@ namespace Nostromo.Server.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<long>("FileSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsRecognized")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("MD5")

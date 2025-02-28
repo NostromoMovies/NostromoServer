@@ -23,15 +23,15 @@ namespace Nostromo.Server.Services
         Task<List<TMDBMovie>> GetFilterMediaGenre(List<int> genresID);
         Task<List<TMDBMovie>> movieRatingsSorted();
         Task<List<Video>> GetAllVideosAsync();
-        Task<HashSet<int>> GetAllRecognizedVideoIdsAsync();
         Task<bool> CheckCrossRefExistsAsync(int videoID, int tmdbMovieID);
         Task StoreMovieCastAsync(int movieId, List<TmdbCastMember> cast);
         Task StoreMovieCrewAsync(int movieId, List<TmdbCrewMember> crew);
         Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int movieId);
         Task<List<TmdbCrewMember>> GetCrewByMovieIdAsync(int movieId);
-        Task<int> GetImportFolderTypeByFilePathAsync(string filePath);
         Task<DateTime> GetCreatedAtByVideoIdAsync(int? videoId);
         Task<Video?> GetVideoByIdAsync(int videoId);
+        Task MarkVideoAsUnrecognizedAsync(int? videoId);
+        Task<List<Video>> GetAllUnrecognizedVideosAsync();
     }
 
     public class DatabaseService : IDatabaseService
@@ -267,12 +267,7 @@ namespace Nostromo.Server.Services
         {
             return await _context.Videos.ToListAsync();
         }
-        public async Task<HashSet<int>> GetAllRecognizedVideoIdsAsync()
-        {
-            return await _context.CrossRefVideoTMDBMovies
-                .Select(crossRef => crossRef.VideoID)
-                .ToHashSetAsync();
-        }
+
         public async Task<bool> CheckCrossRefExistsAsync(int videoID, int tmdbMovieID)
         {
             return await _context.CrossRefVideoTMDBMovies
@@ -423,27 +418,6 @@ namespace Nostromo.Server.Services
                 .ToListAsync();
         }
 
-        public async Task<int> GetImportFolderTypeByFilePathAsync(string filePath)
-        {
-            _logger.LogInformation("Retrieving ImportFolderType for FilePath: {FilePath}", filePath);
-
-            var importFolderType = await _context.VideoPlaces
-                .Where(vp => vp.FilePath == filePath)
-                .Select(vp => (int)vp.ImportFolderType)
-                .FirstOrDefaultAsync();
-
-            if (importFolderType == null)
-            {
-                _logger.LogWarning("No ImportFolderType found for FilePath: {FilePath}", filePath);
-            }
-            else
-            {
-                _logger.LogInformation("Found ImportFolderType: {ImportFolderType} for FilePath: {FilePath}", importFolderType, filePath);
-            }
-
-            return importFolderType;
-        }
-
         public async Task<DateTime> GetCreatedAtByVideoIdAsync(int? videoId)
         {
             _logger.LogInformation("Retrieving CreatedAt for VideoID: {VideoId}", videoId);
@@ -476,6 +450,24 @@ namespace Nostromo.Server.Services
                 _logger.LogError(ex, "Error retrieving video with ID {VideoID}", videoId);
                 throw;
             }
+        }
+
+        public async Task MarkVideoAsUnrecognizedAsync(int? videoId)
+        {
+            var video = await _context.Videos.FindAsync(videoId);
+            if (video != null && video.IsRecognized)
+            {
+                video.IsRecognized = false;
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Updated VideoID {VideoID} as unrecognized.", videoId);
+            }
+        }
+
+        public async Task<List<Video>> GetAllUnrecognizedVideosAsync()
+        {
+            return await _context.Videos
+                .Where(v => !v.IsRecognized)
+                .ToListAsync();
         }
     }
 }

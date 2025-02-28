@@ -15,16 +15,13 @@ public class ProcessVideoJob : BaseJob
 {
     private readonly ILogger<ProcessVideoJob> _logger;
     private readonly IServiceProvider _serviceProvider;
-    private readonly IDatabaseService _databaseService;
 
     public ProcessVideoJob(
         ILogger<ProcessVideoJob> logger,
-        IServiceProvider serviceProvider,
-        IDatabaseService databaseService)
+        IServiceProvider serviceProvider)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        _databaseService = databaseService ?? throw new ArgumentNullException(nameof(databaseService));
     }
 
     public override string Name => "Process Video Job";
@@ -85,35 +82,22 @@ public class ProcessVideoJob : BaseJob
 
         _logger.LogInformation("Computed hash for file {FilePath}: {Hash}", filePath, computedHash);
 
-        int folderType = await _databaseService.GetImportFolderTypeByFilePathAsync(filePath);
+        var metadataJobId = Guid.NewGuid().ToString();
+        var metadataJobKey = new JobKey(metadataJobId, "ConsolidateGroup");
 
-        if (folderType == 0)
-        {
-            var metadataJobId = Guid.NewGuid().ToString();
-            var metadataJobKey = new JobKey(metadataJobId, "ConsolidateGroup");
+        var metadataJob = JobBuilder.Create<DownloadMovieMetadataJob>()
+            .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, computedHash)
+            .WithIdentity(metadataJobKey)
+            .Build();
 
-            var metadataJob = JobBuilder.Create<DownloadMovieMetadataJob>()
-                .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, computedHash)
-                .WithIdentity(metadataJobKey)
-                .Build();
+        var metadataTrigger = TriggerBuilder.Create()
+            .StartNow()
+            .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "ConsolidateGroup"))
+            .Build();
 
-            var metadataTrigger = TriggerBuilder.Create()
-                .StartNow()
-                .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "ConsolidateGroup"))
-                .Build();
+        await Context.Scheduler.ScheduleJob(metadataJob, metadataTrigger);
 
-            await Context.Scheduler.ScheduleJob(metadataJob, metadataTrigger);
-
-            _logger.LogInformation("Scheduled DownloadMovieMetadataJob with Job ID: {JobId} for hash: {Hash}", metadataJobId, computedHash);
-        }
-        else if (folderType == 1)
-        {
-            // same for tv
-        }
-        else
-        {
-            throw new InvalidOperationException($"Invalid folderType: {folderType}");
-        }
+        _logger.LogInformation("Scheduled DownloadMovieMetadataJob with Job ID: {JobId} for hash: {Hash}", metadataJobId, computedHash);
 
         return computedHash;
     }
@@ -152,6 +136,7 @@ public class ProcessVideoJob : BaseJob
         }
 
         _logger.LogError("Failed to retrieve hash for {FilePath} after multiple retries.", filePath);
+
         return null;
     }
 }

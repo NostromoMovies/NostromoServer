@@ -494,6 +494,9 @@ namespace Nostromo.Server.Migrations
                     b.Property<long>("FileSize")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsRecognized")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("MD5")
                         .IsRequired()
                         .HasColumnType("TEXT");
