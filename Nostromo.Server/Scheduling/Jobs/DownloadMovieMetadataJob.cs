@@ -4,6 +4,7 @@ using Nostromo.Server.Database;
 using Nostromo.Server.Scheduling.Jobs;
 using Nostromo.Server.Services;
 using Quartz;
+using System;
 
 [DisallowConcurrentExecution]
 public class DownloadMovieMetadataJob : BaseJob
@@ -45,6 +46,7 @@ public class DownloadMovieMetadataJob : BaseJob
         {
             // Step 1: Retrieve VideoID from hash
             var videoId = await _databaseService.GetVideoIdByHashAsync(fileHash);
+            var createdAt = await _databaseService.GetCreatedAtByVideoIdAsync(videoId);
             if (videoId == null)
             {
                 _logger.LogWarning("No video found in Videos table for hash: {FileHash}", fileHash);
@@ -95,7 +97,8 @@ public class DownloadMovieMetadataJob : BaseJob
             var crossRef = new CrossRefVideoTMDBMovie
             {
                 TMDBMovieID = movieId.Value,
-                VideoID = videoId.Value
+                VideoID = videoId.Value,
+                CreatedAt = createdAt
             };
 
             await _databaseService.InsertCrossRefAsync(crossRef);

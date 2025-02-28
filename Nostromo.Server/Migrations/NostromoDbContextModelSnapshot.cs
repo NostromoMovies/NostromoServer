@@ -47,6 +47,9 @@ namespace Nostromo.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("TMDBMovieID")
                         .HasColumnType("INTEGER");
 
