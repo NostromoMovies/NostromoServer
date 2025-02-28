@@ -293,7 +293,8 @@ namespace Nostromo.Server.Migrations
                     CrossRefVideoTMDBMovieID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     VideoID = table.Column<int>(type: "INTEGER", nullable: false),
-                    TMDBMovieID = table.Column<int>(type: "INTEGER", nullable: false)
+                    TMDBMovieID = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

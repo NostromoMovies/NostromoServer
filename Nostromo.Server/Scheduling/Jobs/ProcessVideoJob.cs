@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Nostromo.Server.Scheduling.Jobs;
 using Nostromo.Server.Database;
 using Microsoft.EntityFrameworkCore;
+using Nostromo.Server.Services;
 
 namespace Nostromo.Server.Scheduling;
 
@@ -14,13 +15,16 @@ public class ProcessVideoJob : BaseJob
 {
     private readonly ILogger<ProcessVideoJob> _logger;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IDatabaseService _databaseService;
 
     public ProcessVideoJob(
         ILogger<ProcessVideoJob> logger,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        IDatabaseService databaseService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        _databaseService = databaseService ?? throw new ArgumentNullException(nameof(databaseService));
     }
 
     public override string Name => "Process Video Job";
@@ -81,22 +85,35 @@ public class ProcessVideoJob : BaseJob
 
         _logger.LogInformation("Computed hash for file {FilePath}: {Hash}", filePath, computedHash);
 
-        var metadataJobId = Guid.NewGuid().ToString();
-        var metadataJobKey = new JobKey(metadataJobId, "ConsolidateGroup");
+        int folderType = await _databaseService.GetImportFolderTypeByFilePathAsync(filePath);
 
-        var metadataJob = JobBuilder.Create<DownloadMovieMetadataJob>()
-            .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, computedHash)
-            .WithIdentity(metadataJobKey)
-            .Build();
+        if (folderType == 0)
+        {
+            var metadataJobId = Guid.NewGuid().ToString();
+            var metadataJobKey = new JobKey(metadataJobId, "ConsolidateGroup");
 
-        var metadataTrigger = TriggerBuilder.Create()
-            .StartNow()
-            .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "ConsolidateGroup"))
-            .Build();
+            var metadataJob = JobBuilder.Create<DownloadMovieMetadataJob>()
+                .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, computedHash)
+                .WithIdentity(metadataJobKey)
+                .Build();
 
-        await Context.Scheduler.ScheduleJob(metadataJob, metadataTrigger);
+            var metadataTrigger = TriggerBuilder.Create()
+                .StartNow()
+                .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "ConsolidateGroup"))
+                .Build();
 
-        _logger.LogInformation("Scheduled DownloadMovieMetadataJob with Job ID: {JobId} for hash: {Hash}", metadataJobId, computedHash);
+            await Context.Scheduler.ScheduleJob(metadataJob, metadataTrigger);
+
+            _logger.LogInformation("Scheduled DownloadMovieMetadataJob with Job ID: {JobId} for hash: {Hash}", metadataJobId, computedHash);
+        }
+        else if (folderType == 1)
+        {
+            // same for tv
+        }
+        else
+        {
+            throw new InvalidOperationException($"Invalid folderType: {folderType}");
+        }
 
         return computedHash;
     }

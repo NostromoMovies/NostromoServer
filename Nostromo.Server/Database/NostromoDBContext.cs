@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Nostromo.Server.Utilities;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Nostromo.Models;
@@ -492,6 +493,7 @@ namespace Nostromo.Server.Database
         public int CrossRefVideoTMDBMovieID { get; set; }
         public int VideoID { get; set; }
         public int TMDBMovieID { get; set; }
+        public DateTime CreatedAt { get; set; }
         public virtual Video Video { get; set; }
         public virtual TMDBMovie TMDBMovie { get; set; }
     }

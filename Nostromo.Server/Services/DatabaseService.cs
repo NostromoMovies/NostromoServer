@@ -4,6 +4,7 @@ using Nostromo.Server.API.Models;
 using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Threading.Tasks;
 
 namespace Nostromo.Server.Services
@@ -28,6 +29,8 @@ namespace Nostromo.Server.Services
         Task StoreMovieCrewAsync(int movieId, List<TmdbCrewMember> crew);
         Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int movieId);
         Task<List<TmdbCrewMember>> GetCrewByMovieIdAsync(int movieId);
+        Task<int> GetImportFolderTypeByFilePathAsync(string filePath);
+        Task<DateTime> GetCreatedAtByVideoIdAsync(int? videoId);
     }
 
     public class DatabaseService : IDatabaseService
@@ -419,5 +422,44 @@ namespace Nostromo.Server.Services
                 .ToListAsync();
         }
 
+        public async Task<int> GetImportFolderTypeByFilePathAsync(string filePath)
+        {
+            _logger.LogInformation("Retrieving ImportFolderType for FilePath: {FilePath}", filePath);
+
+            var importFolderType = await _context.VideoPlaces
+                .Where(vp => vp.FilePath == filePath)
+                .Select(vp => (int)vp.ImportFolderType)
+                .FirstOrDefaultAsync();
+
+            if (importFolderType == null)
+            {
+                _logger.LogWarning("No ImportFolderType found for FilePath: {FilePath}", filePath);
+            }
+            else
+            {
+                _logger.LogInformation("Found ImportFolderType: {ImportFolderType} for FilePath: {FilePath}", importFolderType, filePath);
+            }
+
+            return importFolderType;
+        }
+
+        public async Task<DateTime> GetCreatedAtByVideoIdAsync(int? videoId)
+        {
+            _logger.LogInformation("Retrieving CreatedAt for VideoID: {VideoId}", videoId);
+
+            var createdAt = await _context.Videos
+                .Where(v => v.VideoID == videoId)
+                .Select(v => (DateTime?)v.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (createdAt == null)
+            {
+                _logger.LogError("No video found with VideoID: {VideoId}", videoId);
+                throw new KeyNotFoundException($"No video found with VideoID: {videoId}");
+            }
+
+            _logger.LogInformation("Found CreatedAt: {CreatedAt} for VideoID: {VideoId}", createdAt, videoId);
+            return createdAt.Value;
+        }
     }
 }
