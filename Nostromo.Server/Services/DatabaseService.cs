@@ -31,6 +31,7 @@ namespace Nostromo.Server.Services
         Task<DateTime> GetCreatedAtByVideoIdAsync(int? videoId);
         Task<Video?> GetVideoByIdAsync(int videoId);
         Task MarkVideoAsUnrecognizedAsync(int? videoId);
+        Task MarkVideoAsRecognizedAsync(int? videoId);
         Task<List<Video>> GetAllUnrecognizedVideosAsync();
     }
 
@@ -460,6 +461,17 @@ namespace Nostromo.Server.Services
                 video.IsRecognized = false;
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("Updated VideoID {VideoID} as unrecognized.", videoId);
+            }
+        }
+
+        public async Task MarkVideoAsRecognizedAsync(int? videoId)
+        {
+            var video = await _context.Videos.FindAsync(videoId);
+            if (video != null && !video.IsRecognized)
+            {
+                video.IsRecognized = true;
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Updated VideoID {VideoID} as recognized.", videoId);
             }
         }
 
