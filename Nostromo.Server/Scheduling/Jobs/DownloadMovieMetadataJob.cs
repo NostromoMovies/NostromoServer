@@ -104,6 +104,9 @@ public class DownloadMovieMetadataJob : BaseJob
 
             await _databaseService.InsertCrossRefAsync(crossRef);
             _logger.LogInformation("Linked TMDBMovieID {TMDBMovieID} to VideoID {VideoID}", movieId, videoId);
+
+            await _databaseService.MarkVideoAsRecognizedAsync(videoId);
+            _logger.LogInformation("Marked VideoID {VideoID} as recognized.", videoId);
         }
         catch (NotFoundException ex)
         {
