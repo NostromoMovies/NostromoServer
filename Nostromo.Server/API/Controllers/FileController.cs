@@ -99,5 +99,12 @@ namespace Nostromo.Server.API.Controllers
             var result = await _fileRenamerService.RenameFile(file, newFile);
             return result ? ApiResults.Success("File renamed") : ApiResults.ServerError("Error");
         }
+
+        [HttpPost("rename_with_metadata")]
+        public async Task<IResult> RenameWithMetadata(int videoPlaceID)
+        {
+            var result = await _fileRenamerService.RenameWithMetadata(videoPlaceID);
+            return result ? ApiResults.Success("File renamed") : ApiResults.ServerError("Error");
+        }
     }
 }
