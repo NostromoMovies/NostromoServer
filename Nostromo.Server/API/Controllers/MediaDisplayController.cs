@@ -217,7 +217,23 @@ namespace Nostromo.Server.API.Controllers
                     return NotFound($"Video with ID {request.VideoID} not found.");
                 }
 
-                _logger.LogInformation("Scheduling TMDB metadata job for TMDBMovie {TMDBMovieID}.", request.TMDBMovieID);
+                _logger.LogInformation("Scheduling metadata jobs for Video {VideoID} with TMDBMovie {TMDBMovieID}.",
+                    request.VideoID, request.TMDBMovieID);
+
+                var metadataJobId = Guid.NewGuid().ToString();
+                var metadataJobKey = new JobKey(metadataJobId, "ConsolidateGroup");
+
+                var metadataJob = JobBuilder.Create<DownloadMovieMetadataJob>()
+                    .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, video.ED2K)
+                    .WithIdentity(metadataJobKey)
+                    .Build();
+
+                var metadataTrigger = TriggerBuilder.Create()
+                    .StartNow()
+                    .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "ConsolidateGroup"))
+                    .Build();
+
+                await _scheduler.ScheduleJob(metadataJob, metadataTrigger);
 
                 var tmdbJobId = Guid.NewGuid().ToString();
                 var tmdbJobKey = new JobKey(tmdbJobId, "MetadataGroup");
@@ -233,43 +249,6 @@ namespace Nostromo.Server.API.Controllers
                     .Build();
 
                 await _scheduler.ScheduleJob(tmdbJob, tmdbTrigger);
-
-                _logger.LogInformation("Waiting for TMDB metadata to be available before proceeding...");
-
-                TMDBMovie? movieDetails = null;
-                int retryCount = 0;
-                while (movieDetails == null && retryCount < 60)
-                {
-                    await Task.Delay(1000);
-                    movieDetails = await _databaseService.GetMovieAsync(request.TMDBMovieID);
-                    retryCount++;
-                }
-
-                if (movieDetails == null)
-                {
-                    _logger.LogWarning("Could not fetch TMDB metadata for MovieID: {MovieID}", request.TMDBMovieID);
-                    return BadRequest("Failed to retrieve TMDB metadata.");
-                }
-
-                _logger.LogInformation("Fetched TMDB metadata for {Title} (ID: {MovieID})", movieDetails.Title, request.TMDBMovieID);
-
-                _logger.LogInformation("Scheduling DownloadMovieMetadataJob for Video {VideoID}.", request.VideoID);
-
-                var metadataJobId = Guid.NewGuid().ToString();
-                var metadataJobKey = new JobKey(metadataJobId, "ConsolidateGroup");
-
-                var metadataJob = JobBuilder.Create<DownloadDirectMovieMetadataJob>()
-                    .UsingJobData(DownloadDirectMovieMetadataJob.HASH_KEY, video.ED2K)
-                    .UsingJobData("TMDBMovieID", request.TMDBMovieID)
-                    .WithIdentity(metadataJobKey)
-                    .Build();
-
-                var metadataTrigger = TriggerBuilder.Create()
-                    .StartNow()
-                    .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "ConsolidateGroup"))
-                    .Build();
-
-                await _scheduler.ScheduleJob(metadataJob, metadataTrigger);
 
                 _logger.LogInformation("Successfully scheduled metadata jobs for Video {VideoID} and TMDBMovie {TMDBMovieID}.",
                     request.VideoID, request.TMDBMovieID);
@@ -291,21 +270,6 @@ namespace Nostromo.Server.API.Controllers
                     StackTrace = ex.StackTrace
                 });
             }
-        }
-
-        [HttpGet("movie/{id}/recommendations")]
-        [ProducesResponseType(typeof(SuccessResponse<List<TMDBRecommendation>>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IResult> GetRecommendationsByMovieId(int id)
-        {
-            var recommendations = await _databaseService.GetRecommendationsByMovieIdAsync(id);
-
-            if (recommendations == null || recommendations.Count == 0)
-            {
-                return ApiResults.NotFound($"No recommendations found for movie ID: {id}");
-            }
-
-            return ApiResults.SuccessCollection(recommendations);
         }
     }
 }

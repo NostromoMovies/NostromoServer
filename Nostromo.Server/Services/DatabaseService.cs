@@ -33,6 +33,11 @@ namespace Nostromo.Server.Services
         Task MarkVideoAsUnrecognizedAsync(int? videoId);
         Task MarkVideoAsRecognizedAsync(int? videoId);
         Task<List<Video>> GetAllUnrecognizedVideosAsync();
+        Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy);
+
+        Task<List<Genre>> getGenre();
+
+        Task<int> GetMinYear();
         Task InsertExampleHashAsync(string ed2kHash, int tmdbId, string title);
         Task StoreTmdbRecommendationsAsync(int movieId, TmdbRecommendation recommendation);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
@@ -484,6 +489,72 @@ namespace Nostromo.Server.Services
                 .Where(v => !v.IsRecognized)
                 .ToListAsync();
         }
+        public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy)
+        {
+            if (sortBy == 3) // Sort by Recently Added
+            {
+                return await _context.CrossRefVideoTMDBMovies
+                    .Include(c => c.TMDBMovie)
+                    .Where(c =>
+                        (string.IsNullOrEmpty(searchTerm) || c.TMDBMovie.Title.ToLower().Contains(searchTerm.ToLower())) &&
+                        (maxRuntime == null || c.TMDBMovie.Runtime <= maxRuntime))
+                    .OrderByDescending(c => c.CreatedAt)
+                    .Select(c => c.TMDBMovie)
+                    .ToListAsync();
+            }
+            else if (sortBy == 1) // Sort Alphabetically by Title 
+            {
+                return await _context.Movies
+                    .Where(c =>
+                        (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
+                        (maxRuntime == null || c.Runtime <= maxRuntime))
+                    .OrderBy(c => c.OriginalTitle.ToLower()) // Case-insensitive sorting
+                    .ToListAsync();
+            }
+            else if (sortBy == 2) // Sort by Highest Rated
+            {
+                return await _context.Movies
+                    .Where(c =>
+                        (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
+                        (maxRuntime == null || c.Runtime <= maxRuntime))
+                    .OrderByDescending(c => c.VoteCount)
+                    .ToListAsync();
+            }
+            else if (sortBy == 0) // Sort by Populairty 
+            {
+                return await _context.Movies
+                    .Where(c =>
+                        (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
+                        (maxRuntime == null || c.Runtime <= maxRuntime))
+                    .OrderByDescending(c => c.Popularity)
+                    .ToListAsync();
+            }
+
+
+
+            return await _context.Movies.ToListAsync();
+        }
+
+
+        public async Task<List<Genre>> getGenre()
+        {
+            
+            return await _context.Genres.ToListAsync();
+        }
+
+        public async Task<int> GetMinYear()
+        {
+            var years = await _context.Movies
+                .Where(m => m.ReleaseDate != null) 
+                .Select(m => DateTime.Parse(m.ReleaseDate).Year)
+                .ToListAsync();
+
+            int minYear = years.Any() ? years.Min() : DateTime.Now.Year;
+
+            return minYear;  
+        }
+
+
 
         public async Task InsertExampleHashAsync(string ed2kHash, int tmdbId, string title)
         {
