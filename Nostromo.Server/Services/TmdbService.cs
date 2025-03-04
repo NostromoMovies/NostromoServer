@@ -20,7 +20,7 @@ namespace Nostromo.Server.Services
         Task<int?> GetMovieRuntime(int movieId);
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query);
         Task<Dictionary<int, string>> GetGenreDictionary();
-        Task<TmdbMovieRecommendationResponse> GetRecommendation(int query);
+        Task<TmdbRecommendationsResponse> GetRecommendation(int movieId);
         Task<int?> GetKeywordId(string keyword);
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesByKeyword(string keyword);
         Task<TmdbCreditsWrapper> GetMovieCreditsAsync(int movieId);
@@ -202,33 +202,50 @@ namespace Nostromo.Server.Services
             }
         }
 
-        public async Task<TmdbMovieRecommendationResponse> GetRecommendation(int movieId)
+        public async Task<TmdbRecommendationsResponse> GetRecommendation(int movieId)
         {
             try
             {
                 string tmdbUrl = $"movie/{movieId}/recommendations?api_key={_tmdbApiKey}";
 
                 HttpResponseMessage response = await _httpClient.GetAsync(tmdbUrl);
-        
+
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.LogError("TMDb API request failed with status code: {StatusCode}", response.StatusCode);
-                    return null; // Or throw an exception based on your error-handling strategy
+                    return null;
                 }
 
                 string jsonResponse = await response.Content.ReadAsStringAsync();
 
-                return JsonSerializer.Deserialize<TmdbMovieRecommendationResponse>(
+                var recommendations = JsonSerializer.Deserialize<TmdbRecommendationsResponse>(
                     jsonResponse,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
                 );
+
+                if (recommendations?.Results == null || !recommendations.Results.Any())
+                {
+                    _logger.LogWarning("No recommendations found for movie ID: {MovieId}", movieId);
+                    return recommendations;
+                }
+
+                foreach (var recommendation in recommendations.Results)
+                {
+                    await _databaseService.StoreTmdbRecommendationsAsync(movieId, recommendation);
+                }
+
+                _logger.LogInformation("Fetched and stored {Count} recommendations for movie ID {MovieId}",
+                    recommendations.Results.Count, movieId);
+
+                return recommendations;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching movie recommendations for movie ID: {MovieId}", movieId);
+                _logger.LogError(ex, "Error fetching or storing movie recommendations for movie ID: {MovieId}", movieId);
                 throw;
             }
         }
+
 
         public async Task<int?> GetKeywordId(string keyword)
         {

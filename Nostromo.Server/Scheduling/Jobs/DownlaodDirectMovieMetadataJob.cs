@@ -5,19 +5,20 @@ using Nostromo.Server.Scheduling.Jobs;
 using Nostromo.Server.Services;
 using Quartz;
 using System;
+using System.Threading.Tasks;
 
 [DisallowConcurrentExecution]
-public class DownloadMovieMetadataJob : BaseJob
+public class DownloadDirectMovieMetadataJob : BaseJob
 {
-    private readonly ILogger<DownloadMovieMetadataJob> _logger;
+    private readonly ILogger<DownloadDirectMovieMetadataJob> _logger;
     private readonly IDatabaseService _databaseService;
     private readonly IMovieRepository _movieRepository;
     private readonly ITmdbService _tmdbService;
 
     public static readonly string HASH_KEY = "FileHash";
 
-    public DownloadMovieMetadataJob(
-        ILogger<DownloadMovieMetadataJob> logger,
+    public DownloadDirectMovieMetadataJob(
+        ILogger<DownloadDirectMovieMetadataJob> logger,
         IDatabaseService databaseService,
         IMovieRepository movieRepository,
         ITmdbService tmdbService)
@@ -28,8 +29,8 @@ public class DownloadMovieMetadataJob : BaseJob
         _tmdbService = tmdbService ?? throw new ArgumentNullException(nameof(tmdbService));
     }
 
-    public override string Name => "Download Movie Metadata Job";
-    public override string Type => "MovieMetadata";
+    public override string Name => "Download Direct Movie Metadata Job";
+    public override string Type => "MovieMetadataDirect";
 
     public override async Task ProcessJob()
     {
@@ -40,64 +41,66 @@ public class DownloadMovieMetadataJob : BaseJob
             return;
         }
 
-        _logger.LogInformation("Starting metadata download for file hash: {FileHash}", fileHash);
+        _logger.LogInformation("Starting direct metadata download for file hash: {FileHash}", fileHash);
 
         try
         {
-            // Step 1: Retrieve VideoID from hash
             var videoId = await _databaseService.GetVideoIdByHashAsync(fileHash);
-            var createdAt = await _databaseService.GetCreatedAtByVideoIdAsync(videoId);
             if (videoId == null)
             {
                 _logger.LogWarning("No video found in Videos table for hash: {FileHash}", fileHash);
                 return;
             }
 
+            var createdAt = await _databaseService.GetCreatedAtByVideoIdAsync(videoId);
             _logger.LogInformation("Found VideoID {VideoID} for hash: {FileHash}", videoId, fileHash);
 
-            // Step 2: Retrieve MovieID from hash
-            var movieId = await _databaseService.GetMovieIdByHashAsync(fileHash);
-            if (movieId == null)
+            var movieId = Context.JobDetail.JobDataMap.GetInt("TMDBMovieID");
+
+            _logger.LogInformation("Found MovieID {MovieID} for VideoID {VideoID}", movieId, videoId);
+
+            var movieDetails = await _databaseService.GetMovieAsync(movieId);
+            if (movieDetails == null)
             {
-                _logger.LogWarning("No movie found in ExampleHashes table for hash: {FileHash}", fileHash);
-                await _databaseService.MarkVideoAsUnrecognizedAsync(videoId);
+                _logger.LogWarning("Movie details not found for MovieID: {MovieID}", movieId);
                 return;
             }
 
-            _logger.LogInformation("Found MovieID {MovieID} for hash: {FileHash}", movieId, fileHash);
+            await _databaseService.InsertExampleHashAsync(fileHash, movieId, movieDetails.Title);
+            _logger.LogInformation("Inserted ExampleHash entry: {FileHash}, {MovieID}, {Title}", fileHash, movieId, movieDetails.Title);
+
+            int retryCount = 0;
+            while (retryCount < 10)
+            {
+                await Task.Delay(500);
+                var verifyInsertion = await _databaseService.GetMovieIdByHashAsync(fileHash);
+                if (verifyInsertion != null)
+                {
+                    _logger.LogInformation("Confirmed ExampleHash insertion for {Hash}", fileHash);
+                    break;
+                }
+                retryCount++;
+            }
 
             try
             {
-                // Step 3: Fetch metadata from TMDB and save to database
-                var movieResponse = await _tmdbService.GetMovieById(movieId.Value);
-                _logger.LogInformation("Movie metadata saved to database for MovieID: {MovieID}", movieId);
-
-                try
+                var creditsWrapper = await _tmdbService.GetMovieCreditsAsync(movieId);
+                if (creditsWrapper?.Cast != null)
                 {
-                    var creditsWrapper = await _tmdbService.GetMovieCreditsAsync(movieId.Value);
-                    if (creditsWrapper?.Cast != null)
-                    {
-                        await _databaseService.StoreMovieCastAsync(movieId.Value, creditsWrapper.Cast);
-                        _logger.LogInformation("Successfully processed and stored cast for movie ID {MovieId}", movieId);
-                        await _databaseService.StoreMovieCrewAsync(movieId.Value, creditsWrapper.Crew);
-                        _logger.LogInformation("Successfully processed and stored crew for movie ID {MovieId}", movieId);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error processing movie cast for ID {MovieId}", movieId);
+                    await _databaseService.StoreMovieCastAsync(movieId, creditsWrapper.Cast);
+                    _logger.LogInformation("Stored cast for movie ID {MovieId}", movieId);
+                    await _databaseService.StoreMovieCrewAsync(movieId, creditsWrapper.Crew);
+                    _logger.LogInformation("Stored crew for movie ID {MovieId}", movieId);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching movie metadata for MovieID: {MovieID}", movieId);
-                return;
+                _logger.LogError(ex, "Error processing movie cast for ID {MovieId}", movieId);
             }
 
-            // Step 4: Save cross-reference entry
             var crossRef = new CrossRefVideoTMDBMovie
             {
-                TMDBMovieID = movieId.Value,
+                TMDBMovieID = movieId,
                 VideoID = videoId.Value,
                 CreatedAt = createdAt
             };
@@ -108,15 +111,14 @@ public class DownloadMovieMetadataJob : BaseJob
             await _databaseService.MarkVideoAsRecognizedAsync(videoId);
             _logger.LogInformation("Marked VideoID {VideoID} as recognized.", videoId);
 
-            // Step 5: Fetch and Store Recommendations
             try
             {
-                var recommendationsResponse = await _tmdbService.GetRecommendation(movieId.Value);
+                var recommendationsResponse = await _tmdbService.GetRecommendation(movieId);
                 if (recommendationsResponse != null && recommendationsResponse.Results.Any())
                 {
                     foreach (var recommendation in recommendationsResponse.Results)
                     {
-                        await _databaseService.StoreTmdbRecommendationsAsync(movieId.Value, recommendation);
+                        await _databaseService.StoreTmdbRecommendationsAsync(movieId, recommendation);
                     }
 
                     _logger.LogInformation("Successfully stored {Count} recommendations for MovieID {MovieID}",
@@ -129,7 +131,7 @@ public class DownloadMovieMetadataJob : BaseJob
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching or storing movie recommendations for MovieID: {MovieID}", movieId);
+                _logger.LogError(ex, "Error processing recommendations for MovieID {MovieID}", movieId);
             }
         }
         catch (NotFoundException ex)
