@@ -192,6 +192,40 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Recommendations",
+                columns: table => new
+                {
+                    RecommendationID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Id = table.Column<int>(type: "INTEGER", nullable: false),
+                    TMDBMovieID = table.Column<int>(type: "INTEGER", nullable: false),
+                    Title = table.Column<string>(type: "TEXT", nullable: false),
+                    OriginalTitle = table.Column<string>(type: "TEXT", nullable: false),
+                    Overview = table.Column<string>(type: "TEXT", nullable: false),
+                    PosterPath = table.Column<string>(type: "TEXT", nullable: false),
+                    BackdropPath = table.Column<string>(type: "TEXT", nullable: false),
+                    MediaType = table.Column<string>(type: "TEXT", nullable: false),
+                    Adult = table.Column<bool>(type: "INTEGER", nullable: false),
+                    OriginalLanguage = table.Column<string>(type: "TEXT", nullable: false),
+                    GenreIds = table.Column<string>(type: "TEXT", nullable: false),
+                    Popularity = table.Column<double>(type: "REAL", nullable: false),
+                    ReleaseDate = table.Column<string>(type: "TEXT", nullable: false),
+                    Video = table.Column<bool>(type: "INTEGER", nullable: false),
+                    VoteAverage = table.Column<double>(type: "REAL", nullable: false),
+                    VoteCount = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Recommendations", x => x.RecommendationID);
+                    table.ForeignKey(
+                        name: "FK_Recommendations_Movies_TMDBMovieID",
+                        column: x => x.TMDBMovieID,
+                        principalTable: "Movies",
+                        principalColumn: "TMDBMovieID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MovieCasts",
                 columns: table => new
                 {
@@ -387,6 +421,11 @@ namespace Nostromo.Server.Migrations
                 column: "MovieID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Recommendations_TMDBMovieID_Id",
+                table: "Recommendations",
+                columns: new[] { "TMDBMovieID", "Id" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_VideoPlaces_VideoID",
                 table: "VideoPlaces",
                 column: "VideoID");
@@ -418,6 +457,9 @@ namespace Nostromo.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "MovieGenre");
+
+            migrationBuilder.DropTable(
+                name: "Recommendations");
 
             migrationBuilder.DropTable(
                 name: "VideoPlaces");

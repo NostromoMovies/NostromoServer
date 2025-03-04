@@ -11,7 +11,7 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    [Migration("20250228232052_InitialCreate")]
+    [Migration("20250304034935_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -442,6 +442,76 @@ namespace Nostromo.Server.Migrations
                     b.ToTable("People");
                 });
 
+            modelBuilder.Entity("Nostromo.Server.Database.TMDBRecommendation", b =>
+                {
+                    b.Property<int>("RecommendationID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Adult")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("BackdropPath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("GenreIds")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("MediaType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OriginalLanguage")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OriginalTitle")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Overview")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Popularity")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("PosterPath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReleaseDate")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TMDBMovieID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Video")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double>("VoteAverage")
+                        .HasColumnType("REAL");
+
+                    b.Property<int>("VoteCount")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("RecommendationID");
+
+                    b.HasIndex("TMDBMovieID", "Id");
+
+                    b.ToTable("Recommendations");
+                });
+
             modelBuilder.Entity("Nostromo.Server.Database.User", b =>
                 {
                     b.Property<int>("UserID")
@@ -621,6 +691,17 @@ namespace Nostromo.Server.Migrations
                         .HasForeignKey("TMDBPersonID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.TMDBRecommendation", b =>
+                {
+                    b.HasOne("Nostromo.Server.Database.TMDBMovie", "Movie")
+                        .WithMany()
+                        .HasForeignKey("TMDBMovieID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Movie");
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.VideoPlace", b =>

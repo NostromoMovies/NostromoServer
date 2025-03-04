@@ -33,6 +33,9 @@ namespace Nostromo.Server.Services
         Task MarkVideoAsUnrecognizedAsync(int? videoId);
         Task MarkVideoAsRecognizedAsync(int? videoId);
         Task<List<Video>> GetAllUnrecognizedVideosAsync();
+        Task InsertExampleHashAsync(string ed2kHash, int tmdbId, string title);
+        Task StoreTmdbRecommendationsAsync(int movieId, TmdbRecommendation recommendation);
+        Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
     }
 
     public class DatabaseService : IDatabaseService
@@ -480,6 +483,95 @@ namespace Nostromo.Server.Services
             return await _context.Videos
                 .Where(v => !v.IsRecognized)
                 .ToListAsync();
+        }
+
+        public async Task InsertExampleHashAsync(string ed2kHash, int tmdbId, string title)
+        {
+            try
+            {
+                var exampleHash = new ExampleHash
+                {
+                    ED2K = ed2kHash,
+                    TmdbId = tmdbId,
+                    Title = title
+                };
+
+                await _context.ExampleHash.AddAsync(exampleHash);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Successfully inserted ExampleHash entry: {ED2K}, {TMDBID}, {Title}", ed2kHash, tmdbId, title);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error inserting ExampleHash entry: {ED2K}, {TMDBID}, {Title}", ed2kHash, tmdbId, title);
+                throw;
+            }
+        }
+
+        public async Task StoreTmdbRecommendationsAsync(int movieId, TmdbRecommendation recommendation)
+        {
+            try
+            {
+                var recommendationEntity = new TMDBRecommendation
+                {
+                    Id = recommendation.id,
+                    TMDBMovieID = movieId,
+                    Title = recommendation.title,
+                    OriginalTitle = recommendation.originalTitle,
+                    Overview = recommendation.overview,
+                    PosterPath = recommendation.posterPath,
+                    BackdropPath = recommendation.backdropPath,
+                    MediaType = "movie",
+                    Adult = recommendation.adult,
+                    OriginalLanguage = recommendation.OriginalLanguage,
+                    GenreIds = string.Join(",", recommendation.genreIds),
+                    Popularity = recommendation.popularity,
+                    ReleaseDate = recommendation.releaseDate,
+                    Video = recommendation.video,
+                    VoteAverage = recommendation.voteAverage,
+                    VoteCount = recommendation.voteCount
+                };
+
+                var existingRecommendation = await _context.Recommendations
+                    .FirstOrDefaultAsync(r => r.Id == recommendationEntity.Id);
+
+                if (existingRecommendation == null)
+                {
+                    await _context.Recommendations.AddAsync(recommendationEntity);
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogInformation("Stored TMDB recommendation: {Title} (ID: {Id})", recommendation.title, recommendation.id);
+                }
+                else
+                {
+                    _logger.LogWarning("TMDB recommendation already exists: {Title} (ID: {Id})", recommendation.title, recommendation.id);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error storing TMDB recommendation: {Title} (ID: {Id})", recommendation.title, recommendation.id);
+                throw;
+            }
+        }
+
+        public async Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId)
+        {
+            try
+            {
+                _logger.LogInformation("Retrieving recommendations for Movie ID: {MovieId}", movieId);
+
+                var recommendations = await _context.Recommendations
+                    .Where(r => r.TMDBMovieID == movieId)
+                    .ToListAsync();
+
+                _logger.LogInformation("Found {Count} recommendations for Movie ID: {MovieId}", recommendations.Count, movieId);
+
+                return recommendations;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving recommendations for Movie ID: {MovieId}", movieId);
+                throw;
+            }
         }
     }
 }

@@ -27,6 +27,7 @@ namespace Nostromo.Server.Database
         public DbSet<TMDBPerson> People { get; set; }
         public DbSet<CrossRefVideoTMDBMovie> CrossRefVideoTMDBMovies { get; set; }
         public DbSet<ExampleHash> ExampleHash { get; set; }
+        public DbSet<TMDBRecommendation> Recommendations { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -286,6 +287,25 @@ namespace Nostromo.Server.Database
                     }
                 );
             });
+
+            modelBuilder.Entity<TMDBRecommendation>(entity =>
+            {
+                entity.HasKey(e => e.RecommendationID);
+
+                entity.Property(e => e.RecommendationID)
+                      .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Id).IsRequired();
+                entity.Property(e => e.TMDBMovieID).IsRequired();
+                entity.Property(e => e.Title).IsRequired();
+
+                entity.HasIndex(e => new { e.TMDBMovieID, e.Id }).IsUnique(false);
+
+                entity.HasOne(e => e.Movie)
+                      .WithMany()
+                      .HasForeignKey(e => e.TMDBMovieID)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 
@@ -509,5 +529,37 @@ namespace Nostromo.Server.Database
         public string Title { get; set; }
 
         public string ED2K { get; set; }
+    }
+
+    public class TMDBRecommendation
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int RecommendationID { get; set; }
+
+        [Required]
+        public int Id { get; set; }
+
+        [Required]
+        public int TMDBMovieID { get; set; }
+
+        [Required]
+        public string Title { get; set; }
+
+        public string OriginalTitle { get; set; }
+        public string Overview { get; set; }
+        public string PosterPath { get; set; }
+        public string BackdropPath { get; set; }
+        public string MediaType { get; set; }
+        public bool Adult { get; set; }
+        public string OriginalLanguage { get; set; }
+        public string GenreIds { get; set; }
+        public double Popularity { get; set; }
+        public string ReleaseDate { get; set; }
+        public bool Video { get; set; }
+        public double VoteAverage { get; set; }
+        public int VoteCount { get; set; }
+
+        public virtual TMDBMovie Movie { get; set; }
     }
 }
