@@ -36,15 +36,15 @@ namespace Nostromo.Server.API.Controllers
         {
             try
             {
-                if ( string.IsNullOrWhiteSpace(mediaName) )
-                    return ApiResults.BadRequest("Search term is required" );
+                if (string.IsNullOrWhiteSpace(mediaName))
+                    return ApiResults.BadRequest("Search term is required");
 
                 _logger.LogInformation("Searching for media with name: {MediaName}", mediaName);
 
                 var movies = await _databaseService.SearchMoviesAsync(mediaName);
 
-                if ( !movies.Any() )
-                    return ApiResults.SuccessCollection<TmdbMovieResponse>( [] );
+                if (!movies.Any())
+                    return ApiResults.SuccessCollection<TmdbMovieResponse>([]);
 
                 // Convert database entities to API model
                 var results = movies.Select(movie => new TmdbMovieResponse
@@ -114,7 +114,7 @@ namespace Nostromo.Server.API.Controllers
                 return ApiResults.ServerError("An error occurred while retrieving the movie");
             }
         }
-   
+
         [HttpGet("filtered-genre")]
         public async Task<ActionResult<List<TmdbMovieResponse>>> GetFilteredGenre([FromQuery] List<int> genres)
         {
@@ -125,6 +125,7 @@ namespace Nostromo.Server.API.Controllers
                 {
                     return NotFound(new { Message = $"Movie with genreID {genres} not found" });
                 }
+
                 List<TmdbMovieResponse> tmbdMovie = new List<TmdbMovieResponse>();
                 foreach (var movie in movies)
                 {
@@ -152,7 +153,7 @@ namespace Nostromo.Server.API.Controllers
             }
             catch (Exception ex)
             {
-                
+
                 return StatusCode(500, new { Message = "An error occurred while retrieving the movie" });
             }
         }
@@ -165,8 +166,8 @@ namespace Nostromo.Server.API.Controllers
             {
                 List<TMDBMovie> tmbdMovie = new List<TMDBMovie>();
                 tmbdMovie = await _databaseService.movieRatingsSorted();
-             
-                
+
+
 
 
                 return Ok(tmbdMovie);
@@ -250,12 +251,14 @@ namespace Nostromo.Server.API.Controllers
 
                 await _scheduler.ScheduleJob(tmdbJob, tmdbTrigger);
 
-                _logger.LogInformation("Successfully scheduled metadata jobs for Video {VideoID} and TMDBMovie {TMDBMovieID}.",
+                _logger.LogInformation(
+                    "Successfully scheduled metadata jobs for Video {VideoID} and TMDBMovie {TMDBMovieID}.",
                     request.VideoID, request.TMDBMovieID);
 
                 return Ok(new
                 {
-                    Message = $"Metadata jobs scheduled for Video {request.VideoID} and TMDB movie {request.TMDBMovieID}."
+                    Message =
+                        $"Metadata jobs scheduled for Video {request.VideoID} and TMDB movie {request.TMDBMovieID}."
                 });
             }
             catch (Exception ex)
@@ -271,5 +274,59 @@ namespace Nostromo.Server.API.Controllers
                 });
             }
         }
+        [HttpGet("getMovies")]
+        [ProducesResponseType(typeof(SuccessResponse<IEnumerable<TMDBMovie>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IResult> GetFilteredMovies(
+            [FromQuery] string query = null,
+            [FromQuery] int runtime = 300,
+            [FromQuery] int searchTerm = 0,
+            [FromQuery] int minYear = 0,
+            [FromQuery] int maxYear = 3000)
+        {
+            try
+            {
+                var tmdbMovies = await _databaseService.GetMoviesByUserAsync(query, runtime, searchTerm);
+
+                // Wrap the movies list inside { data: { items: [...] } }
+                var response = new
+                {
+                    data = new
+                    {
+                        items = tmdbMovies
+                    }
+                };
+
+                return Results.Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(
+                    detail: ex.StackTrace,
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "An error occurred while retrieving movies.",
+                    extensions: new Dictionary<string, object>
+                    {
+                        { "Error", ex.Message }
+                    }
+                );
+            }
+        }
+
+
+        [HttpGet("getGenres")]
+        public async Task<ActionResult<IEnumerable<Genre>>> GetGenre()
+        {
+            
+            return await _databaseService.getGenre();
+        }
+    
+        
+        [HttpGet("getYears")]
+        public async Task<ActionResult<int>> GetYears()
+        {
+            return await _databaseService.GetMinYear(); 
+        }
+
     }
 }
