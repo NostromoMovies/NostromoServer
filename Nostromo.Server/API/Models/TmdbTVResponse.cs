@@ -30,8 +30,8 @@ public class TmdbTvResponse {
     public string? FirstAirDate{get; set;}
     
     [JsonPropertyName("vote_average")]
-    public string? VoteAverage{get; set;}
+    public double? VoteAverage{get; set;}
     
     [JsonPropertyName("vote_count")]
-    public string? VoteCount{get; set;}
+    public int? VoteCount{get; set;}
 }
