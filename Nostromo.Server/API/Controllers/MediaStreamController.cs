@@ -34,6 +34,7 @@ namespace Nostromo.Server.API.Controllers
 
             //HACK: store type in database probably instead or something idk this just shouldnt go here
             var provider = new FileExtensionContentTypeProvider();
+            provider.Mappings[".mkv"] = "video/x-matroska"; //lol
 
             if (!provider.TryGetContentType(videoPath, out var mimeType))
                 mimeType = "application/octet-stream";
