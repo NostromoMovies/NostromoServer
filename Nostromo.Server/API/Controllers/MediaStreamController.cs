@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Nostromo.Server.API.Models;
 using Nostromo.Server.Services;
 using Nostromo.Server.Database.Repositories;
+using Microsoft.AspNetCore.StaticFiles;
+using System.IO;
 
 namespace Nostromo.Server.API.Controllers
 { 
@@ -13,10 +15,10 @@ namespace Nostromo.Server.API.Controllers
     [Route("api/media")]
     public class MediaStreamController : ControllerBase
     {
-        private readonly MediaPlaybackService _mediaPlaybackService;
-        private readonly ILogger _logger;
+        private readonly IMediaPlaybackService _mediaPlaybackService;
+        private readonly ILogger<MediaStreamController> _logger;
 
-        public MediaStreamController(MediaPlaybackService mediaPlaybackService, ILogger logger)
+        public MediaStreamController(IMediaPlaybackService mediaPlaybackService, ILogger<MediaStreamController> logger)
         {
             _mediaPlaybackService = mediaPlaybackService;
             _logger = logger;
@@ -30,8 +32,14 @@ namespace Nostromo.Server.API.Controllers
             if (!System.IO.File.Exists(videoPath))
                 return Results.NotFound("Video not found");
 
+            //HACK: store type in database probably instead or something idk this just shouldnt go here
+            var provider = new FileExtensionContentTypeProvider();
+
+            if (!provider.TryGetContentType(videoPath, out var mimeType))
+                mimeType = "application/octet-stream";
+
             var stream = new FileStream(videoPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return Results.File(stream, "video/x-matroska", enableRangeProcessing: true);
+            return Results.File(stream, mimeType, enableRangeProcessing: true);
         }
     }
 }

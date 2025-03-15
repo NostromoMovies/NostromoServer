@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Nostromo.Server.Services
 {
-    public class MediaPlaybackService
+    public class MediaPlaybackService : IMediaPlaybackService
     {
         private readonly IVideoPlaceRepository _videoPlaceRepository;
-        private readonly ILogger _logger;
+        private readonly ILogger<MediaPlaybackService> _logger;
 
-        public MediaPlaybackService(IVideoPlaceRepository videoPlaceRepository, ILogger logger)
+        public MediaPlaybackService(IVideoPlaceRepository videoPlaceRepository, ILogger<MediaPlaybackService> logger)
         {
             _videoPlaceRepository = videoPlaceRepository;
             _logger = logger;
