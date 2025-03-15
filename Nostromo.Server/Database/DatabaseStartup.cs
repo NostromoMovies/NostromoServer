@@ -31,6 +31,8 @@ public static class DatabaseStartup
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAuthTokenRepository, AuthTokenRepository>();
         services.AddScoped<IImportFolderRepository, ImportFolderRepository>();
+        services.AddScoped<IVideoPlaceRepository, VideoPlaceRepository>();
+
 
         return services;
     }

@@ -107,6 +107,7 @@ namespace Nostromo.Server.Server
             services.AddSingleton<ISettingsProvider>(_settingsProvider);
             services.AddSingleton<IFileWatcherService, FileWatcherService>();
             services.AddSingleton<IFileRenamerService, FileRenamerService>();
+            services.AddSingleton<IMediaPlaybackService, MediaPlaybackService>();
             services.AddScoped<IImportFolderManager, ImportFolderManager>();
             services.AddSingleton<NostromoServer>();
 

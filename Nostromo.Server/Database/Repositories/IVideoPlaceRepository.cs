@@ -8,6 +8,6 @@ namespace Nostromo.Server.Database.Repositories
 {
     public interface IVideoPlaceRepository : IRepository<VideoPlace>
     {
-
+        public Task<String>GetVideoFilePathByVideoID(int videoID);
     }
 }
