@@ -184,7 +184,7 @@ namespace Nostromo.Server.API.Controllers
         {
             try
             {
-                var unrecognizedVideos = await _databaseService.GetAllUnrecognizedVideosAsync();
+                var unrecognizedVideos = await _databaseService.  GetAllUnrecognizedVideosAsync();
 
                 if (!unrecognizedVideos.Any())
                 {

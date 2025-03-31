@@ -19,6 +19,7 @@ using System.Security.Claims;
 using Microsoft.OpenApi.Models;
 using Nostromo.Server.Scheduling;
 using System.Threading;
+using Nostromo.Server.Database.Repositories;
 
 namespace Nostromo.Server.Server
 {
@@ -110,6 +111,10 @@ namespace Nostromo.Server.Server
             services.AddSingleton<IMediaPlaybackService, MediaPlaybackService>();
             services.AddScoped<IImportFolderManager, ImportFolderManager>();
             services.AddSingleton<NostromoServer>();
+            services.AddScoped<ISeasonRepository, SeasonRepository>();
+            services.AddScoped<ITvEpisodeRepository, TvEpisodeRepository>();
+            services.AddScoped<ITvShowRepository, TvShowRepository>();
+
 
             // Configure WatcherSettings
             //services.Configure<WatcherSettings>(_configuration.GetSection("WatcherSettings"));

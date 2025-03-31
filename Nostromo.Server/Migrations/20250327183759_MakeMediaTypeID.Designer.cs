@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nostromo.Server.Database;
 
@@ -10,9 +11,11 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    partial class NostromoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250327183759_MakeMediaTypeID")]
+    partial class MakeMediaTypeID
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -117,8 +120,9 @@ namespace Nostromo.Server.Migrations
                     b.Property<int>("SeasonID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("SeasonNumber")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("SeasonNumber")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("StillPath")
                         .IsRequired()
@@ -338,9 +342,6 @@ namespace Nostromo.Server.Migrations
                     b.Property<DateTime>("LastUpdatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("MediaTypeMediaTmDBID")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("OriginalLanguage")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -390,8 +391,6 @@ namespace Nostromo.Server.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("MovieID");
-
-                    b.HasIndex("MediaTypeMediaTmDBID");
 
                     b.ToTable("Movies");
                 });
@@ -510,21 +509,11 @@ namespace Nostromo.Server.Migrations
                     b.Property<int>("TMDBPersonID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("TMDBTvEpisodeID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("TMDBTvShowID")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("TMDBMovieCrewID");
 
                     b.HasIndex("TMDBMovieID");
 
                     b.HasIndex("TMDBPersonID");
-
-                    b.HasIndex("TMDBTvEpisodeID");
-
-                    b.HasIndex("TMDBTvShowID");
 
                     b.ToTable("MovieCrews");
                 });
@@ -733,9 +722,6 @@ namespace Nostromo.Server.Migrations
                     b.Property<string>("FirstAirDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("MediaTypeMediaTmDBID")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("OriginalLanguage")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -761,8 +747,6 @@ namespace Nostromo.Server.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("TvShowID");
-
-                    b.HasIndex("MediaTypeMediaTmDBID");
 
                     b.ToTable("TvShows");
                 });
@@ -947,17 +931,6 @@ namespace Nostromo.Server.Migrations
                     b.Navigation("TvShow");
                 });
 
-            modelBuilder.Entity("Nostromo.Server.Database.TMDBMovie", b =>
-                {
-                    b.HasOne("Nostromo.Server.Database.MediaType", "MediaType")
-                        .WithMany()
-                        .HasForeignKey("MediaTypeMediaTmDBID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MediaType");
-                });
-
             modelBuilder.Entity("Nostromo.Server.Database.TMDBMovieCast", b =>
                 {
                     b.HasOne("Nostromo.Server.Database.TMDBMovie", null)
@@ -995,16 +968,6 @@ namespace Nostromo.Server.Migrations
                         .HasForeignKey("TMDBPersonID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Nostromo.Server.Database.Episode", null)
-                        .WithMany()
-                        .HasForeignKey("TMDBTvEpisodeID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Nostromo.Server.Database.TvShow", null)
-                        .WithMany()
-                        .HasForeignKey("TMDBTvShowID")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.TMDBRecommendation", b =>
@@ -1027,17 +990,6 @@ namespace Nostromo.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("TvShow");
-                });
-
-            modelBuilder.Entity("Nostromo.Server.Database.TvShow", b =>
-                {
-                    b.HasOne("Nostromo.Server.Database.MediaType", "MediaType")
-                        .WithMany()
-                        .HasForeignKey("MediaTypeMediaTmDBID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MediaType");
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.VideoPlace", b =>

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nostromo.Server.Database;
 
@@ -10,9 +11,11 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    partial class NostromoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250327235005_Ma")]
+    partial class Ma
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -457,8 +460,6 @@ namespace Nostromo.Server.Migrations
 
                     b.HasIndex("TMDBPersonID");
 
-                    b.HasIndex("TMDBTvEpisodeID");
-
                     b.HasIndex("TMDBTvShowID");
 
                     b.ToTable("MovieCasts");
@@ -510,21 +511,11 @@ namespace Nostromo.Server.Migrations
                     b.Property<int>("TMDBPersonID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("TMDBTvEpisodeID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("TMDBTvShowID")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("TMDBMovieCrewID");
 
                     b.HasIndex("TMDBMovieID");
 
                     b.HasIndex("TMDBPersonID");
-
-                    b.HasIndex("TMDBTvEpisodeID");
-
-                    b.HasIndex("TMDBTvShowID");
 
                     b.ToTable("MovieCrews");
                 });
@@ -971,11 +962,6 @@ namespace Nostromo.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Nostromo.Server.Database.Episode", null)
-                        .WithMany()
-                        .HasForeignKey("TMDBTvEpisodeID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("Nostromo.Server.Database.TvShow", null)
                         .WithMany()
                         .HasForeignKey("TMDBTvShowID")
@@ -995,16 +981,6 @@ namespace Nostromo.Server.Migrations
                         .HasForeignKey("TMDBPersonID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Nostromo.Server.Database.Episode", null)
-                        .WithMany()
-                        .HasForeignKey("TMDBTvEpisodeID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Nostromo.Server.Database.TvShow", null)
-                        .WithMany()
-                        .HasForeignKey("TMDBTvShowID")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.TMDBRecommendation", b =>
