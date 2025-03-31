@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Nostromo.Models;
+
 namespace Nostromo.Server.API.Models;
 
 public class TmdbTvResponse {
@@ -6,22 +8,22 @@ public class TmdbTvResponse {
     public bool Adult{get; set;}
         
     [JsonPropertyName("genre_ids")]
-    public List<int>? GenreIds{get; set;}
+    public List<TmdbGenre>? GenreIds{get; set;}
     
     [JsonPropertyName("id")]
     public int Id{get; set;}
     
     [JsonPropertyName("original_language")]
-    public string? OriginalLanguage{get; set;}
+    public string OriginalLanguage{get; set;}
     
     [JsonPropertyName("original_name")]
-    public string? OriginalName{get; set;}
+    public string OriginalName{get; set;}
     
     [JsonPropertyName("overview")]
     public string? Overview{get; set;}
     
     [JsonPropertyName("popularity")]
-    public string? Popularity{get; set;}
+    public double? Popularity{get; set;}
     
     [JsonPropertyName("poster_path")]
     public string? PosterPath{get; set;}
@@ -34,4 +36,10 @@ public class TmdbTvResponse {
     
     [JsonPropertyName("vote_count")]
     public int? VoteCount{get; set;}
+    
+    [JsonPropertyName("backdrop_path")]
+    public string? BackdropPath{get; set;}
+    
+    [JsonPropertyName("seasons")]
+    public List<TmdbTvSeasonResponse> Seasons {get; set;}
 }

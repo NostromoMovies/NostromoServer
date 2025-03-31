@@ -9,6 +9,7 @@ using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
 using System.Net;
 using System.Text.Json;
+//using TvRecommendation = Nostromo.Server.API.Models.TvRecommendation;
 
 namespace Nostromo.Server.Services
 {
@@ -21,10 +22,20 @@ namespace Nostromo.Server.Services
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query);
         Task<Dictionary<int, string>> GetGenreDictionary();
         Task<TmdbRecommendationsResponse> GetRecommendation(int movieId);
+        
+        Task<TvRecommendationListResponse> GetTvRecommendation(int showId);
+        
         Task<int?> GetKeywordId(string keyword);
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesByKeyword(string keyword);
         Task<TmdbCreditsWrapper> GetMovieCreditsAsync(int movieId);
-       
+          
+        Task<TvEpisodeCreditWrapper> GetTvEpisodeCreditsAsync(int showId, int seasonNumber, int episodeNumber);
+        
+        Task<TvShowCreditWrapper> GetTvShowCreditsAsync(int showId);
+        Task<TmdbTvResponse> GetTvShowById(int showId);
+
+        Task<TmdbTvEpisodeResponse> GetTvEpisodeById(int showId, int seasonNumber, int episodeNumber, int seasonID);
+
     }
 
     public class TmdbService : ITmdbService
@@ -35,6 +46,8 @@ namespace Nostromo.Server.Services
         private readonly ILogger<TmdbService> _logger;
         private readonly string _tmdbApiKey;
         private readonly IOptions<TmdbSettings> _settings;
+        private readonly ITvShowRepository _tvShowRepository;
+        private readonly ITvEpisodeRepository _tvEpisodeRepository;
 
         public TmdbService(
             HttpClient httpClient,
@@ -42,7 +55,9 @@ namespace Nostromo.Server.Services
             IOptions<ServerSettings> serverSettings,
             ILogger<TmdbService> logger,
             IMovieRepository movieRepository,
-            IOptions<TmdbSettings> settings)
+            IOptions<TmdbSettings> settings,
+            ITvShowRepository tvShowRepository,
+            ITvEpisodeRepository tvEpisodeRepository)
         {
             _httpClient = httpClient;
             _databaseService = databaseService;
@@ -56,6 +71,8 @@ namespace Nostromo.Server.Services
             _httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
             _settings = settings;
+            _tvShowRepository = tvShowRepository;
+            _tvEpisodeRepository = tvEpisodeRepository;
         }
 
         public async Task<Dictionary<int, string>> GetGenreDictionary()
@@ -246,6 +263,50 @@ namespace Nostromo.Server.Services
             }
         }
 
+        public async Task<TvRecommendationListResponse> GetTvRecommendation(int showId)
+        {
+            try
+            {
+                string tmdbUrl = $"tv/{showId}/recommendations?api_key={_tmdbApiKey}";
+
+                HttpResponseMessage response = await _httpClient.GetAsync(tmdbUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("TMDb API request failed with status code: {StatusCode}", response.StatusCode);
+                    return null;
+                }
+
+                string jsonResponse = await response.Content.ReadAsStringAsync();
+
+                var recommendations = JsonSerializer.Deserialize<TvRecommendationListResponse>(
+                    jsonResponse,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+
+                if (recommendations?.Results == null || !recommendations.Results.Any())
+                {
+                    _logger.LogWarning("No recommendations found for show ID: {ShowId}", showId);
+                    return recommendations;
+                }
+
+                foreach (var recommendation in recommendations.Results)
+                {
+                    await _databaseService.StoreTvRecommendationsAsync(showId, recommendation);
+                    
+                }
+
+                _logger.LogInformation("Fetched and stored {Count} recommendations for Tv Show ID {ShowId}",
+                    recommendations.Results.Count, showId);
+
+                return recommendations;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching or storing movie recommendations for movie ID: {ShowId}", showId);
+                throw;
+            }
+        }
 
         public async Task<int?> GetKeywordId(string keyword)
         {
@@ -307,10 +368,89 @@ namespace Nostromo.Server.Services
 
             return JsonSerializer.Deserialize<TmdbCreditsWrapper>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
+
+        public async Task<TvEpisodeCreditWrapper> GetTvEpisodeCreditsAsync(int showId, int seasonNumber, int episodeNumber)
+        {
+            string url = $"tv/{showId}/season/{seasonNumber}/episode/{episodeNumber}/credits?api_key={_tmdbApiKey}";
+            var credits = await _httpClient.GetFromJsonAsync<TvEpisodeCreditWrapper>(url);
+
+            return credits;
+        }
+
+        public async Task<TvShowCreditWrapper> GetTvShowCreditsAsync(int showId)
+        {
+            string url = $"tv/{showId}/credits?api_key={_tmdbApiKey}";
+            var credits = await _httpClient.GetFromJsonAsync<TvShowCreditWrapper>(url);
+            return credits;
+        }
+        public async Task<TmdbTvResponse> GetTvShowById(int showId)
+        {
+            try
+            {
+                var existingShow = await _tvShowRepository.GetByIdAsync(showId);
+
+                if (existingShow == null)
+                {
+                    var showUrl = $"tv/{showId}?api_key={_tmdbApiKey}";
+                    var show = await _httpClient.GetFromJsonAsync<TmdbTvResponse>(showUrl)
+                               ?? throw new NotFoundException($"Tv Show with ID {showId} not found");
+
+                    var newShow = new TvShow(show);
+
+                    await _tvShowRepository.AddAsync(newShow);
+
+                    return show;
+                }
+                else
+                {
+                    var response = new TmdbTvResponse
+                    {
+                        Adult = existingShow.Adult,
+                        BackdropPath = existingShow.BackdropPath,
+                        FirstAirDate = existingShow.FirstAirDate,
+                        Id = existingShow.TvShowID,
+                        OriginalLanguage = existingShow.OriginalLanguage,
+                        Overview = existingShow.Overview,
+                        Popularity = existingShow.Popularity,
+                        PosterPath = existingShow.PosterPath,
+                        OriginalName = existingShow.OriginalName
+                    };
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching tv show details for ID: {ShowId}", showId);
+                throw;
+            }
+        }
+        
+        public async Task<TmdbTvEpisodeResponse> GetTvEpisodeById(int showId, int seasonNumber, int episodeNumber, int seasonID)
+        {
+            try
+            {
+                var episodeUrl = $"tv/{showId}/season/{seasonNumber}/episode/{episodeNumber}?api_key={_tmdbApiKey}";
+                var episode = await _httpClient.GetFromJsonAsync<TmdbTvEpisodeResponse>(episodeUrl)
+                           ?? throw new NotFoundException($"Tv Show with ID {showId} not found");
+
+                var newEpisode = new Episode(episode, seasonID, episodeNumber);
+
+                await _tvEpisodeRepository.AddAsync(newEpisode);
+
+                return episode;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching tv show details for ID: {ShowId}", showId);
+                throw;
+            }
+        }
     }
 
     public class NotFoundException(string message) : Exception(message)
     {
 
     }
+    
+    
 }
