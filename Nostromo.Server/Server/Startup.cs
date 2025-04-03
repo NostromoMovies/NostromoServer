@@ -18,7 +18,9 @@ using Nostromo.Server.API.Authentication;
 using System.Security.Claims;
 using Microsoft.OpenApi.Models;
 using Nostromo.Server.Scheduling;
+using Nostromo.Server.Services;
 using System.Threading;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Nostromo.Server.Server
 {
@@ -109,6 +111,7 @@ namespace Nostromo.Server.Server
             services.AddSingleton<IFileRenamerService, FileRenamerService>();
             services.AddSingleton<IMediaPlaybackService, MediaPlaybackService>();
             services.AddScoped<IImportFolderManager, ImportFolderManager>();
+            
             services.AddSingleton<NostromoServer>();
 
             // Configure WatcherSettings
@@ -134,17 +137,10 @@ namespace Nostromo.Server.Server
 
             services.AddTransient<DownloadMovieMetadataJob>();
             services.AddTransient<DownloadTMDBMetadataJob>();
+          
 
             services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
-
-            services.Configure<TmdbSettings>(_configuration.GetSection("TMDB"));
-            services.AddHttpClient<ITmdbService, TmdbService>(client => {
-                var tmdbSettings = _configuration.GetSection("TMDB").Get<TmdbSettings>();
-                client.BaseAddress = new Uri(tmdbSettings?.BaseUrl ??
-                    throw new InvalidOperationException("TMDB BaseUrl not configured"));
-                client.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/json"));
-            });
+            
         }
 
         public async Task Start()
@@ -159,6 +155,9 @@ namespace Nostromo.Server.Server
                 {
                     var dbContext = scope.ServiceProvider.GetRequiredService<NostromoDbContext>();
                     await dbContext.Database.MigrateAsync();
+                    /*var tmdbService = scope.ServiceProvider.GetRequiredService<ITmdbService>();
+                    await tmdbService.GetGenreDictionary();
+                    _logger.LogInformation("TMDB genres seeded successfully");*/
                 }
 
                 if (!await StartWebHost())

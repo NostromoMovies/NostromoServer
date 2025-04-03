@@ -6,6 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Nostromo.Models;
 
+using Nostromo.Server.Services;
+
 namespace Nostromo.Server.Database
 {
     public class NostromoDbContext : DbContext
@@ -70,6 +72,10 @@ namespace Nostromo.Server.Database
                 entity.HasKey(e => e.GenreID);
                 entity.Property(e => e.Name).IsRequired();
             });
+            
+            
+            
+            
 
             modelBuilder.Entity<User>(entity =>
             {

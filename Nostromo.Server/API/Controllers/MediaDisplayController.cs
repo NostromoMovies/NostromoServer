@@ -315,12 +315,12 @@ namespace Nostromo.Server.API.Controllers
             [FromQuery] string query = null,
             [FromQuery] int runtime = 300,
             [FromQuery] int searchTerm = 0,
-            [FromQuery] int minYear = 0,
-            [FromQuery] int maxYear = 3000)
+            [FromQuery] string minYear = "0",
+            [FromQuery] string  maxYear = "3000")
         {
             try
             {
-                var tmdbMovies = await _databaseService.GetMoviesByUserAsync(query, runtime, searchTerm);
+                var tmdbMovies = await _databaseService.GetMoviesByUserAsync(query, runtime, searchTerm,minYear, maxYear);
 
                 var response = new
                 {
@@ -360,6 +360,7 @@ namespace Nostromo.Server.API.Controllers
         {
             return await _databaseService.GetMinYear();
         }
+        
 
     }
 }

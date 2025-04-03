@@ -36,7 +36,7 @@ namespace Nostromo.Server.Services
         Task InsertExampleHashAsync(string ed2kHash, int tmdbId, string title);
         Task StoreTmdbRecommendationsAsync(int movieId, TmdbRecommendation recommendation);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
-        Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy);
+        Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string  maxYear);
         Task<List<Genre>> getGenre();
         Task<int> GetMinYear();
     }
@@ -577,49 +577,131 @@ namespace Nostromo.Server.Services
             }
         }
 
-        public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy)
+        public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string maxYear)
         {
             // recently added -- good
-            if (sortBy == 3)
+            if (sortBy == 3)    
             {
-                return await _context.CrossRefVideoTMDBMovies
+                var movies = await _context.CrossRefVideoTMDBMovies
                     .Include(c => c.TMDBMovie)
                     .Where(c =>
                         (string.IsNullOrEmpty(searchTerm) || c.TMDBMovie.Title.ToLower().Contains(searchTerm.ToLower())) &&
                         (maxRuntime == null || c.TMDBMovie.Runtime <= maxRuntime))
                     .OrderByDescending(c => c.CreatedAt)
                     .Select(c => c.TMDBMovie)
-                    .ToListAsync();
+                    .ToListAsync();  // Fetch the movies into memory
+
+
+                if (!string.IsNullOrEmpty(minYear))
+                {
+                    int minYearInt = int.Parse(minYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year >= minYearInt).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(maxYear))
+                {
+                    int maxYearInt = int.Parse(maxYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year <= maxYearInt).ToList();
+                }
+
+                return movies;
             }
             // alphabetical -- good
             else if (sortBy == 1)
             {
-                return await _context.Movies
+                /*return await _context.Movies
                     .Where(c =>
                         (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
                         (maxRuntime == null || c.Runtime <= maxRuntime))
                     .OrderBy(c => c.Title.ToLower())
-                    .ToListAsync();
+                    .ToListAsync();*/
+                
+                var movies = await _context.Movies
+                    .Where(c =>
+                        (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
+                        (maxRuntime == null || c.Runtime <= maxRuntime))
+                    .ToListAsync();  // Fetch the movies into memory
+
+
+                if (!string.IsNullOrEmpty(minYear))
+                {
+                    int minYearInt = int.Parse(minYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year >= minYearInt).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(maxYear))
+                {
+                    int maxYearInt = int.Parse(maxYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year <= maxYearInt).ToList();
+                }
+
+                return movies
+                    .OrderBy(c => c.Title.ToLower())  
+                    .ToList();
+
+
             }
             // highest rated -- good
             else if (sortBy == 2)
             {
+                /*
                 return await _context.Movies
                     .Where(c =>
                         (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
                         (maxRuntime == null || c.Runtime <= maxRuntime))
                     .OrderByDescending(c => c.VoteAverage)
                     .ToListAsync();
+                    */
+                
+                
+                var movies = await  _context.Movies
+                        .Where(c =>
+                            (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
+                            (maxRuntime == null || c.Runtime <= maxRuntime))
+                        .ToListAsync();  // Fetch the movies into memory
+                
+                if (!string.IsNullOrEmpty(minYear))
+                {
+                    int minYearInt = int.Parse(minYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year >= minYearInt).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(maxYear))
+                {
+                    int maxYearInt = int.Parse(maxYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year <= maxYearInt).ToList();
+                }
+                return movies.OrderByDescending(c => c.VoteAverage).ToList();
+                   
             }
             // popularity -- good
             else if (sortBy == 0)
             {
-                return await _context.Movies
+                var movies = await  _context.Movies
+                    .Where(c =>
+                        (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
+                        (maxRuntime == null || c.Runtime <= maxRuntime))
+                    .ToListAsync();  // Fetch the movies into memory
+                
+                if (!string.IsNullOrEmpty(minYear))
+                {
+                    int minYearInt = int.Parse(minYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year >= minYearInt).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(maxYear))
+                {
+                    int maxYearInt = int.Parse(maxYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year <= maxYearInt).ToList();
+                }
+
+                return movies.OrderByDescending(c => c.Popularity).ToList();
+                /*return await _context.Movies
                     .Where(c =>
                         (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
                         (maxRuntime == null || c.Runtime <= maxRuntime))
                     .OrderByDescending(c => c.Popularity)
-                    .ToListAsync();
+                    .ToListAsync();*/
             }
 
 
@@ -631,7 +713,7 @@ namespace Nostromo.Server.Services
         public async Task<List<Genre>> getGenre()
         {
 
-            return await _context.Genres.ToListAsync();
+            return await _context.Genres.OrderBy(g => g.Name).ToListAsync();
         }
 
         public async Task<int> GetMinYear()
