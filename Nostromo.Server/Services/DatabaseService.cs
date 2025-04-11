@@ -727,5 +727,19 @@ namespace Nostromo.Server.Services
 
             return minYear;
         }
+
+        /*public async Task<GenreCounter> GetMaxYear()
+        {
+            var genreCounts = _context.Movies
+                .SelectMany(m => m.Genres) // Flatten all genres across movies
+                .GroupBy(g => g.GenreID)   // Group by GenreID
+                .Select(g => new GenreCounter
+                {
+                    GenreID = g.Key,
+                    GenreCount = g.Count()
+                })
+                .ToList();
+            return genreCounts
+        }*/
     }
 }

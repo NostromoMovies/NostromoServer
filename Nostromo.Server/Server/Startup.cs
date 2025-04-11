@@ -141,6 +141,15 @@ namespace Nostromo.Server.Server
 
             services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
             
+            services.Configure<TmdbSettings>(_configuration.GetSection("TMDB"));
+            services.AddHttpClient<ITmdbService, TmdbService>(client => {
+                var tmdbSettings = _configuration.GetSection("TMDB").Get<TmdbSettings>();
+                client.BaseAddress = new Uri(tmdbSettings?.BaseUrl ??
+                                             throw new InvalidOperationException("TMDB BaseUrl not configured"));
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
+            });
+            
         }
 
         public async Task Start()
