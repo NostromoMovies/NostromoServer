@@ -36,10 +36,12 @@ namespace Nostromo.Server.Services
         Task InsertExampleHashAsync(string ed2kHash, int tmdbId, string title);
         Task StoreTmdbRecommendationsAsync(int movieId, TmdbRecommendation recommendation);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
-        Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string  maxYear);
+        Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string  maxYear,List<string> genreIds);
         Task<List<Genre>> getGenre();
         Task<int> GetMinYear();
         Task StoreMovieGenresAsync(int movieId, List<TmdbGenre> genres);
+        Task<int> GetMovieCount();
+        Task<List<GenreCounter>> GetGenreMovieCount();
     }
 
     public class DatabaseService : IDatabaseService
@@ -606,7 +608,7 @@ namespace Nostromo.Server.Services
             }
         }
 
-        public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string maxYear)
+        public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string maxYear,List<string> filterGenre)
         {
             // recently added -- good
             if (sortBy == 3)    
@@ -631,6 +633,32 @@ namespace Nostromo.Server.Services
                 {
                     int maxYearInt = int.Parse(maxYear);
                     movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year <= maxYearInt).ToList();
+                }
+                if (filterGenre != null && filterGenre.Any())
+                {
+                    var genreIds = new List<int>();
+                    foreach (var genre in filterGenre)
+                    {
+                        if (int.TryParse(genre, out int id))
+                        {
+                            genreIds.Add(id);
+                        }
+                    }
+    
+                    if (genreIds.Any())
+                    {
+                        var movieIdsWithMatchingGenres = await _context.MovieGenres
+                            .Where(mg => genreIds.Contains(mg.GenreID))
+                            .Select(mg => mg.MovieID)
+                            .Distinct()
+                            .ToListAsync();
+
+                        var movieIdSet = new HashSet<int>(movieIdsWithMatchingGenres);
+
+                        movies = movies
+                            .Where(movie => movieIdSet.Contains(movie.MovieID))
+                            .ToList();
+                    }
                 }
 
                 return movies;
@@ -786,6 +814,25 @@ namespace Nostromo.Server.Services
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> GetMovieCount()
+        {
+            return await _context.Movies.CountAsync();
+        }
+
+        public async Task<List<GenreCounter>> GetGenreMovieCount()
+        {
+            var result = await _context.MovieGenres
+                .GroupBy(mg => mg.GenreID)
+                .Select(g => new GenreCounter
+                {
+                    GenreID = g.Key,
+                    GenreCount = g.Select(x => x.MovieID).Distinct().Count()
+                })
+                .ToListAsync();
+
+            return result;
         }
     }
 }

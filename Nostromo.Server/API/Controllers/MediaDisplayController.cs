@@ -323,11 +323,12 @@ namespace Nostromo.Server.API.Controllers
             [FromQuery] int runtime = 300,
             [FromQuery] int searchTerm = 0,
             [FromQuery] string minYear = "0",
-            [FromQuery] string  maxYear = "3000")
+            [FromQuery] string  maxYear = "3000",
+            [FromQuery] List<string> filterGenre = null)
         {
             try
             {
-                var tmdbMovies = await _databaseService.GetMoviesByUserAsync(query, runtime, searchTerm,minYear, maxYear);
+                var tmdbMovies = await _databaseService.GetMoviesByUserAsync(query, runtime, searchTerm,minYear, maxYear,filterGenre);
 
                 var response = new
                 {
@@ -368,6 +369,17 @@ namespace Nostromo.Server.API.Controllers
             return await _databaseService.GetMinYear();
         }
         
+        [HttpGet("getMovieCount")]
+        public async Task<ActionResult<int>> MovieCount()
+        {
+            return await _databaseService.GetMovieCount();
+        }
+        
+        [HttpGet("getMovieCountGenre")]
+        public async Task<ActionResult<IEnumerable<GenreCounter>>> MovieCountGenre()
+        {
+            return await _databaseService.GetGenreMovieCount();
+        }
 
     }
 }
