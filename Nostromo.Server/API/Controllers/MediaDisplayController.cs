@@ -43,10 +43,10 @@ namespace Nostromo.Server.API.Controllers
 
                 var movies = await _databaseService.SearchMoviesAsync(mediaName);
 
-                if ( !movies.Any() )
-                    return ApiResults.SuccessCollection<TmdbMovieResponse>( [] );
+                if (!movies.Any())
+                    return ApiResults.SuccessCollection<TmdbMovieResponse>(
+                        Array.Empty<TmdbMovieResponse>());
 
-                // Convert database entities to API model
                 var results = movies.Select(movie => new TmdbMovieResponse
                 {
                     id = movie.MovieID,
@@ -61,8 +61,11 @@ namespace Nostromo.Server.API.Controllers
                     voteCount = movie.VoteCount,
                     voteAverage = Convert.ToSingle(movie.VoteAverage),
                     runtime = movie.Runtime,
-                    genreIds = movie.Genres?.Select(g => g.GenreID).ToList() ?? new List<int>()
-                }).ToList();
+                    genreIds = movie.Genres?
+                                        .Select(g => new TmdbGenre { id = g.GenreID, name = g.Name })
+                                        .ToList() ?? new List<TmdbGenre>()
+                })
+                .ToList();
 
                 _logger.LogInformation("Found {Count} movies matching search term: {MediaName}",
                     results.Count, mediaName);
@@ -103,7 +106,9 @@ namespace Nostromo.Server.API.Controllers
                     voteCount = movie.VoteCount,
                     voteAverage = Convert.ToSingle(movie.VoteAverage),
                     runtime = movie.Runtime,
-                    genreIds = movie.Genres?.Select(g => g.GenreID).ToList() ?? new List<int>()
+                    genreIds = movie.Genres?
+                            .Select(g => new TmdbGenre { id = g.GenreID, name = g.Name })
+                            .ToList() ?? new List<TmdbGenre>()
                 };
 
                 return ApiResults.Success(result);
@@ -142,7 +147,9 @@ namespace Nostromo.Server.API.Controllers
                         voteCount = movie.VoteCount,
                         voteAverage = Convert.ToSingle(movie.VoteAverage),
                         runtime = movie.Runtime,
-                        genreIds = movie.Genres?.Select(g => g.GenreID).ToList() ?? new List<int>()
+                        genreIds = movie.Genres?
+                            .Select(g => new TmdbGenre { id = g.GenreID, name = g.Name })
+                            .ToList() ?? new List<TmdbGenre>()
                     };
                     tmbdMovie.Add(result);
                 }

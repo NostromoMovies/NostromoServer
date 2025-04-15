@@ -3,6 +3,7 @@ using Nostromo.Server.Database.Repositories;
 using Nostromo.Server.Database;
 using Nostromo.Server.Scheduling.Jobs;
 using Nostromo.Server.Services;
+using Nostromo.Models;
 using Quartz;
 using System;
 
@@ -71,6 +72,18 @@ public class DownloadMovieMetadataJob : BaseJob
                 // Step 3: Fetch metadata from TMDB and save to database
                 var movieResponse = await _tmdbService.GetMovieById(movieId.Value);
                 _logger.LogInformation("Movie metadata saved to database for MovieID: {MovieID}", movieId);
+
+                if (movieResponse.genreIds != null && movieResponse.genreIds.Any())
+                {
+                    await _databaseService.StoreMovieGenresAsync(movieId.Value, movieResponse.genreIds);
+
+                    _logger.LogInformation("Stored {Count} genres for MovieID {MovieID}", movieResponse.genreIds.Count, movieId);
+                }
+
+                else
+                {
+                    _logger.LogInformation("No genres for MovieID {MovieID}", movieId.Value);
+                }
 
                 try
                 {

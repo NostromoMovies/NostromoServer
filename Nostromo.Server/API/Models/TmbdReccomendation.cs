@@ -1,5 +1,6 @@
 using System.Collections.Generic; // List
 using System.Text.Json.Serialization; // JsonPropertyName
+using Nostromo.Models;
 
 namespace Nostromo.Server.API.Models
 {
@@ -17,8 +18,8 @@ namespace Nostromo.Server.API.Models
         [JsonPropertyName("original_language")]
         public string OriginalLanguage { get; set; }
 
-        [JsonPropertyName("genre_ids")]
-        public List<int> genreIds { get; set; }
+        [JsonPropertyName("genres")]
+        public List<TmdbGenre> genreIds { get; set; }
         [JsonPropertyName("id")]
         public int id { get; set; }
         [JsonPropertyName("original_title")]

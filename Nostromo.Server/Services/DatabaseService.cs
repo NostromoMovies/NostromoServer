@@ -39,6 +39,7 @@ namespace Nostromo.Server.Services
         Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string  maxYear);
         Task<List<Genre>> getGenre();
         Task<int> GetMinYear();
+        Task StoreMovieGenresAsync(int movieId, List<TmdbGenre> genres);
     }
 
     public class DatabaseService : IDatabaseService
@@ -145,23 +146,26 @@ namespace Nostromo.Server.Services
         {
             try
             {
-                var genre = new Genre
-                {
-                    GenreID = genreModel.id,
-                    Name = genreModel.name
-                };
+                var existingGenre = await _context.Genres
+                    .FirstOrDefaultAsync(g => g.GenreID == genreModel.id && g.Name == genreModel.name);
 
-                var existingGenre = await _context.Genres.FindAsync(genre.GenreID);
                 if (existingGenre == null)
                 {
+                    var genre = new Genre
+                    {
+                        GenreID = genreModel.id,
+                        Name = genreModel.name
+                    };
+
                     await _context.Genres.AddAsync(genre);
                     await _context.SaveChangesAsync();
-                    _logger.LogInformation("Successfully inserted genre: {Name} (ID: {Id})", genre.Name, genre.GenreID);
+
+                    _logger.LogInformation("Successfully inserted genre: {Name} (TMDB ID: {Id})", genre.Name, genre.GenreID);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error inserting genre {Name} (ID: {Id})", genreModel.name, genreModel.id);
+                _logger.LogError(ex, "Error inserting genre {Name} (TMDB ID: {Id})", genreModel.name, genreModel.id);
                 throw;
             }
         }
@@ -526,7 +530,6 @@ namespace Nostromo.Server.Services
                     MediaType = "movie",
                     Adult = recommendation.adult,
                     OriginalLanguage = recommendation.OriginalLanguage,
-                    GenreIds = string.Join(",", recommendation.genreIds),
                     Popularity = recommendation.popularity,
                     ReleaseDate = recommendation.releaseDate,
                     Video = recommendation.video,
@@ -540,6 +543,32 @@ namespace Nostromo.Server.Services
                 if (existingRecommendation == null)
                 {
                     await _context.Recommendations.AddAsync(recommendationEntity);
+                    await _context.SaveChangesAsync();
+
+                    foreach (var genre in recommendation.genreIds ?? new List<TmdbGenre>())
+                    {
+                        var existingGenre = await _context.Genres
+                            .FirstOrDefaultAsync(g => g.GenreID == genre.id && g.Name == genre.name);
+
+                        if (existingGenre == null)
+                        {
+                            existingGenre = new Genre
+                            {
+                                GenreID = genre.id,
+                                Name = genre.name
+                            };
+                            _context.Genres.Add(existingGenre);
+                            await _context.SaveChangesAsync();
+                        }
+
+                        _context.Add(new RecommendationGenre
+                        {
+                            RecommendationID = recommendationEntity.RecommendationID,
+                            GenreID = genre.id,
+                            Name = genre.name
+                        });
+                    }
+
                     await _context.SaveChangesAsync();
 
                     _logger.LogInformation("Stored TMDB recommendation: {Title} (ID: {Id})", recommendation.title, recommendation.id);
@@ -741,5 +770,22 @@ namespace Nostromo.Server.Services
                 .ToList();
             return genreCounts
         }*/
+
+        public async Task StoreMovieGenresAsync(int movieId, List<TmdbGenre> genres)
+        {
+            foreach (var genre in genres)
+            {
+                var movieGenre = new MovieGenre
+                {
+                    MovieID = movieId,
+                    GenreID = genre.id,
+                    Name = genre.name
+                };
+
+                _context.MovieGenres.Add(movieGenre);
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }
