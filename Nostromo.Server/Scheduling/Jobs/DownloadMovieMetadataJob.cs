@@ -5,6 +5,7 @@ using Nostromo.Server.Scheduling.Jobs;
 using Nostromo.Server.Services;
 using Quartz;
 using System;
+using System.Text.Json;
 using NHibernate.Hql.Ast;
 
 [DisallowConcurrentExecution]
@@ -211,8 +212,18 @@ public class DownloadMovieMetadataJob : BaseJob
                     {
 
                         var epCreditsWrapper = await _tmdbService.GetTvEpisodeCreditsAsync(mediaID.Value, seasonNum.Value, episodeNum.Value);
-
+                        
                         var showCreditsWrapper = await _tmdbService.GetTvShowCreditsAsync(mediaID.Value);
+                        
+                        _logger.LogInformation("Episode Credits for Show ID {ShowId}, Season {Season}, Episode {Episode}: {@EpisodeCredits}", mediaID.Value, seasonNum.Value, episodeNum.Value, epCreditsWrapper);
+                        _logger.LogInformation("Show Credits for Show ID {ShowId}: {@ShowCredits}", mediaID.Value, showCreditsWrapper);
+                        
+                        _logger.LogInformation("Episode Crew (First 10):\n{Crew}",
+                            JsonSerializer.Serialize(epCreditsWrapper?.Crew?.Take(10), new JsonSerializerOptions { WriteIndented = true }));
+
+                        _logger.LogInformation("Show Crew (First 10):\n{Crew}",
+                            JsonSerializer.Serialize(showCreditsWrapper?.Crew?.Take(10), new JsonSerializerOptions { WriteIndented = true }));
+
 
                         if (epCreditsWrapper?.Cast != null)
                         {
@@ -222,7 +233,7 @@ public class DownloadMovieMetadataJob : BaseJob
                             _logger.LogInformation("Successfully processed and stored cast for Tv Show ID {ShowId}",
                                 mediaID.Value);
 
-                            await _databaseService.StoreMovieCastAsync(episodeResponse.EpisodeID, epCreditsWrapper.Cast, false, false, true);
+                            await _databaseService.StoreMovieCastAsync(episodeIdHolder, epCreditsWrapper.Cast, false, false, true);
 
                             _logger.LogInformation("Successfully processed and stored cast for Tv Episode ID {EpisodeId}",
                                 episodeIdHolder);
@@ -232,7 +243,7 @@ public class DownloadMovieMetadataJob : BaseJob
                             _logger.LogInformation("Successfully processed and stored crew for Tv Show ID {ShowId}",
                                 mediaID.Value);
 
-                            await _databaseService.StoreMovieCrewAsync(episodeResponse.EpisodeID, epCreditsWrapper.Crew, false, false, true);
+                            await _databaseService.StoreMovieCrewAsync(episodeIdHolder, epCreditsWrapper.Crew, false, false, true);
 
                             _logger.LogInformation("Successfully processed and stored crew for Tv Episode ID {EpisodeId}",
                                 episodeIdHolder);

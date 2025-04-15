@@ -19,41 +19,41 @@ namespace Nostromo.Server.API.Controllers
             _databaseService = databaseService;
         }
 
-        [HttpGet("cast/{movieId}")]
+        [HttpGet("cast/{mediaType}/{mediaId}")]
         [ProducesResponseType(typeof(SuccessResponse<IEnumerable<TmdbCastMember>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IResult> GetCastByMovieId(int movieId)
+        public async Task<IResult> GetCastByMediaId(int mediaId, string mediaType)
         {
-            if (movieId <= 0)
+            if (mediaId <= 0)
             {
                 return ApiResults.BadRequest("Invalid movie ID.");
             }
 
-            var cast = await _databaseService.GetCastByMovieIdAsync(movieId);
+            var cast = await _databaseService.GetCastByMediaIdAsync(mediaId, mediaType);
 
             if (cast == null || cast.Count == 0)
             {
-                return ApiResults.NotFound($"No cast found for movie ID {movieId}.");
+                return ApiResults.NotFound($"No cast found for {mediaType} ID {mediaId}.");
             }
 
             return ApiResults.SuccessCollection(cast);
         }
 
-        [HttpGet("crew/{movieId}")]
+        [HttpGet("crew/{mediaType}/{mediaId}")]
         [ProducesResponseType(typeof(SuccessResponse<IEnumerable<TmdbCrewMember>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IResult> GetCrewByMovieId(int movieId)
+        public async Task<IResult> GetCrewByMovieId(int mediaId, string mediaType)
         {
-            if (movieId <= 0)
+            if (mediaId <= 0)
             {
-                return ApiResults.BadRequest("Invalid movie ID.");
+                return ApiResults.BadRequest($"Invalid {mediaType} ID.");
             }
 
-            var crew = await _databaseService.GetCrewByMovieIdAsync(movieId);
+            var crew = await _databaseService.GetCrewByMediaIdAsync(mediaId, mediaType);
 
             if (crew == null || crew.Count == 0)
             {
-                return ApiResults.NotFound($"No crew found for movie ID {movieId}.");
+                return ApiResults.NotFound($"No crew found for {mediaType} ID {mediaId}.");
             }
 
             return ApiResults.SuccessCollection(crew);

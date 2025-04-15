@@ -35,7 +35,7 @@ namespace Nostromo.Server.API.Controllers
             {
                 if (!Enum.TryParse<MediaTypes>(mediaType, true, out var parsedMediaType))
                 {
-                    return ApiResults.BadRequest("Invalid media type: Allowed values are: movie, tvshow, season and episode");
+                    return ApiResults.BadRequest("Invalid media type: Allowed values are: movie, tv, season and episode");
                 }
                 var scheduler = await _schedulerFactory.GetScheduler();
                 var jobKey = new JobKey($"DownloadPoster_{mediaType}_{mediaId}", "TmdbDownloads");

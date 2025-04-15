@@ -6,6 +6,7 @@ using Nostromo.Server.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
+using Nostromo.Server.API.Enums;
 
 namespace Nostromo.Server.Services
 {
@@ -26,8 +27,8 @@ namespace Nostromo.Server.Services
         Task<bool> CheckCrossRefExistsAsync(int videoID, int tmdbMovieID);
         Task StoreMovieCastAsync(int movieId, List<TmdbCastMember> cast, bool isMovie, bool isTvShow, bool isTvEpisode);
         Task StoreMovieCrewAsync(int movieId, List<TmdbCrewMember> crew, bool isMovie, bool isTvShow, bool isTvEpisode);
-        Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int? movieId = null, int? tvShowId = null, int? episodeId = null);
-        Task<List<TmdbCrewMember>> GetCrewByMovieIdAsync(int movieId);
+        Task<List<TmdbCastMember>> GetCastByMediaIdAsync(int mediaId, string mediaType);
+        Task<List<TmdbCrewMember>> GetCrewByMediaIdAsync(int mediaId, string mediaType);
         Task<DateTime> GetCreatedAtByVideoIdAsync(int? videoId);
         Task<Video?> GetVideoByIdAsync(int videoId);
         Task MarkVideoAsUnrecognizedAsync(int? videoId);
@@ -459,21 +460,21 @@ namespace Nostromo.Server.Services
             _logger.LogInformation("Stored {Count} crew members for {MediaType} ID {MovieId}", mediaType, crew.Count, movieId);
         }
 
-        public async Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int? movieId = null, int? tvShowId = null, int? episodeId = null)
+        public async Task<List<TmdbCastMember>> GetCastByMediaIdAsync(int mediaId, string mediaType)
         {
             var query = _context.MovieCasts.AsQueryable();
 
-            if (movieId.HasValue)
+            if (mediaType == "movie")
             {
-                query = query.Where(mc => mc.TMDBMovieID == movieId);
+                query = query.Where(mc => mc.TMDBMovieID == mediaId);
             }
-            else if (tvShowId.HasValue)
+            else if (mediaType == "tv")
             {
-                query = query.Where(mc => mc.TMDBTvShowID == tvShowId);
+                query = query.Where(mc => mc.TMDBTvShowID == mediaId);
             }
-            else if (episodeId.HasValue)
+            else if (mediaType == "tvshow")
             {
-                query = query.Where(mc => mc.TMDBTvEpisodeID == episodeId);
+                query = query.Where(mc => mc.TMDBTvEpisodeID == mediaId);
             }
             else
             {
@@ -500,10 +501,27 @@ namespace Nostromo.Server.Services
         }
 
 
-        public async Task<List<TmdbCrewMember>> GetCrewByMovieIdAsync(int movieId)
+        public async Task<List<TmdbCrewMember>> GetCrewByMediaIdAsync(int mediaId, string mediaType)
         {
-            return await _context.MovieCrews
-                .Where(mc => mc.TMDBMovieID == movieId)
+            var query = _context.MovieCrews.AsQueryable();
+            _logger.LogInformation("Mediatype fot Crew is {mediaType}");
+            if (mediaType == "movie")
+            {
+                query = query.Where(mc => mc.TMDBMovieID == mediaId);
+            }
+            else if (mediaType == "tv")
+            {
+                query = query.Where(mc => mc.TMDBTvShowID == mediaId);
+            }
+            else if (mediaType == "tvshow")
+            {
+                query = query.Where(mc => mc.TMDBTvEpisodeID == mediaId);
+            }
+            else
+            {
+                return new List<TmdbCrewMember>(); // No valid ID provided
+            }
+            return await query
                 .Select(mc => new TmdbCrewMember
                 {
                     id = mc.Id,
