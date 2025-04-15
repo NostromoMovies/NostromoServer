@@ -35,7 +35,10 @@ public class DownloadDirectMovieMetadataJob : BaseJob
 
     public override async Task ProcessJob()
     {
+        //get hash value
         var fileHash = Context.JobDetail.JobDataMap.GetString(HASH_KEY);
+        
+        //check if hash value is null or empty, if it is -- break
         if (string.IsNullOrWhiteSpace(fileHash))
         {
             _logger.LogError("File hash is missing or invalid for metadata download.");
@@ -46,6 +49,7 @@ public class DownloadDirectMovieMetadataJob : BaseJob
 
         try
         {
+            
             var videoId = await _databaseService.GetVideoIdByHashAsync(fileHash);
             if (videoId == null)
             {
@@ -74,7 +78,8 @@ public class DownloadDirectMovieMetadataJob : BaseJob
             while (retryCount < 10)
             {
                 await Task.Delay(500);
-                var verifyInsertion = await _databaseService.GetMovieIdByHashAsync(fileHash);
+                var (verifyInsertion, _, _) = await _databaseService.GetMovieIdByHashAsync(fileHash);
+                
                 if (verifyInsertion != null)
                 {
                     _logger.LogInformation("Confirmed ExampleHash insertion for {Hash}", fileHash);
@@ -88,9 +93,9 @@ public class DownloadDirectMovieMetadataJob : BaseJob
                 var creditsWrapper = await _tmdbService.GetMovieCreditsAsync(movieId);
                 if (creditsWrapper?.Cast != null)
                 {
-                    await _databaseService.StoreMovieCastAsync(movieId, creditsWrapper.Cast);
+                    await _databaseService.StoreMovieCastAsync(movieId, creditsWrapper.Cast, true, false, false);
                     _logger.LogInformation("Stored cast for movie ID {MovieId}", movieId);
-                    await _databaseService.StoreMovieCrewAsync(movieId, creditsWrapper.Crew);
+                    await _databaseService.StoreMovieCrewAsync(movieId, creditsWrapper.Crew, true, false, false);
                     _logger.LogInformation("Stored crew for movie ID {MovieId}", movieId);
                 }
             }

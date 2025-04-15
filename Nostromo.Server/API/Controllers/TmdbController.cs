@@ -29,12 +29,14 @@ public class TmdbController : ControllerBase
         return ApiResults.Success(movie);
     }
 
-    [HttpGet("movie/{id}/images")]
-    public async Task<IResult> GetMovieImagesById(int id)
+    [HttpGet("media/{mediaType}/{id}/images")]
+    public async Task<IResult> GetMediaImagesById(string mediaType, int id, int? seasonNumber = null, int? episodeNumber = null)
     {
-        var images = await _tmdbService.GetMovieImagesById(id);
+        var images = await _tmdbService.GetMediaImagesById(mediaType, id, seasonNumber, episodeNumber);
         return ApiResults.Success(images);
     }
+    
+    
 
     [HttpGet("movie_runtime/{id}")]
     public async Task<IResult> GetMovieRuntime(int id)
@@ -91,6 +93,21 @@ public class TmdbController : ControllerBase
     [ProducesResponseType(typeof(SuccessResponse<TmdbRecommendationsResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IResult> GetMovieRecommendations(int id)
+    {
+        var recommendations = await _tmdbService.GetRecommendation(id);
+
+        if (recommendations == null || recommendations.Results == null || !recommendations.Results.Any())
+        {
+            return ApiResults.NotFound($"No recommendations found for movie ID: {id}");
+        }
+
+        return ApiResults.Success(recommendations);
+    }
+    
+    [HttpGet("getTvRecommendation/{id}")]
+    [ProducesResponseType(typeof(SuccessResponse<TmdbRecommendationsResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IResult> GetTvRecommendations(int id)
     {
         var recommendations = await _tmdbService.GetRecommendation(id);
 

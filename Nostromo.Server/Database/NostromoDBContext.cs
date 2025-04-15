@@ -4,7 +4,10 @@ using Nostromo.Server.Utilities;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Net.Mime;
+using Microsoft.Extensions.Caching.Memory;
 using Nostromo.Models;
+using Nostromo.Server.API.Models;
 
 using Nostromo.Server.Services;
 
@@ -32,7 +35,14 @@ namespace Nostromo.Server.Database
         public DbSet<TMDBRecommendation> Recommendations { get; set; }
         public DbSet<MovieGenre> MovieGenres { get; set; }
 
-
+        public DbSet<TvShow> TvShows { get; set; }
+        
+        public DbSet<Episode> Episodes { get; set; }
+        
+        public DbSet<Season> Seasons { get; set; }
+        
+        public DbSet<TvRecommendation> TvRecommendations { get; set; }
+        public DbSet<MediaType> MediaTypes { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TMDBMovie>(entity =>
@@ -152,29 +162,42 @@ namespace Nostromo.Server.Database
             {
                 entity.HasKey(e => e.TMDBMovieCastID);
 
-                entity.Property(e => e.TMDBMovieID)
-                        .IsRequired();
-
                 entity.Property(e => e.TMDBPersonID)
-                        .IsRequired();
+                    .IsRequired();
+
+                entity.Property(e => e.TmdbCastMemberId) 
+                    .IsRequired(false);
 
                 entity.Property(e => e.CreditID)
-                        .HasMaxLength(50)
-                        .IsRequired(false);
+                    .HasMaxLength(50)
+                    .IsRequired(false);
 
                 entity.Property(e => e.Order)
-                        .IsRequired(false);
+                    .IsRequired(false);
 
                 entity.HasOne<TMDBPerson>()
-                        .WithMany()
-                        .HasForeignKey(e => e.TMDBPersonID)
-                        .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany()
+                    .HasForeignKey(e => e.TMDBPersonID)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne<TMDBMovie>()
-                        .WithMany()
-                        .HasForeignKey(e => e.TMDBMovieID)
-                        .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany()
+                    .HasForeignKey(e => e.TMDBMovieID)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne<TvShow>()
+                    .WithMany()
+                    .HasForeignKey(e => e.TMDBTvShowID)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasOne<Episode>()
+                    .WithMany()
+                    .HasForeignKey(e=>e.TMDBTvEpisodeID)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
             });
+
+
 
             modelBuilder.Entity<TMDBMovieCrew>(entity =>
             {
@@ -199,6 +222,16 @@ namespace Nostromo.Server.Database
                         .WithMany()
                         .HasForeignKey(e => e.TMDBMovieID)
                         .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasOne<TvShow>()
+                    .WithMany()
+                    .HasForeignKey(e => e.TMDBTvShowID)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasOne<Episode>()
+                    .WithMany()
+                    .HasForeignKey(e=>e.TMDBTvEpisodeID)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<TMDBPerson>(entity =>
@@ -265,6 +298,8 @@ namespace Nostromo.Server.Database
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.TmdbId);
+                entity.Property(e => e.EpisodeNo);
+                entity.Property(e => e.SeasonNo);
                 entity.Property(e => e.Title);
                 entity.Property(e => e.ED2K);
 
@@ -282,14 +317,23 @@ namespace Nostromo.Server.Database
                         Id = 2,
                         Title = "Aliens",
                         TmdbId = 679,
-                        ED2K = "da1a506c0ee1fe6c46ec64fd57faa924"
+                        ED2K = "ee4a746481ec4a6a909943562aefe86a"
                     },
                     new ExampleHash
                     {
                         Id = 3,
                         Title = "Alien 3",
                         TmdbId = 8077,
-                        ED2K = "b33d9c30eb480eca99e82dbbab3aad0e"
+                        ED2K = "57a4a50f53149b9b0c1e1db3e66d2e9c"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 4,
+                        Title = "The Blacklist",
+                        TmdbId = 46952,
+                        EpisodeNo = 1,
+                        SeasonNo = 1,
+                        ED2K = "a413da8e3e3bb02237795b2dc9e06b8d"
                     }
                 );
             });
@@ -365,10 +409,9 @@ namespace Nostromo.Server.Database
             BackdropPath = apiMovie.backdropPath;
             CreatedAt = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             LastUpdatedAt = DateTime.UtcNow;
-        }
+            MediaType.MediaTypeName = "Movie";
+            MediaType.MediaTmDBID = MovieID;
 
-        public TMDBMovie()
-        {
         }
 
         public int MovieID { get; set; }
@@ -392,6 +435,13 @@ namespace Nostromo.Server.Database
         public int CreatedAt { get; set; }
         public DateTime LastUpdatedAt { get; set; }
         public virtual ICollection<Genre> Genres { get; set; } = new List<Genre>();
+        
+        public MediaType MediaType { get; set; } = new MediaType();
+        
+        public TMDBMovie()
+        {
+            
+        }
     }
 
     public class Genre
@@ -466,26 +516,35 @@ namespace Nostromo.Server.Database
     public class TMDBMovieCast
     {
         public int TMDBMovieCastID { get; set; }
-        public int TMDBMovieID { get; set; }
+        public int? TMDBMovieID { get; set; }
+        public int? TMDBTvShowID { get; set; }
+        
+        public int? TMDBTvEpisodeID { get; set; }
         public int TMDBPersonID { get; set; }
         public bool Adult { get; set; }
         public int Gender { get; set; }
-        public int Id { get; set; }
+        
+        public int? TmdbCastMemberId { get; set; }  
         public string? KnownForDepartment { get; set; }
         public string? Name { get; set; }
         public string? OriginalName { get; set; }
         public double Popularity { get; set; }
         public string? ProfilePath { get; set; }
-        public int CastId { get; set; }
+        public int? CastId { get; set; }
         public string? Character { get; set; }
         public string? CreditID { get; set; }
         public int? Order { get; set; }
     }
+    
 
     public class TMDBMovieCrew
     {
         public int TMDBMovieCrewID { get; set; }
-        public int TMDBMovieID { get; set; }
+        public int? TMDBMovieID { get; set; }
+        
+        public int? TMDBTvShowID { get; set; }
+        
+        public int? TMDBTvEpisodeID { get; set; }
         public int TMDBPersonID { get; set; }
         public bool Adult { get; set; }
         public int Gender { get; set; }
@@ -547,6 +606,10 @@ namespace Nostromo.Server.Database
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int TmdbId { get; set; }
+        
+        public int? SeasonNo { get; set; }
+        
+        public int? EpisodeNo { get; set; }
 
         public string Title { get; set; }
 
@@ -583,6 +646,199 @@ namespace Nostromo.Server.Database
 
         public virtual ICollection<RecommendationGenre> Genres { get; set; } = new List<RecommendationGenre>();
         public virtual TMDBMovie Movie { get; set; }
+    }
+
+
+    public class TvRecommendation
+    {
+        
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int RecommendationID { get; set; }
+
+        [Required]
+        public int Id { get; set; }
+
+        [Required]
+        public int ShowId { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+        
+        public bool Adult { get; set; }
+        
+        public string BackdropPath { get; set; }
+        
+        public string OriginalName { get; set; }
+        
+        public string Overview { get; set; }
+        
+        public string PosterPath { get; set; }
+        
+        public string MediaType { get; set; }
+        
+        public List<Genre> Genres { get; set; }
+        
+        public double Popularity { get; set; }
+        
+        public string firstAirDate { get; set; }
+        
+        public double VoteAverage { get; set; }
+        
+        public int VoteCount { get; set; }
+        
+        public virtual TvShow TvShow { get; set; }
+        
+    }
+    public class TvShow
+    {
+        public TvShow(TmdbTvResponse api)
+        {
+            TvShowID = api.Id;
+            Seasons = api.Seasons?.ConvertAll(season => new Season(season, TvShowID)) ?? new List<Season>();
+            Adult = api.Adult;
+            OriginalLanguage = api.OriginalLanguage;
+            OriginalName = api.OriginalName;
+            Overview = api.Overview ?? "";
+            Popularity = api.Popularity ?? 0.0;
+            PosterPath = api.PosterPath;
+            BackdropPath = api.BackdropPath;
+            VoteAverage = api.VoteAverage ?? 0.0;
+            VoteCount = api.VoteCount ?? 0;
+            MediaType.MediaTypeName = "TvShow";
+            MediaType.MediaTmDBID = TvShowID;
+
+        }
+
+        [Key]
+        public int TvShowID { get; set; }
+        
+        public bool Adult { get; set; }
+        
+        public string OriginalLanguage { get; set; }
+        
+        public string OriginalName { get; set; }
+        
+        public string Overview { get; set; }
+        
+        public double Popularity { get; set; }
+        
+        public string? PosterPath { get; set; }
+        
+        public string? BackdropPath { get; set; }
+        
+        public string? FirstAirDate { get; set; }
+        
+        public double VoteAverage { get; set; }
+
+        public int VoteCount { get; set; }
+        
+        public List<Season> Seasons { get; set; }
+        
+        public MediaType MediaType { get; set; } = new MediaType();
+        public TvShow(){
+        }
+        
+    }
+
+    public class Season
+    {
+        public Season(TmdbTvSeasonResponse api, int tvShowId)
+        {
+            SeasonID = api.SeasonID;
+            TvShowID = tvShowId;
+            seasonName = api.seasonName;
+            SeasonNumber = api.SeasonNumber;
+            Airdate = api.Airdate;
+            EpisodeCount = api.EpisodeCount;
+            Overview = api.Overview;
+            PosterPath = api.PosterPath;
+            VoteAverage = api.VoteAverage;
+        }
+        
+        public Season(){}
+        [Key]
+        public int SeasonID { get; set; }
+        
+        [ForeignKey("TvShow")]
+        public int TvShowID { get; set; }
+        
+        public string seasonName { get; set; }
+        
+        public virtual TvShow TvShow { get; set; }
+        
+        public int SeasonNumber { get; set; }
+        
+        public string Airdate { get; set; }
+        
+        public int EpisodeCount { get; set; }
+        
+        public string Overview { get; set; }
+        
+        public string PosterPath { get; set; }
+        
+        public double VoteAverage { get; set; }
+        
+        //public virtual ICollection<Episode> Episodes { get; set; } = new List<Episode>();
+    }
+
+    public class Episode
+    {
+        public Episode(TmdbTvEpisodeResponse api, int seasonID, int episodeNum)
+        {
+            EpisodeID = api.EpisodeID;
+            SeasonID = seasonID;
+            EpisodeNumber = episodeNum;
+            EpisodeName = api.EpisodeName;
+            Airdate = api.Airdate;
+            Overview = api.Overview;
+            SeasonNumber = api.SeasonNumber;
+            Runtime = api.Runtime;
+            VoteAverage = api.VoteAverage;
+            VoteCount = api.VoteCount;
+            StillPath = api.StillPath;
+        }
+
+        public Episode()
+        {
+            
+        }
+        [Key]
+        public int EpisodeID { get; set; }
+        
+        [ForeignKey("Season")]
+        public int SeasonID { get; set; }
+        public virtual Season Season { get; set; }
+        
+        public string EpisodeName { get; set; }
+        
+        public int EpisodeNumber { get; set; } 
+        
+        public string Airdate { get; set; }
+        
+        public string Overview { get; set; }
+        
+        public int SeasonNumber { get; set; }
+        
+        public int Runtime { get; set; }
+        
+        public double VoteAverage { get; set; }
+        
+        public int VoteCount { get; set; }
+        
+        public string StillPath { get; set; }
+        
+    }
+
+    public class MediaType
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)] 
+        public int MediaTmDBID { get; set; }
+
+        [Required]
+        public string MediaTypeName { get; set; }
+        
     }
 
     public class RecommendationGenre

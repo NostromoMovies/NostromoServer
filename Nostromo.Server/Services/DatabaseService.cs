@@ -17,16 +17,16 @@ namespace Nostromo.Server.Services
         //Task<User> FindUserByUsernameAsync(string username);
         //Task CreateUserAsync(User userModel);
         Task<List<TMDBMovie>> SearchMoviesAsync(string title);
-        Task<int?> GetMovieIdByHashAsync(string hash);
+        Task<(int? tmdbId, int? seasonNum, int? episodeNum)> GetMovieIdByHashAsync(string hash);
         Task<int?> GetVideoIdByHashAsync(string fileHash);
         Task InsertCrossRefAsync(CrossRefVideoTMDBMovie crossRefModel);
         Task<List<TMDBMovie>> GetFilterMediaGenre(List<int> genresID);
         Task<List<TMDBMovie>> movieRatingsSorted();
         Task<List<Video>> GetAllVideosAsync();
         Task<bool> CheckCrossRefExistsAsync(int videoID, int tmdbMovieID);
-        Task StoreMovieCastAsync(int movieId, List<TmdbCastMember> cast);
-        Task StoreMovieCrewAsync(int movieId, List<TmdbCrewMember> crew);
-        Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int movieId);
+        Task StoreMovieCastAsync(int movieId, List<TmdbCastMember> cast, bool isMovie, bool isTvShow, bool isTvEpisode);
+        Task StoreMovieCrewAsync(int movieId, List<TmdbCrewMember> crew, bool isMovie, bool isTvShow, bool isTvEpisode);
+        Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int? movieId = null, int? tvShowId = null, int? episodeId = null);
         Task<List<TmdbCrewMember>> GetCrewByMovieIdAsync(int movieId);
         Task<DateTime> GetCreatedAtByVideoIdAsync(int? videoId);
         Task<Video?> GetVideoByIdAsync(int videoId);
@@ -35,11 +35,16 @@ namespace Nostromo.Server.Services
         Task<List<Video>> GetAllUnrecognizedVideosAsync();
         Task InsertExampleHashAsync(string ed2kHash, int tmdbId, string title);
         Task StoreTmdbRecommendationsAsync(int movieId, TmdbRecommendation recommendation);
+        
+        Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
+        Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy);
+        Task<TvShow> GetTvShowAsync(int id);
         Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string  maxYear);
         Task<List<Genre>> getGenre();
         Task<int> GetMinYear();
         Task StoreMovieGenresAsync(int movieId, List<TmdbGenre> genres);
+
     }
 
     public class DatabaseService : IDatabaseService
@@ -48,20 +53,26 @@ namespace Nostromo.Server.Services
         private readonly IUserRepository _userRepository;
         private readonly NostromoDbContext _context;
         private readonly ILogger<DatabaseService> _logger;
+        private readonly ITvShowRepository _tvShowRepository;
+        private readonly ITvEpisodeRepository _tvEpisodeRepository;
 
         public DatabaseService(
             IMovieRepository movieRepository,
             //IUserRepository userRepository,
             NostromoDbContext context,
-            ILogger<DatabaseService> logger)
+            ILogger<DatabaseService> logger,
+            ITvShowRepository tvShowRepository,
+            ITvEpisodeRepository tvEpisodeRepository)
         {
             _movieRepository = movieRepository;
             //_userRepository = userRepository;
             _context = context;
             _logger = logger;
+            _tvShowRepository = tvShowRepository;
+            _tvEpisodeRepository = tvEpisodeRepository;
         }
 
-        public async Task<int?> GetMovieIdByHashAsync(string hash)
+        public async Task<(int?, int?, int?)> GetMovieIdByHashAsync(string hash)
         {
             // Log the input hash
             _logger.LogInformation("Searching for MovieID with hash: {InputHash}", hash);
@@ -81,7 +92,7 @@ namespace Nostromo.Server.Services
                 _logger.LogWarning("No matching hash found for: {InputHash}", hash);
             }
 
-            return exampleHash?.TmdbId; // Return null if not found
+            return (exampleHash?.TmdbId, exampleHash?.SeasonNo, exampleHash?.EpisodeNo); // Return null if not found
         }
 
         public async Task<int?> GetVideoIdByHashAsync(string fileHash)
@@ -95,6 +106,11 @@ namespace Nostromo.Server.Services
         public async Task<TMDBMovie> GetMovieAsync(int id)
         {
             return await _movieRepository.GetByIdAsync(id);
+        }
+        
+        public async Task<TvShow> GetTvShowAsync(int id)
+        {
+            return await _tvShowRepository.GetByIdAsync(id);
         }
 
         //public async Task InsertMovieAsync(TmdbMovieResponse movieModel)
@@ -285,17 +301,44 @@ namespace Nostromo.Server.Services
                 .AnyAsync(x => x.VideoID == videoID && x.TMDBMovieID == tmdbMovieID);
         }
 
-        public async Task StoreMovieCastAsync(int movieId, List<TmdbCastMember> cast)
+        public async Task StoreMovieCastAsync(int mediaId, List<TmdbCastMember> cast, bool isMovie, bool isTvShow, bool isTvEpisode)
         {
-            var movie = await _context.Movies.FirstOrDefaultAsync(m => m.MovieID == movieId);
-            if (movie == null)
+            // Determine whether it's a movie, TV show, or episode
+            TMDBMovie? movie = null;
+            TvShow? tvShow = null;
+            Episode? episode = null;
+
+            if (isMovie)
             {
-                _logger.LogWarning("Movie with ID {MovieId} not found in database, skipping cast storage", movieId);
-                return;
+                movie = await _context.Movies.FirstOrDefaultAsync(m => m.MovieID == mediaId);
+                if (movie == null)
+                {
+                    _logger.LogWarning("Movie with ID {MediaId} not found in database, skipping cast storage", mediaId);
+                    return;
+                }
+            }
+            else if (isTvShow)
+            {
+                tvShow = await _context.TvShows.FirstOrDefaultAsync(t => t.TvShowID == mediaId);
+                if (tvShow == null)
+                {
+                    _logger.LogWarning("TV Show with ID {MediaId} not found in database, skipping cast storage", mediaId);
+                    return;
+                }
+            }
+            else if (isTvEpisode)
+            {
+                episode = await _context.Episodes.FirstOrDefaultAsync(e => e.EpisodeID == mediaId);
+                if (episode == null)
+                {
+                    _logger.LogWarning("TV Episode with ID {MediaId} not found in database, skipping cast storage", mediaId);
+                    return;
+                }
             }
 
             foreach (var castMember in cast)
             {
+                // Check if the person already exists
                 var tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == castMember.id);
                 if (tmdbPerson == null)
                 {
@@ -311,13 +354,16 @@ namespace Nostromo.Server.Services
                     await _context.SaveChangesAsync();
                 }
 
+                // Create cast record
                 var movieCast = new TMDBMovieCast
                 {
                     TMDBPersonID = tmdbPerson.TMDBPersonID,
-                    TMDBMovieID = movie.MovieID,
+                    TMDBMovieID = isMovie ? movie?.MovieID : null,
+                    TMDBTvShowID = isTvShow ? tvShow?.TvShowID : null,
+                    TMDBTvEpisodeID = isTvEpisode ? episode?.EpisodeID : null,
                     Adult = castMember.adult,
                     Gender = castMember.gender,
-                    Id = castMember.id,
+                    TmdbCastMemberId = castMember.id != 0 ? castMember.id : null,
                     KnownForDepartment = castMember.known_for_department,
                     Name = castMember.name,
                     OriginalName = castMember.original_name,
@@ -333,18 +379,47 @@ namespace Nostromo.Server.Services
             }
 
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Stored {Count} cast members for movie ID {MovieId}", cast.Count, movieId);
+            _logger.LogInformation("Stored {Count} cast members for {MediaType} ID {MediaId}", cast.Count, isMovie ? "Movie" : isTvShow ? "TV Show" : "TV Episode", mediaId);
         }
 
-        public async Task StoreMovieCrewAsync(int movieId, List<TmdbCrewMember> crew)
-        {
-            var movie = await _context.Movies.FirstOrDefaultAsync(m => m.MovieID == movieId);
-            if (movie == null)
-            {
-                _logger.LogWarning("Movie with ID {MovieId} not found in database, skipping cast storage", movieId);
-                return;
-            }
 
+        public async Task StoreMovieCrewAsync(int movieId, List<TmdbCrewMember> crew, bool isMovie, bool isTvShow, bool isTvEpisode)
+        {
+            TMDBMovie? movie = null;
+            TvShow? tvShow = null;
+            Episode? episode = null;
+            var mediaType = "";
+            if (isMovie)
+            {
+                movie = await _context.Movies.FirstOrDefaultAsync(m => m.MovieID == movieId);
+                mediaType = "Movie";
+                if (movie == null)
+                {
+                    _logger.LogWarning("Movie with ID {MediaId} not found in database, skipping cast storage", movieId);
+                    return;
+                }
+            }
+            else if (isTvShow)
+            {
+                tvShow = await _context.TvShows.FirstOrDefaultAsync(t => t.TvShowID == movieId);
+                mediaType = "TV Show";
+                if (tvShow == null)
+                {
+                    _logger.LogWarning("TV Show with ID {MediaId} not found in database, skipping cast storage", movieId);
+                    return;
+                }
+            }
+            else if (isTvEpisode)
+            {
+                episode = await _context.Episodes.FirstOrDefaultAsync(e => e.EpisodeID == movieId);
+                mediaType = "TV Episode";
+                if (episode == null)
+                {
+                    _logger.LogWarning("TV Episode with ID {MediaId} not found in database, skipping cast storage", movieId);
+                    return;
+                }
+            }
+            _logger.LogInformation("Creating new crew for {MediaType} ID {MediaId}", mediaType, movieId);
             foreach (var crewMember in crew)
             {
                 var tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == crewMember.id);
@@ -365,7 +440,9 @@ namespace Nostromo.Server.Services
                 var movieCrew = new TMDBMovieCrew
                 {
                     TMDBPersonID = tmdbPerson.TMDBPersonID,
-                    TMDBMovieID = movie.MovieID,
+                    TMDBMovieID = isMovie ? movie?.MovieID: null,
+                    TMDBTvShowID = isTvShow ? tvShow?.TvShowID : null,
+                    TMDBTvEpisodeID = isTvEpisode ? episode?.EpisodeID : null,
                     Adult = crewMember.adult,
                     Gender = crewMember.gender,
                     Id = crewMember.id,
@@ -383,16 +460,34 @@ namespace Nostromo.Server.Services
             }
 
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Stored {Count} cast members for movie ID {MovieId}", crew.Count, movieId);
+            _logger.LogInformation("Stored {Count} crew members for {MediaType} ID {MovieId}", mediaType, crew.Count, movieId);
         }
 
-        public async Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int movieId)
+        public async Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int? movieId = null, int? tvShowId = null, int? episodeId = null)
         {
-            return await _context.MovieCasts
-                .Where(mc => mc.TMDBMovieID == movieId)
+            var query = _context.MovieCasts.AsQueryable();
+
+            if (movieId.HasValue)
+            {
+                query = query.Where(mc => mc.TMDBMovieID == movieId);
+            }
+            else if (tvShowId.HasValue)
+            {
+                query = query.Where(mc => mc.TMDBTvShowID == tvShowId);
+            }
+            else if (episodeId.HasValue)
+            {
+                query = query.Where(mc => mc.TMDBTvEpisodeID == episodeId);
+            }
+            else
+            {
+                return new List<TmdbCastMember>(); // No valid ID provided
+            }
+
+            return await query
                 .Select(mc => new TmdbCastMember
                 {
-                    id = mc.Id,
+                    id = mc.TmdbCastMemberId ?? 0,  // Ensure non-null values
                     name = mc.Name,
                     original_name = mc.OriginalName,
                     character = mc.Character,
@@ -407,6 +502,7 @@ namespace Nostromo.Server.Services
                 })
                 .ToListAsync();
         }
+
 
         public async Task<List<TmdbCrewMember>> GetCrewByMovieIdAsync(int movieId)
         {
@@ -585,6 +681,49 @@ namespace Nostromo.Server.Services
             }
         }
 
+        public async Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation)
+        {
+            try
+            {
+                var recommendationEntity = new TvRecommendation
+                {
+                    Id = recommendation.Id,
+                    ShowId = showId,
+                    Name = recommendation.Name,
+                    Adult = recommendation.Adult,
+                    BackdropPath = recommendation.backdropPath,
+                    OriginalName = recommendation.OriginalName,
+                    Overview = recommendation.Overview,
+                    PosterPath = recommendation.PosterPath,
+                    MediaType = recommendation.MediaType,
+                    VoteAverage = recommendation.VoteAverage,
+                    VoteCount = recommendation.VoteCount,
+                    firstAirDate = recommendation.firstAirDate,
+                    Popularity = recommendation.Popularity,
+                        
+                }; 
+
+                var existingRecommendation = await _context.Recommendations
+                    .FirstOrDefaultAsync(r => r.Id == recommendationEntity.Id);
+
+                if (existingRecommendation == null)
+                {
+                    await _context.TvRecommendations.AddAsync(recommendationEntity);
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogInformation("Stored TMDB recommendation: {Name} (ID: {Id})", recommendation.Name, recommendation.Id);
+                }
+                else
+                {
+                    _logger.LogWarning("TMDB recommendation already exists: {Name} (ID: {Id})", recommendation.Name, recommendation.Id);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error storing TMDB recommendation: {Name} (ID: {Id})", recommendation.Name, recommendation.Id);
+                throw;
+            }
+        }
         public async Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId)
         {
             try
@@ -738,7 +877,25 @@ namespace Nostromo.Server.Services
             return await _context.Movies.ToListAsync();
         }
 
+        public async Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy)
+        {
 
+            var result = _context.TvShows
+                    .Where(c =>
+                        (string.IsNullOrEmpty(searchTerm) || c.OriginalName.ToLower().Contains(searchTerm.ToLower()))); /*&&
+                        (maxYear == 0 || DateTime.Parse(c.FirstAirDate).Year <= maxYear) &&
+                        (minYear == 3000 || DateTime.Parse(c.FirstAirDate).Year >= minYear));*/
+
+            result = sortBy switch
+            {
+                0 => result.OrderByDescending(c => c.Popularity),
+                1 => result.OrderByDescending(c => c.OriginalName.ToLower()),
+                2 => result.OrderByDescending(c => c.VoteAverage),
+                _ => result.OrderByDescending(c => c.Popularity),
+            };
+            
+            return await result.ToListAsync();
+        }
         public async Task<List<Genre>> getGenre()
         {
 
@@ -756,6 +913,16 @@ namespace Nostromo.Server.Services
 
             return minYear;
         }
+
+        public async Task<String?> getMediaType(int id)
+        {
+            return await _context.MediaTypes
+                .Where(m => m.MediaTmDBID == id)
+                .Select(m => m.MediaTypeName)
+                .FirstOrDefaultAsync();
+        }
+        
+        
 
         /*public async Task<GenreCounter> GetMaxYear()
         {
