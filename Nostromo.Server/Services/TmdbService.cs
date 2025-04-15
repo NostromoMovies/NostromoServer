@@ -24,7 +24,7 @@ namespace Nostromo.Server.Services
         Task<int?> GetKeywordId(string keyword);
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesByKeyword(string keyword);
         Task<TmdbCreditsWrapper> GetMovieCreditsAsync(int movieId);
-       
+        Task<GenreResponse> GetGenresForMovie(int movieId);
     }
 
     public class TmdbService : ITmdbService
@@ -64,6 +64,7 @@ namespace Nostromo.Server.Services
             {
                 var genreUrl = $"genre/movie/list?api_key={_tmdbApiKey}";
                 var genreResponse = await _httpClient.GetFromJsonAsync<GenreResponse>(genreUrl)
+                    .ConfigureAwait(false)
                     ?? throw new NotFoundException("Genre list not found");
 
                 var genreDict = new Dictionary<int, string>();
@@ -164,7 +165,7 @@ namespace Nostromo.Server.Services
                     return (Array.Empty<TmdbMovieResponse>(), 0);
                 }
 
-                var genreDict = await GetGenreDictionary();
+                // var genreDict = await GetGenreDictionary();
 
                 // apparently not thread-safe
                 // Process each movie
@@ -306,6 +307,29 @@ namespace Nostromo.Server.Services
             string jsonResponse = await response.Content.ReadAsStringAsync();
 
             return JsonSerializer.Deserialize<TmdbCreditsWrapper>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+
+        public async Task<GenreResponse> GetGenresForMovie(int movieId)
+        {
+            string url = $"movie/{movieId}?api_key={_tmdbApiKey}";
+            HttpResponseMessage response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+
+            var movieDetails = JsonSerializer.Deserialize<TmdbMovieResponse>(jsonResponse, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (movieDetails?.genreIds == null)
+                return new GenreResponse { genres = new List<TmdbGenre>() };
+
+            return new GenreResponse
+            {
+                genres = movieDetails.genreIds
+                    .Select(g => new TmdbGenre { id = g.id, name = g.name })
+                    .ToList()
+            };
         }
     }
 

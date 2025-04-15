@@ -15,8 +15,8 @@ public class TmdbMovieResponse{
     [JsonPropertyName("original_language")]
     public string OriginalLanguage { get; set; }
 
-    [JsonPropertyName("genre_ids")]
-    public List<int> genreIds{get; set;}
+    [JsonPropertyName("genres")]
+    public List<TmdbGenre> genreIds { get; set; } = new();
     [JsonPropertyName("id")]
     public int id{get; set;}
     [JsonPropertyName("original_title")]

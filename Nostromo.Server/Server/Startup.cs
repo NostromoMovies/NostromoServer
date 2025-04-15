@@ -18,7 +18,6 @@ using Nostromo.Server.API.Authentication;
 using System.Security.Claims;
 using Microsoft.OpenApi.Models;
 using Nostromo.Server.Scheduling;
-using Nostromo.Server.Services;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -106,6 +105,10 @@ namespace Nostromo.Server.Server
             // Register core services
             // TODO: move
             services.AddScoped<IDatabaseService, DatabaseService>();
+
+            services.AddSingleton<IGenreSyncService, GenreSyncService>();
+            services.AddHostedService<GenreSyncHostedService>();
+
             services.AddSingleton<ISettingsProvider>(_settingsProvider);
             services.AddSingleton<IFileWatcherService, FileWatcherService>();
             services.AddSingleton<IFileRenamerService, FileRenamerService>();
@@ -164,6 +167,8 @@ namespace Nostromo.Server.Server
                 {
                     var dbContext = scope.ServiceProvider.GetRequiredService<NostromoDbContext>();
                     await dbContext.Database.MigrateAsync();
+                    //var genreSync = scope.ServiceProvider.GetRequiredService<IGenreSyncService>();
+                    //await genreSync.SyncGenresAsync(CancellationToken.None);
                     /*var tmdbService = scope.ServiceProvider.GetRequiredService<ITmdbService>();
                     await tmdbService.GetGenreDictionary();
                     _logger.LogInformation("TMDB genres seeded successfully");*/
