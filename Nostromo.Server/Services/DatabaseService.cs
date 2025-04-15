@@ -39,6 +39,8 @@ namespace Nostromo.Server.Services
         Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
         Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy);
+        
+        Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy);
         Task<List<Genre>> getGenre();
         Task<int> GetMinYear();
         Task<TvShow> GetTvShowAsync(int id);
@@ -764,7 +766,25 @@ namespace Nostromo.Server.Services
             return await _context.Movies.ToListAsync();
         }
 
+        public async Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy)
+        {
 
+            var result = _context.TvShows
+                    .Where(c =>
+                        (string.IsNullOrEmpty(searchTerm) || c.OriginalName.ToLower().Contains(searchTerm.ToLower()))); /*&&
+                        (maxYear == 0 || DateTime.Parse(c.FirstAirDate).Year <= maxYear) &&
+                        (minYear == 3000 || DateTime.Parse(c.FirstAirDate).Year >= minYear));*/
+
+            result = sortBy switch
+            {
+                0 => result.OrderByDescending(c => c.Popularity),
+                1 => result.OrderByDescending(c => c.OriginalName.ToLower()),
+                2 => result.OrderByDescending(c => c.VoteAverage),
+                _ => result.OrderByDescending(c => c.Popularity),
+            };
+            
+            return await result.ToListAsync();
+        }
         public async Task<List<Genre>> getGenre()
         {
 

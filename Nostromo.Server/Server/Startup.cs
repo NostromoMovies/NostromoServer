@@ -113,8 +113,9 @@ namespace Nostromo.Server.Server
             services.AddScoped<ISeasonRepository, SeasonRepository>();
             services.AddScoped<ITvEpisodeRepository, TvEpisodeRepository>();
             services.AddScoped<ITvShowRepository, TvShowRepository>();
+            services.AddScoped<ITvRecommendationRepository, TvRecommendationRepository>();
 
-
+            
             // Configure WatcherSettings
             //services.Configure<WatcherSettings>(_configuration.GetSection("WatcherSettings"));
 
@@ -125,15 +126,19 @@ namespace Nostromo.Server.Server
                     ?? throw new InvalidOperationException("Watch path not configured");
                 return new RecoveringFileSystemWatcher(watchPath);
             });
+            
+            services.AddTransient<DownloadTmdbImageJob>();
 
             services.AddQuartzServices();
-
+            
             services.AddQuartz(q =>
             {
                 q.UseMicrosoftDependencyInjectionJobFactory();
 
                 q.AddJob<DownloadMovieMetadataJob>(opts => opts.WithIdentity("DownloadMovieMetadataJob"));
                 q.AddJob<DownloadTMDBMetadataJob>(opts => opts.WithIdentity("DownloadTMDBMetadataJob"));
+                q.AddJob<DownloadTmdbImageJob>(opts => opts.WithIdentity("DownloadTmdbImageJob"));
+
             });
 
             services.AddTransient<DownloadMovieMetadataJob>();

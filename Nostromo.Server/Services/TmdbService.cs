@@ -9,6 +9,8 @@ using Nostromo.Server.Database;
 using Nostromo.Server.Database.Repositories;
 using System.Net;
 using System.Text.Json;
+using Nostromo.Server.API.Enums;
+
 //using TvRecommendation = Nostromo.Server.API.Models.TvRecommendation;
 
 namespace Nostromo.Server.Services
@@ -17,7 +19,7 @@ namespace Nostromo.Server.Services
     public interface ITmdbService
     {
         Task<TmdbMovieResponse> GetMovieById(int id);
-        Task<TmdbImageCollection> GetMovieImagesById(int id);
+        Task<TmdbImageCollection> GetMediaImagesById(string mediaType, int id, int? seasonNumber = null, int? episodeNumber = null);
         Task<int?> GetMovieRuntime(int movieId);
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query);
         Task<Dictionary<int, string>> GetGenreDictionary();
@@ -124,11 +126,22 @@ namespace Nostromo.Server.Services
             }
         }
 
-        public async Task<TmdbImageCollection> GetMovieImagesById(int id)
+        public async Task<TmdbImageCollection> GetMediaImagesById(string mediaTypeString, int id, int? seasonNumber = null, int? episodeNumber = null)
         {
             try
             {
-                var imageUrl = $"movie/{id}/images?api_key={_tmdbApiKey}";
+                MediaTypes mediaType = (MediaTypes)Enum.Parse(typeof(MediaTypes), mediaTypeString, true);
+                //var imageUrl =  $"movie/{id}/images?api_key={_tmdbApiKey}";
+                _logger.LogInformation("MediaType is {mediaType}");
+                var imageUrl = mediaType switch
+                {
+                    MediaTypes.Movie => $"movie/{id}/images?api_key={_tmdbApiKey}",
+                    MediaTypes.Tv => $"tv/{id}/images?api_key={_tmdbApiKey}",
+                    MediaTypes.Season => $"tv/{id}/season/{seasonNumber}/images?api_key={_tmdbApiKey}",
+                    MediaTypes.Episode => $"tv/{id}/season/{seasonNumber}/episode/{episodeNumber}/images?api_key={_tmdbApiKey}",
+                    _ => throw new ArgumentException($"Unknown media type: {mediaTypeString}"),
+                };
+                
                 var images = await _httpClient.GetFromJsonAsync<TmdbImageCollection>(imageUrl)
                     ?? throw new NotFoundException($"Images for movie with ID {id} not found");
                 return images;

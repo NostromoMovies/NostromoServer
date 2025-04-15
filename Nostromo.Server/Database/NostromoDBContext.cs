@@ -311,7 +311,7 @@ namespace Nostromo.Server.Database
                         Id = 2,
                         Title = "Aliens",
                         TmdbId = 679,
-                        ED2K = "da1a506c0ee1fe6c46ec64fd57faa924"
+                        ED2K = "ee4a746481ec4a6a909943562aefe86a"
                     },
                     new ExampleHash
                     {
@@ -327,7 +327,7 @@ namespace Nostromo.Server.Database
                         TmdbId = 46952,
                         EpisodeNo = 1,
                         SeasonNo = 1,
-                        ED2K = "4f6eb190545f122d81ba9316d472f4b5"
+                        ED2K = "a413da8e3e3bb02237795b2dc9e06b8d"
                     }
                 );
             });
