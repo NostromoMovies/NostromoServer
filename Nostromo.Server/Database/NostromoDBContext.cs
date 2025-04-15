@@ -9,6 +9,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Nostromo.Models;
 using Nostromo.Server.API.Models;
 
+using Nostromo.Server.Services;
+
 namespace Nostromo.Server.Database
 {
     public class NostromoDbContext : DbContext
@@ -31,6 +33,7 @@ namespace Nostromo.Server.Database
         public DbSet<CrossRefVideoTMDBMovie> CrossRefVideoTMDBMovies { get; set; }
         public DbSet<ExampleHash> ExampleHash { get; set; }
         public DbSet<TMDBRecommendation> Recommendations { get; set; }
+        public DbSet<MovieGenre> MovieGenres { get; set; }
 
         public DbSet<TvShow> TvShows { get; set; }
         
@@ -64,21 +67,24 @@ namespace Nostromo.Server.Database
                 entity.Property(e => e.LastUpdatedAt);
 
                 entity.HasMany(e => e.Genres)
-                      .WithMany(e => e.Movies)
-                      .UsingEntity<MovieGenre>(
-                          j => j.HasOne(mg => mg.Genre)
-                                .WithMany()
-                                .HasForeignKey(mg => mg.GenreID),
-                          j => j.HasOne(mg => mg.Movie)
-                                .WithMany()
-                                .HasForeignKey(mg => mg.MovieID)
-                      );
+                    .WithMany(e => e.Movies)
+                    .UsingEntity<MovieGenre>(
+                        j => j.HasOne(mg => mg.Genre)
+                              .WithMany()
+                              .HasForeignKey(mg => new { mg.GenreID, mg.Name }),
+                        j => j.HasOne(mg => mg.Movie)
+                              .WithMany()
+                              .HasForeignKey(mg => mg.MovieID),
+                        j =>
+                        {
+                            j.HasKey(mg => new { mg.MovieID, mg.GenreID, mg.Name });
+                        });
             });
 
             modelBuilder.Entity<Genre>(entity =>
             {
-                entity.HasKey(e => e.GenreID);
-                entity.Property(e => e.Name).IsRequired();
+                entity.HasKey(g => new { g.GenreID, g.Name });
+                entity.HasIndex(g => new { g.GenreID, g.Name }).IsUnique();
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -350,6 +356,20 @@ namespace Nostromo.Server.Database
                       .HasForeignKey(e => e.TMDBMovieID)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+
+            modelBuilder.Entity<RecommendationGenre>(entity =>
+            {
+                entity.HasKey(rg => new { rg.RecommendationID, rg.GenreID, rg.Name });
+
+                entity.HasOne(rg => rg.Recommendation)
+                      .WithMany(r => r.Genres)
+                      .HasForeignKey(rg => rg.RecommendationID);
+
+                entity.HasOne(rg => rg.Genre)
+                      .WithMany()
+                      .HasForeignKey(rg => new { rg.GenreID, rg.Name });
+            });
+
         }
     }
 
@@ -435,6 +455,8 @@ namespace Nostromo.Server.Database
     {
         public int MovieID { get; set; }
         public int GenreID { get; set; }
+        public string Name { get; set; }
+
         public virtual TMDBMovie Movie { get; set; }
         public virtual Genre Genre { get; set; }
     }
@@ -616,15 +638,16 @@ namespace Nostromo.Server.Database
         public string MediaType { get; set; }
         public bool Adult { get; set; }
         public string OriginalLanguage { get; set; }
-        public string GenreIds { get; set; }
         public double Popularity { get; set; }
         public string ReleaseDate { get; set; }
         public bool Video { get; set; }
         public double VoteAverage { get; set; }
         public int VoteCount { get; set; }
 
+        public virtual ICollection<RecommendationGenre> Genres { get; set; } = new List<RecommendationGenre>();
         public virtual TMDBMovie Movie { get; set; }
     }
+
 
     public class TvRecommendation
     {
@@ -817,4 +840,15 @@ namespace Nostromo.Server.Database
         public string MediaTypeName { get; set; }
         
     }
+
+    public class RecommendationGenre
+    {
+        public int RecommendationID { get; set; }
+        public int GenreID { get; set; }
+        public string Name { get; set; }
+
+        public virtual TMDBRecommendation Recommendation { get; set; }
+        public virtual Genre Genre { get; set; }
+    }
+
 }

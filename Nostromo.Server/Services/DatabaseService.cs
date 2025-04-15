@@ -38,12 +38,13 @@ namespace Nostromo.Server.Services
         
         Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
-        Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy);
-        
         Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy);
+        Task<TvShow> GetTvShowAsync(int id);
+        Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string  maxYear);
         Task<List<Genre>> getGenre();
         Task<int> GetMinYear();
-        Task<TvShow> GetTvShowAsync(int id);
+        Task StoreMovieGenresAsync(int movieId, List<TmdbGenre> genres);
+
     }
 
     public class DatabaseService : IDatabaseService
@@ -161,23 +162,26 @@ namespace Nostromo.Server.Services
         {
             try
             {
-                var genre = new Genre
-                {
-                    GenreID = genreModel.id,
-                    Name = genreModel.name
-                };
+                var existingGenre = await _context.Genres
+                    .FirstOrDefaultAsync(g => g.GenreID == genreModel.id && g.Name == genreModel.name);
 
-                var existingGenre = await _context.Genres.FindAsync(genre.GenreID);
                 if (existingGenre == null)
                 {
+                    var genre = new Genre
+                    {
+                        GenreID = genreModel.id,
+                        Name = genreModel.name
+                    };
+
                     await _context.Genres.AddAsync(genre);
                     await _context.SaveChangesAsync();
-                    _logger.LogInformation("Successfully inserted genre: {Name} (ID: {Id})", genre.Name, genre.GenreID);
+
+                    _logger.LogInformation("Successfully inserted genre: {Name} (TMDB ID: {Id})", genre.Name, genre.GenreID);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error inserting genre {Name} (ID: {Id})", genreModel.name, genreModel.id);
+                _logger.LogError(ex, "Error inserting genre {Name} (TMDB ID: {Id})", genreModel.name, genreModel.id);
                 throw;
             }
         }
@@ -622,7 +626,6 @@ namespace Nostromo.Server.Services
                     MediaType = "movie",
                     Adult = recommendation.adult,
                     OriginalLanguage = recommendation.OriginalLanguage,
-                    GenreIds = string.Join(",", recommendation.genreIds),
                     Popularity = recommendation.popularity,
                     ReleaseDate = recommendation.releaseDate,
                     Video = recommendation.video,
@@ -636,6 +639,32 @@ namespace Nostromo.Server.Services
                 if (existingRecommendation == null)
                 {
                     await _context.Recommendations.AddAsync(recommendationEntity);
+                    await _context.SaveChangesAsync();
+
+                    foreach (var genre in recommendation.genreIds ?? new List<TmdbGenre>())
+                    {
+                        var existingGenre = await _context.Genres
+                            .FirstOrDefaultAsync(g => g.GenreID == genre.id && g.Name == genre.name);
+
+                        if (existingGenre == null)
+                        {
+                            existingGenre = new Genre
+                            {
+                                GenreID = genre.id,
+                                Name = genre.name
+                            };
+                            _context.Genres.Add(existingGenre);
+                            await _context.SaveChangesAsync();
+                        }
+
+                        _context.Add(new RecommendationGenre
+                        {
+                            RecommendationID = recommendationEntity.RecommendationID,
+                            GenreID = genre.id,
+                            Name = genre.name
+                        });
+                    }
+
                     await _context.SaveChangesAsync();
 
                     _logger.LogInformation("Stored TMDB recommendation: {Title} (ID: {Id})", recommendation.title, recommendation.id);
@@ -716,49 +745,131 @@ namespace Nostromo.Server.Services
             }
         }
 
-        public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy)
+        public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string maxYear)
         {
             // recently added -- good
-            if (sortBy == 3)
+            if (sortBy == 3)    
             {
-                return await _context.CrossRefVideoTMDBMovies
+                var movies = await _context.CrossRefVideoTMDBMovies
                     .Include(c => c.TMDBMovie)
                     .Where(c =>
                         (string.IsNullOrEmpty(searchTerm) || c.TMDBMovie.Title.ToLower().Contains(searchTerm.ToLower())) &&
                         (maxRuntime == null || c.TMDBMovie.Runtime <= maxRuntime))
                     .OrderByDescending(c => c.CreatedAt)
                     .Select(c => c.TMDBMovie)
-                    .ToListAsync();
+                    .ToListAsync();  // Fetch the movies into memory
+
+
+                if (!string.IsNullOrEmpty(minYear))
+                {
+                    int minYearInt = int.Parse(minYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year >= minYearInt).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(maxYear))
+                {
+                    int maxYearInt = int.Parse(maxYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year <= maxYearInt).ToList();
+                }
+
+                return movies;
             }
             // alphabetical -- good
             else if (sortBy == 1)
             {
-                return await _context.Movies
+                /*return await _context.Movies
                     .Where(c =>
                         (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
                         (maxRuntime == null || c.Runtime <= maxRuntime))
                     .OrderBy(c => c.Title.ToLower())
-                    .ToListAsync();
+                    .ToListAsync();*/
+                
+                var movies = await _context.Movies
+                    .Where(c =>
+                        (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
+                        (maxRuntime == null || c.Runtime <= maxRuntime))
+                    .ToListAsync();  // Fetch the movies into memory
+
+
+                if (!string.IsNullOrEmpty(minYear))
+                {
+                    int minYearInt = int.Parse(minYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year >= minYearInt).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(maxYear))
+                {
+                    int maxYearInt = int.Parse(maxYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year <= maxYearInt).ToList();
+                }
+
+                return movies
+                    .OrderBy(c => c.Title.ToLower())  
+                    .ToList();
+
+
             }
             // highest rated -- good
             else if (sortBy == 2)
             {
+                /*
                 return await _context.Movies
                     .Where(c =>
                         (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
                         (maxRuntime == null || c.Runtime <= maxRuntime))
                     .OrderByDescending(c => c.VoteAverage)
                     .ToListAsync();
+                    */
+                
+                
+                var movies = await  _context.Movies
+                        .Where(c =>
+                            (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
+                            (maxRuntime == null || c.Runtime <= maxRuntime))
+                        .ToListAsync();  // Fetch the movies into memory
+                
+                if (!string.IsNullOrEmpty(minYear))
+                {
+                    int minYearInt = int.Parse(minYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year >= minYearInt).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(maxYear))
+                {
+                    int maxYearInt = int.Parse(maxYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year <= maxYearInt).ToList();
+                }
+                return movies.OrderByDescending(c => c.VoteAverage).ToList();
+                   
             }
             // popularity -- good
             else if (sortBy == 0)
             {
-                return await _context.Movies
+                var movies = await  _context.Movies
+                    .Where(c =>
+                        (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
+                        (maxRuntime == null || c.Runtime <= maxRuntime))
+                    .ToListAsync();  // Fetch the movies into memory
+                
+                if (!string.IsNullOrEmpty(minYear))
+                {
+                    int minYearInt = int.Parse(minYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year >= minYearInt).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(maxYear))
+                {
+                    int maxYearInt = int.Parse(maxYear);
+                    movies = movies.Where(c => DateTime.Parse(c.ReleaseDate).Year <= maxYearInt).ToList();
+                }
+
+                return movies.OrderByDescending(c => c.Popularity).ToList();
+                /*return await _context.Movies
                     .Where(c =>
                         (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
                         (maxRuntime == null || c.Runtime <= maxRuntime))
                     .OrderByDescending(c => c.Popularity)
-                    .ToListAsync();
+                    .ToListAsync();*/
             }
 
 
@@ -788,7 +899,7 @@ namespace Nostromo.Server.Services
         public async Task<List<Genre>> getGenre()
         {
 
-            return await _context.Genres.ToListAsync();
+            return await _context.Genres.OrderBy(g => g.Name).ToListAsync();
         }
 
         public async Task<int> GetMinYear()
@@ -812,5 +923,36 @@ namespace Nostromo.Server.Services
         }
         
         
+
+        /*public async Task<GenreCounter> GetMaxYear()
+        {
+            var genreCounts = _context.Movies
+                .SelectMany(m => m.Genres) // Flatten all genres across movies
+                .GroupBy(g => g.GenreID)   // Group by GenreID
+                .Select(g => new GenreCounter
+                {
+                    GenreID = g.Key,
+                    GenreCount = g.Count()
+                })
+                .ToList();
+            return genreCounts
+        }*/
+
+        public async Task StoreMovieGenresAsync(int movieId, List<TmdbGenre> genres)
+        {
+            foreach (var genre in genres)
+            {
+                var movieGenre = new MovieGenre
+                {
+                    MovieID = movieId,
+                    GenreID = genre.id,
+                    Name = genre.name
+                };
+
+                _context.MovieGenres.Add(movieGenre);
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

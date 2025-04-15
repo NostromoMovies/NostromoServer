@@ -11,7 +11,7 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    [Migration("20250304034935_InitialCreate")]
+    [Migration("20250415055327_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -141,14 +141,15 @@ namespace Nostromo.Server.Migrations
             modelBuilder.Entity("Nostromo.Server.Database.Genre", b =>
                 {
                     b.Property<int>("GenreID")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("GenreID");
+                    b.HasKey("GenreID", "Name");
+
+                    b.HasIndex("GenreID", "Name")
+                        .IsUnique();
 
                     b.ToTable("Genres");
                 });
@@ -183,17 +184,38 @@ namespace Nostromo.Server.Migrations
 
             modelBuilder.Entity("Nostromo.Server.Database.MovieGenre", b =>
                 {
-                    b.Property<int>("GenreID")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("MovieID")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("GenreID", "MovieID");
+                    b.Property<int>("GenreID")
+                        .HasColumnType("INTEGER");
 
-                    b.HasIndex("MovieID");
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
 
-                    b.ToTable("MovieGenre");
+                    b.HasKey("MovieID", "GenreID", "Name");
+
+                    b.HasIndex("GenreID", "Name");
+
+                    b.ToTable("MovieGenres");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.RecommendationGenre", b =>
+                {
+                    b.Property<int>("RecommendationID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("GenreID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("RecommendationID", "GenreID", "Name");
+
+                    b.HasIndex("GenreID", "Name");
+
+                    b.ToTable("RecommendationGenre");
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.TMDBMovie", b =>
@@ -455,10 +477,6 @@ namespace Nostromo.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("GenreIds")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("Id")
                         .HasColumnType("INTEGER");
 
@@ -646,21 +664,40 @@ namespace Nostromo.Server.Migrations
 
             modelBuilder.Entity("Nostromo.Server.Database.MovieGenre", b =>
                 {
-                    b.HasOne("Nostromo.Server.Database.Genre", "Genre")
-                        .WithMany()
-                        .HasForeignKey("GenreID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Nostromo.Server.Database.TMDBMovie", "Movie")
                         .WithMany()
                         .HasForeignKey("MovieID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Nostromo.Server.Database.Genre", "Genre")
+                        .WithMany()
+                        .HasForeignKey("GenreID", "Name")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Genre");
 
                     b.Navigation("Movie");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.RecommendationGenre", b =>
+                {
+                    b.HasOne("Nostromo.Server.Database.TMDBRecommendation", "Recommendation")
+                        .WithMany("Genres")
+                        .HasForeignKey("RecommendationID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Nostromo.Server.Database.Genre", "Genre")
+                        .WithMany()
+                        .HasForeignKey("GenreID", "Name")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Genre");
+
+                    b.Navigation("Recommendation");
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.TMDBMovieCast", b =>
@@ -713,6 +750,11 @@ namespace Nostromo.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("Video");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.TMDBRecommendation", b =>
+                {
+                    b.Navigation("Genres");
                 });
 #pragma warning restore 612, 618
         }

@@ -3,6 +3,7 @@ using Nostromo.Server.Database.Repositories;
 using Nostromo.Server.Database;
 using Nostromo.Server.Scheduling.Jobs;
 using Nostromo.Server.Services;
+using Nostromo.Models;
 using Quartz;
 using System;
 using NHibernate.Hql.Ast;
@@ -86,6 +87,18 @@ public class DownloadMovieMetadataJob : BaseJob
             if (episodeNum == null && seasonNum == null)
             {
                 _logger.LogInformation("Found MovieID {MovieID} for hash: {FileHash}", mediaID, fileHash);
+
+                if (movieResponse.genreIds != null && movieResponse.genreIds.Any())
+                {
+                    await _databaseService.StoreMovieGenresAsync(movieId.Value, movieResponse.genreIds);
+
+                    _logger.LogInformation("Stored {Count} genres for MovieID {MovieID}", movieResponse.genreIds.Count, movieId);
+                }
+
+                else
+                {
+                    _logger.LogInformation("No genres for MovieID {MovieID}", movieId.Value);
+                }
 
                 try
                 {

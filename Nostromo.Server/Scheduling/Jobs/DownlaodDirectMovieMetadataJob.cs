@@ -3,6 +3,7 @@ using Nostromo.Server.Database.Repositories;
 using Nostromo.Server.Database;
 using Nostromo.Server.Scheduling.Jobs;
 using Nostromo.Server.Services;
+using Nostromo.Models;
 using Quartz;
 using System;
 using System.Threading.Tasks;
@@ -115,6 +116,23 @@ public class DownloadDirectMovieMetadataJob : BaseJob
 
             await _databaseService.MarkVideoAsRecognizedAsync(videoId);
             _logger.LogInformation("Marked VideoID {VideoID} as recognized.", videoId);
+
+            if (movieDetails.Genres != null && movieDetails.Genres.Any())
+            {
+                var tmdbGenres = movieDetails.Genres
+                    .Select(g => new TmdbGenre { id = g.GenreID, name = g.Name })
+                    .ToList();
+
+                await _databaseService.StoreMovieGenresAsync(movieId, tmdbGenres);
+
+                _logger.LogInformation("Stored {Count} genres for MovieID {MovieID}", tmdbGenres.Count, movieId);
+            }
+            else
+            {
+                _logger.LogWarning("Fetching and storing genres for MovieID {MovieID}", movieId);
+                var newGenres = await _tmdbService.GetGenresForMovie(movieId);
+                await _databaseService.StoreMovieGenresAsync(movieId, newGenres.genres);
+            }
 
             try
             {

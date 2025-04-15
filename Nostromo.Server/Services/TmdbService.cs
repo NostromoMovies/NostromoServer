@@ -30,6 +30,7 @@ namespace Nostromo.Server.Services
         Task<int?> GetKeywordId(string keyword);
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesByKeyword(string keyword);
         Task<TmdbCreditsWrapper> GetMovieCreditsAsync(int movieId);
+
           
         Task<TvEpisodeCreditWrapper> GetTvEpisodeCreditsAsync(int showId, int seasonNumber, int episodeNumber);
         
@@ -37,6 +38,8 @@ namespace Nostromo.Server.Services
         Task<TmdbTvResponse> GetTvShowById(int showId);
 
         Task<TmdbTvEpisodeResponse> GetTvEpisodeById(int showId, int seasonNumber, int episodeNumber, int seasonID);
+
+        Task<GenreResponse> GetGenresForMovie(int movieId);
 
     }
 
@@ -83,6 +86,7 @@ namespace Nostromo.Server.Services
             {
                 var genreUrl = $"genre/movie/list?api_key={_tmdbApiKey}";
                 var genreResponse = await _httpClient.GetFromJsonAsync<GenreResponse>(genreUrl)
+                    .ConfigureAwait(false)
                     ?? throw new NotFoundException("Genre list not found");
 
                 var genreDict = new Dictionary<int, string>();
@@ -194,7 +198,7 @@ namespace Nostromo.Server.Services
                     return (Array.Empty<TmdbMovieResponse>(), 0);
                 }
 
-                var genreDict = await GetGenreDictionary();
+                // var genreDict = await GetGenreDictionary();
 
                 // apparently not thread-safe
                 // Process each movie
@@ -382,6 +386,7 @@ namespace Nostromo.Server.Services
             return JsonSerializer.Deserialize<TmdbCreditsWrapper>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
 
+
         public async Task<TvEpisodeCreditWrapper> GetTvEpisodeCreditsAsync(int showId, int seasonNumber, int episodeNumber)
         {
             string url = $"tv/{showId}/season/{seasonNumber}/episode/{episodeNumber}/credits?api_key={_tmdbApiKey}";
@@ -457,6 +462,29 @@ namespace Nostromo.Server.Services
                 _logger.LogError(ex, "Error fetching tv show details for ID: {ShowId}", showId);
                 throw;
             }
+
+        public async Task<GenreResponse> GetGenresForMovie(int movieId)
+        {
+            string url = $"movie/{movieId}?api_key={_tmdbApiKey}";
+            HttpResponseMessage response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+
+            var movieDetails = JsonSerializer.Deserialize<TmdbMovieResponse>(jsonResponse, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (movieDetails?.genreIds == null)
+                return new GenreResponse { genres = new List<TmdbGenre>() };
+
+            return new GenreResponse
+            {
+                genres = movieDetails.genreIds
+                    .Select(g => new TmdbGenre { id = g.id, name = g.name })
+                    .ToList()
+            };
+
         }
     }
 

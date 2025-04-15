@@ -48,13 +48,12 @@ namespace Nostromo.Server.Migrations
                 name: "Genres",
                 columns: table => new
                 {
-                    GenreID = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                    GenreID = table.Column<int>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Genres", x => x.GenreID);
+                    table.PrimaryKey("PK_Genres", x => new { x.GenreID, x.Name });
                 });
 
             migrationBuilder.CreateTable(
@@ -168,23 +167,24 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MovieGenre",
+                name: "MovieGenres",
                 columns: table => new
                 {
                     MovieID = table.Column<int>(type: "INTEGER", nullable: false),
-                    GenreID = table.Column<int>(type: "INTEGER", nullable: false)
+                    GenreID = table.Column<int>(type: "INTEGER", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MovieGenre", x => new { x.GenreID, x.MovieID });
+                    table.PrimaryKey("PK_MovieGenres", x => new { x.MovieID, x.GenreID, x.Name });
                     table.ForeignKey(
-                        name: "FK_MovieGenre_Genres_GenreID",
-                        column: x => x.GenreID,
+                        name: "FK_MovieGenres_Genres_GenreID_Name",
+                        columns: x => new { x.GenreID, x.Name },
                         principalTable: "Genres",
-                        principalColumn: "GenreID",
+                        principalColumns: new[] { "GenreID", "Name" },
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_MovieGenre_Movies_MovieID",
+                        name: "FK_MovieGenres_Movies_MovieID",
                         column: x => x.MovieID,
                         principalTable: "Movies",
                         principalColumn: "TMDBMovieID",
@@ -207,7 +207,6 @@ namespace Nostromo.Server.Migrations
                     MediaType = table.Column<string>(type: "TEXT", nullable: false),
                     Adult = table.Column<bool>(type: "INTEGER", nullable: false),
                     OriginalLanguage = table.Column<string>(type: "TEXT", nullable: false),
-                    GenreIds = table.Column<string>(type: "TEXT", nullable: false),
                     Popularity = table.Column<double>(type: "REAL", nullable: false),
                     ReleaseDate = table.Column<string>(type: "TEXT", nullable: false),
                     Video = table.Column<bool>(type: "INTEGER", nullable: false),
@@ -370,6 +369,31 @@ namespace Nostromo.Server.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "RecommendationGenre",
+                columns: table => new
+                {
+                    RecommendationID = table.Column<int>(type: "INTEGER", nullable: false),
+                    GenreID = table.Column<int>(type: "INTEGER", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RecommendationGenre", x => new { x.RecommendationID, x.GenreID, x.Name });
+                    table.ForeignKey(
+                        name: "FK_RecommendationGenre_Genres_GenreID_Name",
+                        columns: x => new { x.GenreID, x.Name },
+                        principalTable: "Genres",
+                        principalColumns: new[] { "GenreID", "Name" },
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RecommendationGenre_Recommendations_RecommendationID",
+                        column: x => x.RecommendationID,
+                        principalTable: "Recommendations",
+                        principalColumn: "RecommendationID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "ExampleHash",
                 columns: new[] { "Id", "ED2K", "Title", "TmdbId" },
@@ -396,6 +420,12 @@ namespace Nostromo.Server.Migrations
                 column: "VideoID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Genres_GenreID_Name",
+                table: "Genres",
+                columns: new[] { "GenreID", "Name" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MovieCasts_TMDBMovieID",
                 table: "MovieCasts",
                 column: "TMDBMovieID");
@@ -416,9 +446,14 @@ namespace Nostromo.Server.Migrations
                 column: "TMDBPersonID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MovieGenre_MovieID",
-                table: "MovieGenre",
-                column: "MovieID");
+                name: "IX_MovieGenres_GenreID_Name",
+                table: "MovieGenres",
+                columns: new[] { "GenreID", "Name" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecommendationGenre_GenreID_Name",
+                table: "RecommendationGenre",
+                columns: new[] { "GenreID", "Name" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Recommendations_TMDBMovieID_Id",
@@ -456,10 +491,10 @@ namespace Nostromo.Server.Migrations
                 name: "MovieCrews");
 
             migrationBuilder.DropTable(
-                name: "MovieGenre");
+                name: "MovieGenres");
 
             migrationBuilder.DropTable(
-                name: "Recommendations");
+                name: "RecommendationGenre");
 
             migrationBuilder.DropTable(
                 name: "VideoPlaces");
@@ -474,10 +509,13 @@ namespace Nostromo.Server.Migrations
                 name: "Genres");
 
             migrationBuilder.DropTable(
-                name: "Movies");
+                name: "Recommendations");
 
             migrationBuilder.DropTable(
                 name: "Videos");
+
+            migrationBuilder.DropTable(
+                name: "Movies");
         }
     }
 }
