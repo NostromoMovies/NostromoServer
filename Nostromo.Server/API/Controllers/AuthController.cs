@@ -106,7 +106,19 @@ namespace Nostromo.Server.API.Controllers
                 message = "User logged in successfully",
                 token = token.Token
             });
+
+
+
         }
+        /*[HttpPost("getAllUser")]
+        [ProducesResponseType(typeof(SuccessResponse<String>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IResult> GetUser()
+        {
+            return _userRepository.
+        }*/
+        
+        
     }
 
     public class RegisterRequest

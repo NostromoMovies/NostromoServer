@@ -380,6 +380,10 @@ namespace Nostromo.Server.API.Controllers
         {
             return await _databaseService.GetGenreMovieCount();
         }
+        
+
+
+
 
     }
 }
