@@ -110,13 +110,9 @@ namespace Nostromo.Server.API.Controllers
 
 
         }
-        /*[HttpPost("getAllUser")]
-        [ProducesResponseType(typeof(SuccessResponse<String>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IResult> GetUser()
-        {
-            return _userRepository.
-        }*/
+
+  
+
         
         
     }
