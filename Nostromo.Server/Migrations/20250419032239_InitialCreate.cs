@@ -321,6 +321,26 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "WatchLists",
+                columns: table => new
+                {
+                    WatchListID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    UserID = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WatchLists", x => x.WatchListID);
+                    table.ForeignKey(
+                        name: "FK_WatchLists_Users_UserID",
+                        column: x => x.UserID,
+                        principalTable: "Users",
+                        principalColumn: "UserID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CrossRefVideoTMDBMovies",
                 columns: table => new
                 {
@@ -370,7 +390,7 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RecommendationGenre",
+                name: "RecommendationGenres",
                 columns: table => new
                 {
                     RecommendationID = table.Column<int>(type: "INTEGER", nullable: false),
@@ -379,18 +399,43 @@ namespace Nostromo.Server.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RecommendationGenre", x => new { x.RecommendationID, x.GenreID, x.Name });
+                    table.PrimaryKey("PK_RecommendationGenres", x => new { x.RecommendationID, x.GenreID, x.Name });
                     table.ForeignKey(
-                        name: "FK_RecommendationGenre_Genres_GenreID_Name",
+                        name: "FK_RecommendationGenres_Genres_GenreID_Name",
                         columns: x => new { x.GenreID, x.Name },
                         principalTable: "Genres",
                         principalColumns: new[] { "GenreID", "Name" },
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_RecommendationGenre_Recommendations_RecommendationID",
+                        name: "FK_RecommendationGenres_Recommendations_RecommendationID",
                         column: x => x.RecommendationID,
                         principalTable: "Recommendations",
                         principalColumn: "RecommendationID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WatchListItems",
+                columns: table => new
+                {
+                    WatchListID = table.Column<int>(type: "INTEGER", nullable: false),
+                    MovieID = table.Column<int>(type: "INTEGER", nullable: false),
+                    AddedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WatchListItems", x => new { x.WatchListID, x.MovieID });
+                    table.ForeignKey(
+                        name: "FK_WatchListItems_Movies_MovieID",
+                        column: x => x.MovieID,
+                        principalTable: "Movies",
+                        principalColumn: "TMDBMovieID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_WatchListItems_WatchLists_WatchListID",
+                        column: x => x.WatchListID,
+                        principalTable: "WatchLists",
+                        principalColumn: "WatchListID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -451,8 +496,8 @@ namespace Nostromo.Server.Migrations
                 columns: new[] { "GenreID", "Name" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_RecommendationGenre_GenreID_Name",
-                table: "RecommendationGenre",
+                name: "IX_RecommendationGenres_GenreID_Name",
+                table: "RecommendationGenres",
                 columns: new[] { "GenreID", "Name" });
 
             migrationBuilder.CreateIndex(
@@ -464,6 +509,16 @@ namespace Nostromo.Server.Migrations
                 name: "IX_VideoPlaces_VideoID",
                 table: "VideoPlaces",
                 column: "VideoID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WatchListItems_MovieID",
+                table: "WatchListItems",
+                column: "MovieID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WatchLists_UserID",
+                table: "WatchLists",
+                column: "UserID");
         }
 
         /// <inheritdoc />
@@ -494,13 +549,13 @@ namespace Nostromo.Server.Migrations
                 name: "MovieGenres");
 
             migrationBuilder.DropTable(
-                name: "RecommendationGenre");
+                name: "RecommendationGenres");
 
             migrationBuilder.DropTable(
                 name: "VideoPlaces");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "WatchListItems");
 
             migrationBuilder.DropTable(
                 name: "People");
@@ -515,7 +570,13 @@ namespace Nostromo.Server.Migrations
                 name: "Videos");
 
             migrationBuilder.DropTable(
+                name: "WatchLists");
+
+            migrationBuilder.DropTable(
                 name: "Movies");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }
