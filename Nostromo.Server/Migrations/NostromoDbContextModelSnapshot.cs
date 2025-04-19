@@ -212,7 +212,7 @@ namespace Nostromo.Server.Migrations
 
                     b.HasIndex("GenreID", "Name");
 
-                    b.ToTable("RecommendationGenre");
+                    b.ToTable("RecommendationGenres");
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.TMDBMovie", b =>
@@ -629,6 +629,44 @@ namespace Nostromo.Server.Migrations
                     b.ToTable("VideoPlaces");
                 });
 
+            modelBuilder.Entity("Nostromo.Server.Database.WatchList", b =>
+                {
+                    b.Property<int>("WatchListID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("WatchListID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("WatchLists");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.WatchListItem", b =>
+                {
+                    b.Property<int>("WatchListID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MovieID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("WatchListID", "MovieID");
+
+                    b.HasIndex("MovieID");
+
+                    b.ToTable("WatchListItems");
+                });
+
             modelBuilder.Entity("Nostromo.Server.Database.AuthToken", b =>
                 {
                     b.HasOne("Nostromo.Server.Database.User", "User")
@@ -681,7 +719,7 @@ namespace Nostromo.Server.Migrations
             modelBuilder.Entity("Nostromo.Server.Database.RecommendationGenre", b =>
                 {
                     b.HasOne("Nostromo.Server.Database.TMDBRecommendation", "Recommendation")
-                        .WithMany("Genres")
+                        .WithMany()
                         .HasForeignKey("RecommendationID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -749,9 +787,39 @@ namespace Nostromo.Server.Migrations
                     b.Navigation("Video");
                 });
 
-            modelBuilder.Entity("Nostromo.Server.Database.TMDBRecommendation", b =>
+            modelBuilder.Entity("Nostromo.Server.Database.WatchList", b =>
                 {
-                    b.Navigation("Genres");
+                    b.HasOne("Nostromo.Server.Database.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.WatchListItem", b =>
+                {
+                    b.HasOne("Nostromo.Server.Database.TMDBMovie", "Movie")
+                        .WithMany()
+                        .HasForeignKey("MovieID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Nostromo.Server.Database.WatchList", "WatchList")
+                        .WithMany("Items")
+                        .HasForeignKey("WatchListID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Movie");
+
+                    b.Navigation("WatchList");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.WatchList", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

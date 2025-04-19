@@ -132,6 +132,20 @@ public class DownloadMovieMetadataJob : BaseJob
                         await _databaseService.StoreTmdbRecommendationsAsync(movieId.Value, recommendation);
                     }
 
+                    foreach (var recommendation in recommendationsResponse.Results)
+                    {
+                        var genres = await _tmdbService.GetGenresForMovie(recommendation.id);
+                        var recDbId = await _databaseService.GetActualRecommendationDbIdAsync(movieId.Value, recommendation.id);
+
+                        if (recDbId != null)
+                        {
+                            foreach (var genre in genres.genres)
+                            {
+                                await _databaseService.InsertRecommendationGenreAsync(recDbId.Value, genre.id, genre.name);
+                            }
+                        }
+                    }
+
                     _logger.LogInformation("Successfully stored {Count} recommendations for MovieID {MovieID}",
                         recommendationsResponse.Results.Count, movieId);
                 }

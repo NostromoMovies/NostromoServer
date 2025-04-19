@@ -31,7 +31,9 @@ namespace Nostromo.Server.Database
         public DbSet<ExampleHash> ExampleHash { get; set; }
         public DbSet<TMDBRecommendation> Recommendations { get; set; }
         public DbSet<MovieGenre> MovieGenres { get; set; }
-
+        public DbSet<RecommendationGenre> RecommendationGenres { get; set; }
+        public DbSet<WatchList> WatchLists { get; set; }
+        public DbSet<WatchListItem> WatchListItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -298,9 +300,7 @@ namespace Nostromo.Server.Database
             {
                 entity.HasKey(e => e.RecommendationID);
 
-                entity.Property(e => e.RecommendationID)
-                      .ValueGeneratedOnAdd();
-
+                entity.Property(e => e.RecommendationID).ValueGeneratedOnAdd();
                 entity.Property(e => e.Id).IsRequired();
                 entity.Property(e => e.TMDBMovieID).IsRequired();
                 entity.Property(e => e.Title).IsRequired();
@@ -311,21 +311,44 @@ namespace Nostromo.Server.Database
                       .WithMany()
                       .HasForeignKey(e => e.TMDBMovieID)
                       .OnDelete(DeleteBehavior.Cascade);
-            });
 
-            modelBuilder.Entity<RecommendationGenre>(entity =>
-            {
-                entity.HasKey(rg => new { rg.RecommendationID, rg.GenreID, rg.Name });
-
-                entity.HasOne(rg => rg.Recommendation)
-                      .WithMany(r => r.Genres)
-                      .HasForeignKey(rg => rg.RecommendationID);
-
-                entity.HasOne(rg => rg.Genre)
+                entity.HasMany(r => r.Genres)
                       .WithMany()
-                      .HasForeignKey(rg => new { rg.GenreID, rg.Name });
+                      .UsingEntity<RecommendationGenre>(
+                          j => j.HasOne(rg => rg.Genre)
+                                .WithMany()
+                                .HasForeignKey(rg => new { rg.GenreID, rg.Name }),
+                          j => j.HasOne(rg => rg.Recommendation)
+                                .WithMany()
+                                .HasForeignKey(rg => rg.RecommendationID),
+                          j =>
+                          {
+                              j.HasKey(rg => new { rg.RecommendationID, rg.GenreID, rg.Name });
+                          });
             });
 
+            modelBuilder.Entity<WatchList>(entity =>
+            {
+                entity.HasKey(wl => wl.WatchListID);
+
+                entity.HasOne(wl => wl.User)
+                    .WithMany()
+                    .HasForeignKey(wl => wl.UserID)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<WatchListItem>(entity =>
+            {
+                entity.HasKey(wli => new { wli.WatchListID, wli.MovieID });
+
+                entity.HasOne(wli => wli.WatchList)
+                    .WithMany(wl => wl.Items)
+                    .HasForeignKey(wli => wli.WatchListID);
+
+                entity.HasOne(wli => wli.Movie)
+                    .WithMany()
+                    .HasForeignKey(wli => wli.MovieID);
+            });
         }
     }
 
@@ -543,31 +566,18 @@ namespace Nostromo.Server.Database
 
     public class ExampleHash
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int TmdbId { get; set; }
-
         public string Title { get; set; }
-
         public string ED2K { get; set; }
     }
 
     public class TMDBRecommendation
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RecommendationID { get; set; }
-
-        [Required]
         public int Id { get; set; }
-
-        [Required]
         public int TMDBMovieID { get; set; }
-
-        [Required]
         public string Title { get; set; }
-
         public string OriginalTitle { get; set; }
         public string Overview { get; set; }
         public string PosterPath { get; set; }
@@ -581,7 +591,7 @@ namespace Nostromo.Server.Database
         public double VoteAverage { get; set; }
         public int VoteCount { get; set; }
 
-        public virtual ICollection<RecommendationGenre> Genres { get; set; } = new List<RecommendationGenre>();
+        public virtual ICollection<Genre> Genres { get; set; } = new List<Genre>();
         public virtual TMDBMovie Movie { get; set; }
     }
 
@@ -595,4 +605,25 @@ namespace Nostromo.Server.Database
         public virtual Genre Genre { get; set; }
     }
 
+    public class WatchList
+    {
+        public int WatchListID { get; set; }
+        public string Name { get; set; }
+
+        public int UserID { get; set; }
+        public virtual User? User { get; set; }
+
+        public virtual ICollection<WatchListItem> Items { get; set; } = new List<WatchListItem>();
+    }
+
+    public class WatchListItem
+    {
+        public int WatchListID { get; set; }
+        public virtual WatchList WatchList { get; set; }
+
+        public int MovieID { get; set; }
+        public virtual TMDBMovie Movie { get; set; }
+
+        public DateTime AddedAt { get; set; } = DateTime.UtcNow;
+    }
 }

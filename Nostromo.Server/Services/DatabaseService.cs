@@ -42,6 +42,8 @@ namespace Nostromo.Server.Services
         Task StoreMovieGenresAsync(int movieId, List<TmdbGenre> genres);
         Task<int> GetMovieCount();
         Task<List<GenreCounter>> GetGenreMovieCount();
+        Task InsertRecommendationGenreAsync(int recommendationId, int genreId, string genreName);
+        Task<int?> GetActualRecommendationDbIdAsync(int tmdbMovieId, int recommendationTmdbId);
     }
 
     public class DatabaseService : IDatabaseService
@@ -520,6 +522,15 @@ namespace Nostromo.Server.Services
         {
             try
             {
+                var existingRecommendation = await _context.Recommendations
+                    .FirstOrDefaultAsync(r => r.Id == recommendation.id && r.TMDBMovieID == movieId);
+
+                if (existingRecommendation != null)
+                {
+                    _logger.LogWarning("TMDB recommendation already exists: {Title} (ID: {Id})", recommendation.title, recommendation.id);
+                    return;
+                }
+
                 var recommendationEntity = new TMDBRecommendation
                 {
                     Id = recommendation.id,
@@ -539,52 +550,62 @@ namespace Nostromo.Server.Services
                     VoteCount = recommendation.voteCount
                 };
 
-                var existingRecommendation = await _context.Recommendations
-                    .FirstOrDefaultAsync(r => r.Id == recommendationEntity.Id);
+                await _context.Recommendations.AddAsync(recommendationEntity);
+                await _context.SaveChangesAsync();
 
-                if (existingRecommendation == null)
-                {
-                    await _context.Recommendations.AddAsync(recommendationEntity);
-                    await _context.SaveChangesAsync();
-
-                    foreach (var genre in recommendation.genreIds ?? new List<TmdbGenre>())
-                    {
-                        var existingGenre = await _context.Genres
-                            .FirstOrDefaultAsync(g => g.GenreID == genre.id && g.Name == genre.name);
-
-                        if (existingGenre == null)
-                        {
-                            existingGenre = new Genre
-                            {
-                                GenreID = genre.id,
-                                Name = genre.name
-                            };
-                            _context.Genres.Add(existingGenre);
-                            await _context.SaveChangesAsync();
-                        }
-
-                        _context.Add(new RecommendationGenre
-                        {
-                            RecommendationID = recommendationEntity.RecommendationID,
-                            GenreID = genre.id,
-                            Name = genre.name
-                        });
-                    }
-
-                    await _context.SaveChangesAsync();
-
-                    _logger.LogInformation("Stored TMDB recommendation: {Title} (ID: {Id})", recommendation.title, recommendation.id);
-                }
-                else
-                {
-                    _logger.LogWarning("TMDB recommendation already exists: {Title} (ID: {Id})", recommendation.title, recommendation.id);
-                }
+                _logger.LogInformation("Stored TMDB recommendation: {Title} (ID: {Id})", recommendation.title, recommendation.id);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error storing TMDB recommendation: {Title} (ID: {Id})", recommendation.title, recommendation.id);
                 throw;
             }
+        }
+
+        public async Task InsertRecommendationGenreAsync(int recommendationId, int genreId, string genreName)
+        {
+            // Check if the Genre exists
+            var existingGenre = await _context.Genres
+                .FirstOrDefaultAsync(g => g.GenreID == genreId && g.Name == genreName);
+
+            if (existingGenre == null)
+            {
+                existingGenre = new Genre
+                {
+                    GenreID = genreId,
+                    Name = genreName
+                };
+
+                await _context.Genres.AddAsync(existingGenre);
+                await _context.SaveChangesAsync();
+            }
+
+            // Check if the RecommendationGenre already exists
+            bool alreadyExists = await _context.RecommendationGenres
+                .AnyAsync(rg => rg.RecommendationID == recommendationId && rg.GenreID == genreId);
+
+            if (!alreadyExists)
+            {
+                var recGenre = new RecommendationGenre
+                {
+                    RecommendationID = recommendationId,
+                    GenreID = genreId,
+                    Name = genreName
+                };
+
+                await _context.RecommendationGenres.AddAsync(recGenre);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<int?> GetActualRecommendationDbIdAsync(int tmdbMovieId, int recommendationTmdbId)
+        {
+            var rec = await _context.Recommendations
+                .Where(r => r.TMDBMovieID == tmdbMovieId && r.Id == recommendationTmdbId)
+                .Select(r => (int?)r.RecommendationID)
+                .FirstOrDefaultAsync();
+
+            return rec;
         }
 
         public async Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId)
