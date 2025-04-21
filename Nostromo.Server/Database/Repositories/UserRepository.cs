@@ -23,4 +23,5 @@ public class UserRepository : Repository<User>, IUserRepository
         user.CreatedAt = DateTime.UtcNow;
         return await base.AddAsync(user);
     }
+    
 }
