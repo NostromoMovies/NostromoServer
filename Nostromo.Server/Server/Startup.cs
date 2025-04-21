@@ -20,6 +20,8 @@ using Microsoft.OpenApi.Models;
 using Nostromo.Server.Scheduling;
 using System.Threading;
 using Nostromo.Server.Database.Repositories;
+using Microsoft.EntityFrameworkCore.Metadata;
+
 
 namespace Nostromo.Server.Server
 {
@@ -105,10 +107,16 @@ namespace Nostromo.Server.Server
             // Register core services
             // TODO: move
             services.AddScoped<IDatabaseService, DatabaseService>();
+
+            services.AddSingleton<IGenreSyncService, GenreSyncService>();
+            services.AddHostedService<GenreSyncHostedService>();
+
             services.AddSingleton<ISettingsProvider>(_settingsProvider);
             services.AddSingleton<IFileWatcherService, FileWatcherService>();
             services.AddSingleton<IFileRenamerService, FileRenamerService>();
+            services.AddSingleton<IMediaPlaybackService, MediaPlaybackService>();
             services.AddScoped<IImportFolderManager, ImportFolderManager>();
+            
             services.AddSingleton<NostromoServer>();
             services.AddScoped<ISeasonRepository, SeasonRepository>();
             services.AddScoped<ITvEpisodeRepository, TvEpisodeRepository>();
@@ -143,17 +151,19 @@ namespace Nostromo.Server.Server
 
             services.AddTransient<DownloadMovieMetadataJob>();
             services.AddTransient<DownloadTMDBMetadataJob>();
+          
 
             services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
-
+            
             services.Configure<TmdbSettings>(_configuration.GetSection("TMDB"));
             services.AddHttpClient<ITmdbService, TmdbService>(client => {
                 var tmdbSettings = _configuration.GetSection("TMDB").Get<TmdbSettings>();
                 client.BaseAddress = new Uri(tmdbSettings?.BaseUrl ??
-                    throw new InvalidOperationException("TMDB BaseUrl not configured"));
+                                             throw new InvalidOperationException("TMDB BaseUrl not configured"));
                 client.DefaultRequestHeaders.Accept.Add(
                     new MediaTypeWithQualityHeaderValue("application/json"));
             });
+            
         }
 
         public async Task Start()
@@ -168,6 +178,11 @@ namespace Nostromo.Server.Server
                 {
                     var dbContext = scope.ServiceProvider.GetRequiredService<NostromoDbContext>();
                     await dbContext.Database.MigrateAsync();
+                    //var genreSync = scope.ServiceProvider.GetRequiredService<IGenreSyncService>();
+                    //await genreSync.SyncGenresAsync(CancellationToken.None);
+                    /*var tmdbService = scope.ServiceProvider.GetRequiredService<ITmdbService>();
+                    await tmdbService.GetGenreDictionary();
+                    _logger.LogInformation("TMDB genres seeded successfully");*/
                 }
 
                 if (!await StartWebHost())

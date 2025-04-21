@@ -39,6 +39,7 @@ namespace Nostromo.Server.Services
 
         Task<TmdbTvEpisodeResponse> GetTvEpisodeById(int showId, int seasonNumber, int episodeNumber, int seasonID);
 
+
     }
 
     public class TmdbService : ITmdbService
@@ -84,6 +85,7 @@ namespace Nostromo.Server.Services
             {
                 var genreUrl = $"genre/movie/list?api_key={_tmdbApiKey}";
                 var genreResponse = await _httpClient.GetFromJsonAsync<GenreResponse>(genreUrl)
+                    .ConfigureAwait(false)
                     ?? throw new NotFoundException("Genre list not found");
 
                 var genreDict = new Dictionary<int, string>();
@@ -195,7 +197,7 @@ namespace Nostromo.Server.Services
                     return (Array.Empty<TmdbMovieResponse>(), 0);
                 }
 
-                var genreDict = await GetGenreDictionary();
+                // var genreDict = await GetGenreDictionary();
 
                 // apparently not thread-safe
                 // Process each movie
@@ -382,7 +384,7 @@ namespace Nostromo.Server.Services
 
             return JsonSerializer.Deserialize<TmdbCreditsWrapper>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
-        
+
         public async Task<GenreResponse> GetGenresForMovie(int movieId)
         {
             string url = $"movie/{movieId}?api_key={_tmdbApiKey}";
@@ -405,6 +407,7 @@ namespace Nostromo.Server.Services
                     .ToList()
             };
         }
+
 
         public async Task<TvEpisodeCreditWrapper> GetTvEpisodeCreditsAsync(int showId, int seasonNumber, int episodeNumber)
         {
@@ -482,6 +485,7 @@ namespace Nostromo.Server.Services
                 throw;
             }
         }
+
     }
 
     public class NotFoundException(string message) : Exception(message)

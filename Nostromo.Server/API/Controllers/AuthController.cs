@@ -106,7 +106,15 @@ namespace Nostromo.Server.API.Controllers
                 message = "User logged in successfully",
                 token = token.Token
             });
+
+
+
         }
+
+  
+
+        
+        
     }
 
     public class RegisterRequest

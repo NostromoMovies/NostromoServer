@@ -40,12 +40,14 @@ namespace Nostromo.Server.Services
         Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
         Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string  maxYear,List<string> genreIds);
+
         
         Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy);
         Task<List<Genre>> getGenre();
         Task<int> GetMinYear();
         Task<TvShow> GetTvShowAsync(int id);
         
+
         Task StoreMovieGenresAsync(int movieId, List<TmdbGenre> genres);
         Task<int> GetMovieCount();
         Task<List<GenreCounter>> GetGenreMovieCount();
@@ -168,23 +170,26 @@ namespace Nostromo.Server.Services
         {
             try
             {
-                var genre = new Genre
-                {
-                    GenreID = genreModel.id,
-                    Name = genreModel.name
-                };
+                var existingGenre = await _context.Genres
+                    .FirstOrDefaultAsync(g => g.GenreID == genreModel.id && g.Name == genreModel.name);
 
-                var existingGenre = await _context.Genres.FindAsync(genre.GenreID);
                 if (existingGenre == null)
                 {
+                    var genre = new Genre
+                    {
+                        GenreID = genreModel.id,
+                        Name = genreModel.name
+                    };
+
                     await _context.Genres.AddAsync(genre);
                     await _context.SaveChangesAsync();
-                    _logger.LogInformation("Successfully inserted genre: {Name} (ID: {Id})", genre.Name, genre.GenreID);
+
+                    _logger.LogInformation("Successfully inserted genre: {Name} (TMDB ID: {Id})", genre.Name, genre.GenreID);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error inserting genre {Name} (ID: {Id})", genreModel.name, genreModel.id);
+                _logger.LogError(ex, "Error inserting genre {Name} (TMDB ID: {Id})", genreModel.name, genreModel.id);
                 throw;
             }
         }
@@ -570,6 +575,7 @@ namespace Nostromo.Server.Services
                 await _context.Recommendations.AddAsync(recommendationEntity);
                 await _context.SaveChangesAsync();
 
+
                 _logger.LogInformation("Stored TMDB recommendation: {Title} (ID: {Id})", recommendation.title, recommendation.id);
             }
             catch (Exception ex)
@@ -615,6 +621,7 @@ namespace Nostromo.Server.Services
                 {
                     _logger.LogWarning("TMDB recommendation already exists: {Name} (ID: {Id})", recommendation.Name, recommendation.Id);
                 }
+
             }
             catch (Exception ex)
             {
@@ -628,6 +635,14 @@ namespace Nostromo.Server.Services
             // Check if the Genre exists
             var existingGenre = await _context.Genres
                 .FirstOrDefaultAsync(g => g.GenreID == genreId && g.Name == genreName);
+
+
+        public async Task InsertRecommendationGenreAsync(int recommendationId, int genreId, string genreName)
+        {
+            // Check if the Genre exists
+            var existingGenre = await _context.Genres
+                .FirstOrDefaultAsync(g => g.GenreID == genreId && g.Name == genreName);
+
 
             if (existingGenre == null)
             {
@@ -658,6 +673,8 @@ namespace Nostromo.Server.Services
                 await _context.SaveChangesAsync();
             }
         }
+
+
         public async Task<int?> GetActualRecommendationDbIdAsync(int tmdbMovieId, int recommendationTmdbId)
         {
             var rec = await _context.Recommendations
@@ -667,7 +684,9 @@ namespace Nostromo.Server.Services
 
             return rec;
         }
-        
+
+
+
         public async Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId)
         {
             try
@@ -869,7 +888,7 @@ namespace Nostromo.Server.Services
         public async Task<List<Genre>> getGenre()
         {
 
-            return await _context.Genres.ToListAsync();
+            return await _context.Genres.OrderBy(g => g.Name).ToListAsync();
         }
 
         public async Task<int> GetMinYear()
@@ -883,7 +902,23 @@ namespace Nostromo.Server.Services
 
             return minYear;
         }
-        
+
+
+        /*public async Task<GenreCounter> GetMaxYear()
+        {
+            var genreCounts = _context.Movies
+                .SelectMany(m => m.Genres) // Flatten all genres across movies
+                .GroupBy(g => g.GenreID)   // Group by GenreID
+                .Select(g => new GenreCounter
+                {
+                    GenreID = g.Key,
+                    GenreCount = g.Count()
+                })
+                .ToList();
+            return genreCounts
+        }*/
+
+
         public async Task StoreMovieGenresAsync(int movieId, List<TmdbGenre> genres)
         {
             foreach (var genre in genres)
@@ -920,6 +955,9 @@ namespace Nostromo.Server.Services
             return result;
         }
 
-        
+
+   
+
+
     }
 }

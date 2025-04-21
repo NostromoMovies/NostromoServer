@@ -1,4 +1,5 @@
-using Microsoft.Extensions.Logging;
+
+﻿using Microsoft.Extensions.Logging;
 using Nostromo.Server.Database.Repositories;
 using System;
 using System.Collections.Generic;
@@ -24,4 +25,6 @@ namespace Nostromo.Server.Services
             return await _videoPlaceRepository.GetVideoFilePathByVideoID(videoId);
         }
     }
+
 }
+
