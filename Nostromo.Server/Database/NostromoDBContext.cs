@@ -422,6 +422,7 @@ namespace Nostromo.Server.Database
         public string BackdropPath { get; set; }
         public int CreatedAt { get; set; }
         public DateTime LastUpdatedAt { get; set; }
+        public string? Certification { get; set; }
         public virtual ICollection<Genre> Genres { get; set; } = new List<Genre>();
     }
 

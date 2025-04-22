@@ -51,6 +51,7 @@ namespace Nostromo.Server.Services
         Task<List<GenreCounter>> GetGenreMovieCount();
         Task InsertRecommendationGenreAsync(int recommendationId, int genreId, string genreName);
         Task<int?> GetActualRecommendationDbIdAsync(int tmdbMovieId, int recommendationTmdbId);
+        Task UpdateMovieCertificationAsync(int movieId, string certification);
     }
 
     public class DatabaseService : IDatabaseService
@@ -941,8 +942,14 @@ namespace Nostromo.Server.Services
             return result;
         }
 
+        public async Task UpdateMovieCertificationAsync(int movieId, string certification)
+        {
+            var movie = await _context.Movies.FindAsync(movieId);
+            if (movie == null)
+                throw new InvalidOperationException($"Movie with ID {movieId} not found.");
 
-   
-
+            movie.Certification = certification;
+            await _context.SaveChangesAsync();
+        }
     }
 }

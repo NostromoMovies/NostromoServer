@@ -24,22 +24,16 @@ namespace Nostromo.Server.Services
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMovies(string query);
         Task<Dictionary<int, string>> GetGenreDictionary();
         Task<TmdbRecommendationsResponse> GetRecommendation(int movieId);
-        
         Task<TvRecommendationListResponse> GetTvRecommendation(int showId);
-        
         Task<int?> GetKeywordId(string keyword);
         Task<(IEnumerable<TmdbMovieResponse> Results, int TotalResults)> SearchMoviesByKeyword(string keyword);
         Task<TmdbCreditsWrapper> GetMovieCreditsAsync(int movieId);
-        
         Task<GenreResponse> GetGenresForMovie(int movieId);
         Task<TvEpisodeCreditWrapper> GetTvEpisodeCreditsAsync(int showId, int seasonNumber, int episodeNumber);
-        
         Task<TvShowCreditWrapper> GetTvShowCreditsAsync(int showId);
         Task<TmdbTvResponse> GetTvShowById(int showId);
-
         Task<TmdbTvEpisodeResponse> GetTvEpisodeById(int showId, int seasonNumber, int episodeNumber, int seasonID);
-
-
+        Task<string?> GetCertificationAsync(int movieId);
     }
 
     public class TmdbService : ITmdbService
@@ -486,12 +480,23 @@ namespace Nostromo.Server.Services
             }
         }
 
+        public async Task<string?> GetCertificationAsync(int movieId)
+        {
+            var url = $"movie/{movieId}/release_dates?api_key={_tmdbApiKey}";
+            var response = await _httpClient.GetFromJsonAsync<TmdbCertificationResponse>(url);
+
+            var usRelease = response?.Results.FirstOrDefault(r => r.Iso3166_1 == "US");
+            var certification = usRelease?.ReleaseDates?
+                .Where(r => !string.IsNullOrWhiteSpace(r.Certification))
+                .OrderByDescending(r => r.ReleaseDate)
+                .FirstOrDefault()?.Certification;
+
+            return string.IsNullOrWhiteSpace(certification) ? null : certification;
+        }
     }
 
     public class NotFoundException(string message) : Exception(message)
     {
 
     }
-    
-    
 }

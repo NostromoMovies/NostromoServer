@@ -73,6 +73,13 @@ public class DownloadMovieMetadataJob : BaseJob
                 var movieResponse = await _tmdbService.GetMovieById(movieId.Value);
                 _logger.LogInformation("Movie metadata saved to database for MovieID: {MovieID}", movieId);
 
+                var certification = await _tmdbService.GetCertificationAsync(movieId.Value);
+                if (certification != null)
+                {
+                    await _databaseService.UpdateMovieCertificationAsync(movieId.Value, certification);
+                    _logger.LogInformation("Stored certification '{Certification}' for movie ID {MovieId}", certification, movieId);
+                }
+
                 if (movieResponse.genreIds != null && movieResponse.genreIds.Any())
                 {
                     await _databaseService.StoreMovieGenresAsync(movieId.Value, movieResponse.genreIds);

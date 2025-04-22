@@ -67,6 +67,13 @@ public class DownloadDirectMovieMetadataJob : BaseJob
                 return;
             }
 
+            var certification = await _tmdbService.GetCertificationAsync(movieId);
+            if (certification != null)
+            {
+                await _databaseService.UpdateMovieCertificationAsync(movieId, certification);
+                _logger.LogInformation("Stored certification '{Certification}' for movie ID {MovieId}", certification, movieId);
+            }
+
             await _databaseService.InsertExampleHashAsync(fileHash, movieId, movieDetails.Title);
             _logger.LogInformation("Inserted ExampleHash entry: {FileHash}, {MovieID}, {Title}", fileHash, movieId, movieDetails.Title);
 

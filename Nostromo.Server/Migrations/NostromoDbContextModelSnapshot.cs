@@ -190,14 +190,12 @@ namespace Nostromo.Server.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
-
                     b.Property<int?>("TvRecommendationRecommendationID")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("GenreID", "Name");
 
                     b.HasIndex("TvRecommendationRecommendationID");
-
 
                     b.HasIndex("GenreID", "Name")
                         .IsUnique();
@@ -267,7 +265,6 @@ namespace Nostromo.Server.Migrations
                     b.HasIndex("GenreID", "Name");
 
                     b.ToTable("RecommendationGenres");
-
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.Season", b =>
@@ -309,7 +306,6 @@ namespace Nostromo.Server.Migrations
                     b.HasIndex("TvShowID");
 
                     b.ToTable("Seasons");
-
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.TMDBMovie", b =>
@@ -321,6 +317,9 @@ namespace Nostromo.Server.Migrations
 
                     b.Property<string>("BackdropPath")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Certification")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("CreatedAt")
@@ -902,7 +901,6 @@ namespace Nostromo.Server.Migrations
 
             modelBuilder.Entity("Nostromo.Server.Database.Episode", b =>
                 {
-
                     b.HasOne("Nostromo.Server.Database.Season", "Season")
                         .WithMany()
                         .HasForeignKey("SeasonID")
@@ -923,7 +921,7 @@ namespace Nostromo.Server.Migrations
                 {
                     b.HasOne("Nostromo.Server.Database.TMDBMovie", "Movie")
                         .WithMany()
-                        .HasForeignKey("GenreID", "Name")
+                        .HasForeignKey("MovieID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -957,7 +955,6 @@ namespace Nostromo.Server.Migrations
                     b.Navigation("Recommendation");
                 });
 
-
             modelBuilder.Entity("Nostromo.Server.Database.Season", b =>
                 {
                     b.HasOne("Nostromo.Server.Database.TvShow", "TvShow")
@@ -968,7 +965,6 @@ namespace Nostromo.Server.Migrations
 
                     b.Navigation("TvShow");
                 });
-
 
             modelBuilder.Entity("Nostromo.Server.Database.TMDBMovieCast", b =>
                 {
@@ -1063,7 +1059,6 @@ namespace Nostromo.Server.Migrations
                     b.Navigation("WatchList");
                 });
 
-
             modelBuilder.Entity("Nostromo.Server.Database.TvRecommendation", b =>
                 {
                     b.Navigation("Genres");
@@ -1073,7 +1068,6 @@ namespace Nostromo.Server.Migrations
                 {
                     b.Navigation("Seasons");
                 });
-
 
             modelBuilder.Entity("Nostromo.Server.Database.WatchList", b =>
                 {

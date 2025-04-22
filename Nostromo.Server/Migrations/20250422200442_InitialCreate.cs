@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Nostromo.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class TnShowInitial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -85,7 +85,8 @@ namespace Nostromo.Server.Migrations
                     PosterPath = table.Column<string>(type: "TEXT", nullable: false),
                     BackdropPath = table.Column<string>(type: "TEXT", nullable: false),
                     CreatedAt = table.Column<int>(type: "INTEGER", nullable: false),
-                    LastUpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    LastUpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Certification = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {

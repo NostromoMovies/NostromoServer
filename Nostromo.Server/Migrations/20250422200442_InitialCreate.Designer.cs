@@ -11,8 +11,8 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    [Migration("20250421055038_TnShowInitial")]
-    partial class TnShowInitial
+    [Migration("20250422200442_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -320,6 +320,9 @@ namespace Nostromo.Server.Migrations
 
                     b.Property<string>("BackdropPath")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Certification")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("CreatedAt")
