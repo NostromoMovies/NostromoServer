@@ -19,7 +19,9 @@ using System.Security.Claims;
 using Microsoft.OpenApi.Models;
 using Nostromo.Server.Scheduling;
 using System.Threading;
+using Nostromo.Server.Database.Repositories;
 using Microsoft.EntityFrameworkCore.Metadata;
+
 
 namespace Nostromo.Server.Server
 {
@@ -116,7 +118,12 @@ namespace Nostromo.Server.Server
             services.AddScoped<IImportFolderManager, ImportFolderManager>();
             
             services.AddSingleton<NostromoServer>();
+            services.AddScoped<ISeasonRepository, SeasonRepository>();
+            services.AddScoped<ITvEpisodeRepository, TvEpisodeRepository>();
+            services.AddScoped<ITvShowRepository, TvShowRepository>();
+            services.AddScoped<ITvRecommendationRepository, TvRecommendationRepository>();
 
+            
             // Configure WatcherSettings
             //services.Configure<WatcherSettings>(_configuration.GetSection("WatcherSettings"));
 
@@ -127,15 +134,19 @@ namespace Nostromo.Server.Server
                     ?? throw new InvalidOperationException("Watch path not configured");
                 return new RecoveringFileSystemWatcher(watchPath);
             });
+            
+            services.AddTransient<DownloadTmdbImageJob>();
 
             services.AddQuartzServices();
-
+            
             services.AddQuartz(q =>
             {
                 q.UseMicrosoftDependencyInjectionJobFactory();
 
                 q.AddJob<DownloadMovieMetadataJob>(opts => opts.WithIdentity("DownloadMovieMetadataJob"));
                 q.AddJob<DownloadTMDBMetadataJob>(opts => opts.WithIdentity("DownloadTMDBMetadataJob"));
+                q.AddJob<DownloadTmdbImageJob>(opts => opts.WithIdentity("DownloadTmdbImageJob"));
+
             });
 
             services.AddTransient<DownloadMovieMetadataJob>();

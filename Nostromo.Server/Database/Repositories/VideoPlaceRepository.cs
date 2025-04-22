@@ -15,6 +15,7 @@ namespace Nostromo.Server.Database.Repositories
 
         public async Task<string> GetVideoFilePathByVideoID(int videoID)
         {
+
            var vp = await Query().FirstOrDefaultAsync<VideoPlace>(m=>m.VideoID == videoID);
 
             return vp.FilePath;

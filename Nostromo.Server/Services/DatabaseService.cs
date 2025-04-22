@@ -6,6 +6,7 @@ using Nostromo.Server.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
+using Nostromo.Server.API.Enums;
 
 namespace Nostromo.Server.Services
 {
@@ -35,10 +36,16 @@ namespace Nostromo.Server.Services
         Task<List<Video>> GetAllUnrecognizedVideosAsync();
         Task InsertExampleHashAsync(string ed2kHash, int tmdbId, string title);
         Task StoreTmdbRecommendationsAsync(int movieId, TmdbRecommendation recommendation);
+        
+        Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
         Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string  maxYear,List<string> genreIds);
+        
+        Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy);
         Task<List<Genre>> getGenre();
         Task<int> GetMinYear();
+        Task<TvShow> GetTvShowAsync(int id);
+        
         Task StoreMovieGenresAsync(int movieId, List<TmdbGenre> genres);
         Task<int> GetMovieCount();
         Task<List<GenreCounter>> GetGenreMovieCount();
@@ -52,17 +59,23 @@ namespace Nostromo.Server.Services
         private readonly IUserRepository _userRepository;
         private readonly NostromoDbContext _context;
         private readonly ILogger<DatabaseService> _logger;
+        private readonly ITvShowRepository _tvShowRepository;
+        private readonly ITvEpisodeRepository _tvEpisodeRepository;
 
         public DatabaseService(
             IMovieRepository movieRepository,
             //IUserRepository userRepository,
             NostromoDbContext context,
-            ILogger<DatabaseService> logger)
+            ILogger<DatabaseService> logger,
+            ITvShowRepository tvShowRepository,
+            ITvEpisodeRepository tvEpisodeRepository)
         {
             _movieRepository = movieRepository;
             //_userRepository = userRepository;
             _context = context;
             _logger = logger;
+            _tvShowRepository = tvShowRepository;
+            _tvEpisodeRepository = tvEpisodeRepository;
         }
 
         public async Task<int?> GetMovieIdByHashAsync(string hash)
@@ -99,6 +112,11 @@ namespace Nostromo.Server.Services
         public async Task<TMDBMovie> GetMovieAsync(int id)
         {
             return await _movieRepository.GetByIdAsync(id);
+        }
+        
+        public async Task<TvShow> GetTvShowAsync(int id)
+        {
+            return await _tvShowRepository.GetByIdAsync(id);
         }
 
         //public async Task InsertMovieAsync(TmdbMovieResponse movieModel)
@@ -327,7 +345,7 @@ namespace Nostromo.Server.Services
                     OriginalName = castMember.original_name,
                     Popularity = castMember.popularity,
                     ProfilePath = castMember.profile_path,
-                    CastId = castMember.cast_id,
+                    CastId = castMember.cast_id ?? 0,
                     Character = castMember.character,
                     CreditID = castMember.credit_id,
                     Order = castMember.order
@@ -339,6 +357,7 @@ namespace Nostromo.Server.Services
             await _context.SaveChangesAsync();
             _logger.LogInformation("Stored {Count} cast members for movie ID {MovieId}", cast.Count, movieId);
         }
+
 
         public async Task StoreMovieCrewAsync(int movieId, List<TmdbCrewMember> crew)
         {
@@ -432,6 +451,7 @@ namespace Nostromo.Server.Services
                 })
                 .ToListAsync();
         }
+
 
         public async Task<DateTime> GetCreatedAtByVideoIdAsync(int? videoId)
         {
@@ -562,6 +582,51 @@ namespace Nostromo.Server.Services
             }
         }
 
+        public async Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation)
+        {
+            try
+            {
+                var recommendationEntity = new TvRecommendation
+                {
+                    Id = recommendation.Id,
+                    ShowId = showId,
+                    Name = recommendation.Name,
+                    Adult = recommendation.Adult,
+                    BackdropPath = recommendation.backdropPath,
+                    OriginalName = recommendation.OriginalName,
+                    Overview = recommendation.Overview,
+                    PosterPath = recommendation.PosterPath,
+                    MediaType = recommendation.MediaType,
+                    VoteAverage = recommendation.VoteAverage,
+                    VoteCount = recommendation.VoteCount,
+                    firstAirDate = recommendation.firstAirDate,
+                    Popularity = recommendation.Popularity,
+                        
+                }; 
+
+                var existingRecommendation = await _context.Recommendations
+                    .FirstOrDefaultAsync(r => r.Id == recommendationEntity.Id);
+
+                if (existingRecommendation == null)
+                {
+                    await _context.TvRecommendations.AddAsync(recommendationEntity);
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogInformation("Stored TMDB recommendation: {Name} (ID: {Id})", recommendation.Name, recommendation.Id);
+                }
+                else
+                {
+                    _logger.LogWarning("TMDB recommendation already exists: {Name} (ID: {Id})", recommendation.Name, recommendation.Id);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error storing TMDB recommendation: {Name} (ID: {Id})", recommendation.Name, recommendation.Id);
+                throw;
+            }
+        }
+        
         public async Task InsertRecommendationGenreAsync(int recommendationId, int genreId, string genreName)
         {
             // Check if the Genre exists
@@ -786,8 +851,26 @@ namespace Nostromo.Server.Services
 
             return await _context.Movies.ToListAsync();
         }
+        
+        public async Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy)
+        {
 
+            var result = _context.TvShows
+                    .Where(c =>
+                        (string.IsNullOrEmpty(searchTerm) || c.OriginalName.ToLower().Contains(searchTerm.ToLower()))); /*&&
+                        (maxYear == 0 || DateTime.Parse(c.FirstAirDate).Year <= maxYear) &&
+                        (minYear == 3000 || DateTime.Parse(c.FirstAirDate).Year >= minYear));*/
 
+            result = sortBy switch
+            {
+                0 => result.OrderByDescending(c => c.Popularity),
+                1 => result.OrderByDescending(c => c.OriginalName.ToLower()),
+                2 => result.OrderByDescending(c => c.VoteAverage),
+                _ => result.OrderByDescending(c => c.Popularity),
+            };
+            
+            return await result.ToListAsync();
+        }
         public async Task<List<Genre>> getGenre()
         {
 
@@ -806,6 +889,7 @@ namespace Nostromo.Server.Services
             return minYear;
         }
 
+
         /*public async Task<GenreCounter> GetMaxYear()
         {
             var genreCounts = _context.Movies
@@ -819,6 +903,7 @@ namespace Nostromo.Server.Services
                 .ToList();
             return genreCounts
         }*/
+
 
         public async Task StoreMovieGenresAsync(int movieId, List<TmdbGenre> genres)
         {
@@ -855,6 +940,7 @@ namespace Nostromo.Server.Services
 
             return result;
         }
+
 
    
 
