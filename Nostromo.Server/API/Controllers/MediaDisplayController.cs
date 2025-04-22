@@ -107,8 +107,10 @@ namespace Nostromo.Server.API.Controllers
                     voteAverage = Convert.ToSingle(movie.VoteAverage),
                     runtime = movie.Runtime,
                     genreIds = movie.Genres?
-                        .Select(g => new TmdbGenre { id = g.GenreID, name = g.Name })
-                        .ToList() ?? new List<TmdbGenre>()
+
+                            .Select(g => new TmdbGenre { id = g.GenreID, name = g.Name })
+                            .ToList() ?? new List<TmdbGenre>()
+
                 };
 
                 return ApiResults.Success(result);
@@ -416,6 +418,11 @@ namespace Nostromo.Server.API.Controllers
         {
             return await _databaseService.GetGenreMovieCount();
         }
+
+        
+
+
+
 
     }
 }

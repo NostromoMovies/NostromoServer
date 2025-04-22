@@ -70,6 +70,7 @@ namespace Nostromo.Server.Server
             {
                 app.UseDeveloperExceptionPage();
             }
+            
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>

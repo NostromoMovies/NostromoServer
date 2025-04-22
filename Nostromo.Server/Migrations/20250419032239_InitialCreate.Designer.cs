@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nostromo.Server.Database;
 
@@ -10,9 +11,11 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    partial class NostromoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250419032239_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -90,53 +93,6 @@ namespace Nostromo.Server.Migrations
                     b.ToTable("DuplicateFiles");
                 });
 
-            modelBuilder.Entity("Nostromo.Server.Database.Episode", b =>
-                {
-                    b.Property<int>("EpisodeID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Airdate")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("EpisodeName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("EpisodeNumber")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Overview")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Runtime")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("SeasonID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("SeasonNumber")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("StillPath")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<double>("VoteAverage")
-                        .HasColumnType("REAL");
-
-                    b.Property<int>("VoteCount")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("EpisodeID");
-
-                    b.HasIndex("SeasonID");
-
-                    b.ToTable("Episodes");
-                });
-
             modelBuilder.Entity("Nostromo.Server.Database.ExampleHash", b =>
                 {
                     b.Property<int>("Id")
@@ -169,7 +125,7 @@ namespace Nostromo.Server.Migrations
                         new
                         {
                             Id = 2,
-                            ED2K = "ee4a746481ec4a6a909943562aefe86a",
+                            ED2K = "da1a506c0ee1fe6c46ec64fd57faa924",
                             Title = "Aliens",
                             TmdbId = 679
                         },
@@ -190,14 +146,7 @@ namespace Nostromo.Server.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
-
-                    b.Property<int?>("TvRecommendationRecommendationID")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("GenreID", "Name");
-
-                    b.HasIndex("TvRecommendationRecommendationID");
-
 
                     b.HasIndex("GenreID", "Name")
                         .IsUnique();
@@ -267,49 +216,6 @@ namespace Nostromo.Server.Migrations
                     b.HasIndex("GenreID", "Name");
 
                     b.ToTable("RecommendationGenres");
-
-                });
-
-            modelBuilder.Entity("Nostromo.Server.Database.Season", b =>
-                {
-                    b.Property<int>("SeasonID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Airdate")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("EpisodeCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Overview")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PosterPath")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("SeasonNumber")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TvShowID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<double>("VoteAverage")
-                        .HasColumnType("REAL");
-
-                    b.Property<string>("seasonName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("SeasonID");
-
-                    b.HasIndex("TvShowID");
-
-                    b.ToTable("Seasons");
-
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.TMDBMovie", b =>
@@ -624,112 +530,6 @@ namespace Nostromo.Server.Migrations
                     b.ToTable("Recommendations");
                 });
 
-            modelBuilder.Entity("Nostromo.Server.Database.TvRecommendation", b =>
-                {
-                    b.Property<int>("RecommendationID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("Adult")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("BackdropPath")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("MediaType")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OriginalName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Overview")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<double>("Popularity")
-                        .HasColumnType("REAL");
-
-                    b.Property<string>("PosterPath")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ShowId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TvShowID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<double>("VoteAverage")
-                        .HasColumnType("REAL");
-
-                    b.Property<int>("VoteCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("firstAirDate")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("RecommendationID");
-
-                    b.HasIndex("TvShowID");
-
-                    b.ToTable("TvRecommendations");
-                });
-
-            modelBuilder.Entity("Nostromo.Server.Database.TvShow", b =>
-                {
-                    b.Property<int>("TvShowID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("Adult")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("BackdropPath")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("FirstAirDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OriginalLanguage")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OriginalName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Overview")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<double>("Popularity")
-                        .HasColumnType("REAL");
-
-                    b.Property<string>("PosterPath")
-                        .HasColumnType("TEXT");
-
-                    b.Property<double>("VoteAverage")
-                        .HasColumnType("REAL");
-
-                    b.Property<int>("VoteCount")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("TvShowID");
-
-                    b.ToTable("TvShows");
-                });
-
             modelBuilder.Entity("Nostromo.Server.Database.User", b =>
                 {
                     b.Property<int>("UserID")
@@ -900,30 +700,11 @@ namespace Nostromo.Server.Migrations
                     b.Navigation("Video");
                 });
 
-            modelBuilder.Entity("Nostromo.Server.Database.Episode", b =>
-                {
-
-                    b.HasOne("Nostromo.Server.Database.Season", "Season")
-                        .WithMany()
-                        .HasForeignKey("SeasonID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Season");
-                });
-
-            modelBuilder.Entity("Nostromo.Server.Database.Genre", b =>
-                {
-                    b.HasOne("Nostromo.Server.Database.TvRecommendation", null)
-                        .WithMany("Genres")
-                        .HasForeignKey("TvRecommendationRecommendationID");
-                });
-
             modelBuilder.Entity("Nostromo.Server.Database.MovieGenre", b =>
                 {
                     b.HasOne("Nostromo.Server.Database.TMDBMovie", "Movie")
                         .WithMany()
-                        .HasForeignKey("GenreID", "Name")
+                        .HasForeignKey("MovieID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -956,19 +737,6 @@ namespace Nostromo.Server.Migrations
 
                     b.Navigation("Recommendation");
                 });
-
-
-            modelBuilder.Entity("Nostromo.Server.Database.Season", b =>
-                {
-                    b.HasOne("Nostromo.Server.Database.TvShow", "TvShow")
-                        .WithMany("Seasons")
-                        .HasForeignKey("TvShowID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TvShow");
-                });
-
 
             modelBuilder.Entity("Nostromo.Server.Database.TMDBMovieCast", b =>
                 {
@@ -1011,17 +779,6 @@ namespace Nostromo.Server.Migrations
                     b.Navigation("Movie");
                 });
 
-            modelBuilder.Entity("Nostromo.Server.Database.TvRecommendation", b =>
-                {
-                    b.HasOne("Nostromo.Server.Database.TvShow", "TvShow")
-                        .WithMany()
-                        .HasForeignKey("TvShowID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TvShow");
-                });
-
             modelBuilder.Entity("Nostromo.Server.Database.VideoPlace", b =>
                 {
                     b.HasOne("Nostromo.Server.Database.Video", "Video")
@@ -1062,18 +819,6 @@ namespace Nostromo.Server.Migrations
 
                     b.Navigation("WatchList");
                 });
-
-
-            modelBuilder.Entity("Nostromo.Server.Database.TvRecommendation", b =>
-                {
-                    b.Navigation("Genres");
-                });
-
-            modelBuilder.Entity("Nostromo.Server.Database.TvShow", b =>
-                {
-                    b.Navigation("Seasons");
-                });
-
 
             modelBuilder.Entity("Nostromo.Server.Database.WatchList", b =>
                 {
