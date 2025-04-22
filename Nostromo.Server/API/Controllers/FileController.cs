@@ -4,7 +4,9 @@ using Quartz;
 using Nostromo.Server.Scheduling.Jobs;
 using Microsoft.AspNetCore.Http;
 using Nostromo.Server.API.Models;
+using Nostromo.Server.Database;
 using Nostromo.Server.Services;
+using Nostromo.Server.API.Enums;
 
 namespace Nostromo.Server.API.Controllers
 {
@@ -26,38 +28,61 @@ namespace Nostromo.Server.API.Controllers
             _fileRenamerService = fileRenamerService;
         }
 
-        [HttpGet("download/tmdb/{movieId}/poster")]
-        public async Task<IResult> DownloadTmdbPoster(int movieId)
+        [HttpGet("download/tmdb/{mediaType}/{mediaId}/poster")]
+        public async Task<IResult> DownloadTmdbPoster(string mediaType, int mediaId, int? seasonNumber = null, int? episodeNumber = null)
         {
             try
             {
+                if (!Enum.TryParse<MediaTypes>(mediaType, true, out var parsedMediaType))
+                {
+                    return ApiResults.BadRequest("Invalid media type: Allowed values are: movie, tv, season and episode");
+                }
                 var scheduler = await _schedulerFactory.GetScheduler();
-                var jobKey = new JobKey($"DownloadPoster_{movieId}", "TmdbDownloads");
-                var triggerKey = new TriggerKey($"DownloadPosterTrigger_{movieId}", "TmdbDownloads");
-
+                var jobKey = new JobKey($"DownloadPoster_{mediaType}_{mediaId}", "TmdbDownloads");
+                var triggerKey = new TriggerKey($"DownloadPosterTrigger_{mediaType}_{mediaId}", "TmdbDownloads");
+  
                 var jobDetail = JobBuilder.Create<DownloadTmdbImageJob>()
                     .WithIdentity(jobKey)
-                    .UsingJobData(DownloadTmdbImageJob.MOVIE_ID_KEY, movieId)
+                    .UsingJobData(DownloadTmdbImageJob.MEDIA_ID_KEY, mediaId)
+                    .UsingJobData(DownloadTmdbImageJob.MEDIA_TYPE_KEY, mediaType)
                     .Build();
 
+                if (parsedMediaType == MediaTypes.Season || parsedMediaType == MediaTypes.Episode)
+                {
+                    if (seasonNumber == null)
+                    {
+                        return ApiResults.BadRequest("Season number is required for season and episode posters");
+                    }
+                    jobDetail.JobDataMap.Put(DownloadTmdbImageJob.SEASON_NUMBER_KEY, seasonNumber.Value);
+                }
+
+                if (parsedMediaType == MediaTypes.Episode)
+                {
+                    if (episodeNumber == null)
+                    {
+                        return ApiResults.BadRequest("Episode number is required for episode posters");
+                    }
+                    jobDetail.JobDataMap.Put(DownloadTmdbImageJob.EPISODES_NUMBER_KEY, episodeNumber.Value);
+                }
+                
                 var trigger = TriggerBuilder.Create()
                     .WithIdentity(triggerKey)
                     .StartNow()
                     .Build();
 
                 await scheduler.ScheduleJob(jobDetail, trigger);
-                _logger.LogInformation("Scheduled poster download job for movie {MovieId}", movieId);
+                _logger.LogInformation("Scheduled poster download job for {MediaType} {MediaId}", mediaType, mediaId);
 
                 return ApiResults.Success(new
                 {
-                    Message = $"Download job scheduled for movie {movieId}",
+                    Message = $"Download job scheduled for {mediaType} {mediaId}",
                     JobKey = jobKey.ToString(),
                     TriggerKey = triggerKey.ToString()
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error scheduling download job for movie {MovieId}", movieId);
+                _logger.LogError(ex, "Error scheduling download job for {MediaType} {MediaId}", mediaType, mediaId);
                 return ApiResults.ServerError($"Error scheduling download job: {ex.Message}");
             }
         }

@@ -5,6 +5,8 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Nostromo.Models;
+using Nostromo.Server.API.Models;
+using Nostromo.Server.Services;
 
 using Nostromo.Server.Services;
 
@@ -34,6 +36,12 @@ namespace Nostromo.Server.Database
         public DbSet<RecommendationGenre> RecommendationGenres { get; set; }
         public DbSet<WatchList> WatchLists { get; set; }
         public DbSet<WatchListItem> WatchListItems { get; set; }
+
+        
+        public DbSet<TvShow> TvShows { get; set; }
+        public DbSet<Episode> Episodes { get; set; }
+        public DbSet<Season> Seasons { get; set; } 
+        public DbSet<TvRecommendation> TvRecommendations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -284,7 +292,7 @@ namespace Nostromo.Server.Database
                         Id = 2,
                         Title = "Aliens",
                         TmdbId = 679,
-                        ED2K = "da1a506c0ee1fe6c46ec64fd57faa924"
+                        ED2K = "ee4a746481ec4a6a909943562aefe86a"
                     },
                     new ExampleHash
                     {
@@ -626,4 +634,180 @@ namespace Nostromo.Server.Database
 
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;
     }
+    
+    public class TvShow
+     {
+         public TvShow(TmdbTvResponse api)
+         {
+             TvShowID = api.Id;
+             Seasons = api.Seasons?.ConvertAll(season => new Season(season, TvShowID)) ?? new List<Season>();
+             Adult = api.Adult;
+             OriginalLanguage = api.OriginalLanguage;
+             OriginalName = api.OriginalName;
+             Overview = api.Overview ?? "";
+             Popularity = api.Popularity ?? 0.0;
+             PosterPath = api.PosterPath;
+             BackdropPath = api.BackdropPath;
+             VoteAverage = api.VoteAverage ?? 0.0;
+             VoteCount = api.VoteCount ?? 0;
+         }
+
+         [Key]
+         public int TvShowID { get; set; }
+         
+         public bool Adult { get; set; }
+         
+         public string OriginalLanguage { get; set; }
+         
+         public string OriginalName { get; set; }
+         
+         public string Overview { get; set; }
+         
+         public double Popularity { get; set; }
+         
+         public string? PosterPath { get; set; }
+         
+         public string? BackdropPath { get; set; }
+         
+         public string? FirstAirDate { get; set; }
+         
+         public double VoteAverage { get; set; }
+
+         public int VoteCount { get; set; }
+         
+         public List<Season> Seasons { get; set; }
+         
+         public TvShow(){
+         }
+         
+     }
+
+     public class Season
+     {
+         public Season(TmdbTvSeasonResponse api, int tvShowId)
+         {
+             SeasonID = api.SeasonID;
+             TvShowID = tvShowId;
+             seasonName = api.seasonName;
+             SeasonNumber = api.SeasonNumber;
+             Airdate = api.Airdate;
+             EpisodeCount = api.EpisodeCount;
+             Overview = api.Overview;
+             PosterPath = api.PosterPath;
+             VoteAverage = api.VoteAverage;
+         }
+         
+         public Season(){}
+         [Key]
+         public int SeasonID { get; set; }
+         
+         [ForeignKey("TvShow")]
+         public int TvShowID { get; set; }
+         
+         public string seasonName { get; set; }
+         
+         public virtual TvShow TvShow { get; set; }
+         
+         public int SeasonNumber { get; set; }
+         
+         public string Airdate { get; set; }
+         
+         public int EpisodeCount { get; set; }
+         
+         public string Overview { get; set; }
+         
+         public string PosterPath { get; set; }
+         
+         public double VoteAverage { get; set; }
+         
+         //public virtual ICollection<Episode> Episodes { get; set; } = new List<Episode>();
+     }
+
+     public class Episode
+     {
+         public Episode(TmdbTvEpisodeResponse api, int seasonID, int episodeNum)
+         {
+             EpisodeID = api.EpisodeID;
+             SeasonID = seasonID;
+             EpisodeNumber = episodeNum;
+             EpisodeName = api.EpisodeName;
+             Airdate = api.Airdate;
+             Overview = api.Overview;
+             SeasonNumber = api.SeasonNumber;
+             Runtime = api.Runtime;
+             VoteAverage = api.VoteAverage;
+             VoteCount = api.VoteCount;
+             StillPath = api.StillPath;
+         }
+
+         public Episode()
+         {
+
+         }
+
+         [Key] public int EpisodeID { get; set; }
+
+         [ForeignKey("Season")] public int SeasonID { get; set; }
+         public virtual Season Season { get; set; }
+
+         public string EpisodeName { get; set; }
+
+         public int EpisodeNumber { get; set; }
+
+         public string Airdate { get; set; }
+
+         public string Overview { get; set; }
+
+         public int SeasonNumber { get; set; }
+
+         public int Runtime { get; set; }
+
+         public double VoteAverage { get; set; }
+
+         public int VoteCount { get; set; }
+
+         public string StillPath { get; set; }
+
+     }
+     public class TvRecommendation
+     {
+         
+         [Key]
+         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+         public int RecommendationID { get; set; }
+
+         [Required]
+         public int Id { get; set; }
+
+         [Required]
+         public int ShowId { get; set; }
+
+         [Required]
+         public string Name { get; set; }
+         
+         public bool Adult { get; set; }
+         
+         public string BackdropPath { get; set; }
+         
+         public string OriginalName { get; set; }
+         
+         public string Overview { get; set; }
+         
+         public string PosterPath { get; set; }
+         
+         public string MediaType { get; set; }
+         
+         public List<Genre> Genres { get; set; }
+         
+         public double Popularity { get; set; }
+         
+         public string firstAirDate { get; set; }
+         
+         public double VoteAverage { get; set; }
+         
+         public int VoteCount { get; set; }
+         
+         public virtual TvShow TvShow { get; set; }
+         
+     }
 }

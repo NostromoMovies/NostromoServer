@@ -12,5 +12,7 @@ namespace Nostromo.Server.API.Models
         public List<TmdbImage> Backdrops { get; set; } = new();
         public List<TmdbImage> Logos { get; set; } = new();
         public List<TmdbImage> Posters { get; set; } = new();
+        
+        public List<TmdbImage> Stills { get; set; } = new();
     }
 }
