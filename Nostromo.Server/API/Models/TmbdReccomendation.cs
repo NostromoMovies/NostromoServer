@@ -8,10 +8,13 @@ namespace Nostromo.Server.API.Models
     {
         [JsonPropertyName("poster_path")]
         public string posterPath { get; set; }
+        
         [JsonPropertyName("adult")]
         public bool adult { get; set; }
+        
         [JsonPropertyName("overview")]
         public string overview { get; set; }
+        
         [JsonPropertyName("release_date")]
         public string releaseDate { get; set; }
 

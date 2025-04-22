@@ -107,8 +107,10 @@ namespace Nostromo.Server.API.Controllers
                     voteAverage = Convert.ToSingle(movie.VoteAverage),
                     runtime = movie.Runtime,
                     genreIds = movie.Genres?
+
                             .Select(g => new TmdbGenre { id = g.GenreID, name = g.Name })
                             .ToList() ?? new List<TmdbGenre>()
+
                 };
 
                 return ApiResults.Success(result);
@@ -191,7 +193,7 @@ namespace Nostromo.Server.API.Controllers
         {
             try
             {
-                var unrecognizedVideos = await _databaseService.GetAllUnrecognizedVideosAsync();
+                var unrecognizedVideos = await _databaseService.  GetAllUnrecognizedVideosAsync();
 
                 if (!unrecognizedVideos.Any())
                 {
@@ -354,7 +356,43 @@ namespace Nostromo.Server.API.Controllers
             }
         }
 
+        [HttpGet("getshows")]
+        [ProducesResponseType(typeof(SuccessResponse<IEnumerable<TvShow>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IResult> GetFilteredTvShows(
+            [FromQuery] string query = null,
+            [FromQuery] int searchTerm = 0,
+            [FromQuery] int minYear = 0,
+            [FromQuery] int maxYear = 3000)
+        {
+            try
+            {
+                var shows = await _databaseService.GetTvShowsByUserAsync(query, minYear, maxYear, searchTerm);
 
+                var response = new
+                {
+                    data = new
+                    {
+                        items = shows
+                    }
+                };
+
+                return Results.Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(
+                    detail: ex.StackTrace,
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "An error occurred while retrieving movies.",
+                    extensions: new Dictionary<string, object>
+                    {
+                        { "Error", ex.Message }
+                    }
+                );
+            }
+        }
+        
         [HttpGet("getGenres")]
         public async Task<ActionResult<IEnumerable<Genre>>> GetGenre()
         {
@@ -380,7 +418,9 @@ namespace Nostromo.Server.API.Controllers
         {
             return await _databaseService.GetGenreMovieCount();
         }
+
         
+
 
 
 

@@ -1,34 +1,37 @@
 ﻿using Microsoft.Extensions.Logging;
 using Quartz;
+using System;
+using System.Threading.Tasks;
 
-namespace Nostromo.Server.Scheduling.Jobs;
-
-public abstract class BaseJob : IJob
+namespace Nostromo.Server.Scheduling.Jobs
 {
-    public ILogger? _logger;
-    public abstract string Name { get; }
-    public abstract string Type { get; }
-
-    protected IJobExecutionContext Context { get; private set; }
-
-    public async Task Execute(IJobExecutionContext context)
+    public abstract class BaseJob : IJob
     {
-        Context = context;
-        try
+        public ILogger? _logger;
+        public abstract string Name { get; }
+        public abstract string Type { get; }
+
+        protected IJobExecutionContext Context { get; private set; }
+
+        public async Task Execute(IJobExecutionContext context)
         {
-            await ProcessJob();
+            Context = context;
+            try
+            {
+                await ProcessJob();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error executing job {JobName} of type {JobType}", Name, Type);
+                throw;
+            }
         }
-        catch (Exception ex)
-        {
-            //log exception or whatever
-            throw;
-        }
+
+        public abstract Task ProcessJob();
     }
 
-    public abstract Task ProcessJob();
-}
-
-public abstract class BaseJob<T> : BaseJob
-{
-    public override abstract Task<T> ProcessJob();
+    public abstract class BaseJob<T> : BaseJob
+    {
+        public override abstract Task<T> ProcessJob();
+    }
 }
