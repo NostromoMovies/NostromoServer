@@ -36,12 +36,12 @@ namespace Nostromo.Server.Database
         public DbSet<RecommendationGenre> RecommendationGenres { get; set; }
         public DbSet<WatchList> WatchLists { get; set; }
         public DbSet<WatchListItem> WatchListItems { get; set; }
-
-        
         public DbSet<TvShow> TvShows { get; set; }
         public DbSet<Episode> Episodes { get; set; }
         public DbSet<Season> Seasons { get; set; } 
         public DbSet<TvRecommendation> TvRecommendations { get; set; }
+        public DbSet<Collection> Collections { get; set; }
+        public DbSet<CollectionItem> CollectionItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,6 +65,7 @@ namespace Nostromo.Server.Database
                 entity.Property(e => e.BackdropPath);
                 entity.Property(e => e.CreatedAt);
                 entity.Property(e => e.LastUpdatedAt);
+                entity.Property(e => e.IsInCollection).HasDefaultValue(false);
 
                 entity.HasMany(e => e.Genres)
                     .WithMany(e => e.Movies)
@@ -260,12 +261,12 @@ namespace Nostromo.Server.Database
                 entity.HasKey(e => e.CrossRefVideoTMDBMovieID);
 
                 entity.HasOne(e => e.Video)
-                      .WithMany() // Assuming no navigation property in Video
+                      .WithMany()
                       .HasForeignKey(e => e.VideoID)
                       .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(e => e.TMDBMovie)
-                      .WithMany() // Assuming no navigation property in TMDBMovie
+                      .WithMany()
                       .HasForeignKey(e => e.TMDBMovieID)
                       .OnDelete(DeleteBehavior.Cascade);
             });
@@ -292,7 +293,7 @@ namespace Nostromo.Server.Database
                         Id = 2,
                         Title = "Aliens",
                         TmdbId = 679,
-                        ED2K = "ee4a746481ec4a6a909943562aefe86a"
+                        ED2K = "da1a506c0ee1fe6c46ec64fd57faa924"
                     },
                     new ExampleHash
                     {
@@ -300,6 +301,132 @@ namespace Nostromo.Server.Database
                         Title = "Alien 3",
                         TmdbId = 8077,
                         ED2K = "b33d9c30eb480eca99e82dbbab3aad0e"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 4,
+                        Title = "2001: A Space Odyssey",
+                        TmdbId = 62,
+                        ED2K = "b8b18d2129c23ce7be0f20192ab5cc7d"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 5,
+                        Title = "Blade Runner",
+                        TmdbId = 78,
+                        ED2K = "f1f92c24015ee61c26ee14e1a620c2f1"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 6,
+                        Title = "Close Encounters of the Third Kind",
+                        TmdbId = 840,
+                        ED2K = "5c397afacb0a7e4ca53a208c70a60312"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 7,
+                        Title = "Big Hero 6",
+                        TmdbId = 177572,
+                        ED2K = "bd48b94f65b1cb6526acc0cd0b52e733"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 8,
+                        Title = "Arrival",
+                        TmdbId = 329865,
+                        ED2K = "2bc38b9668690f1b5d83bcd5d0b8875c"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 9,
+                        Title = "A.I. Artificial Intelligence",
+                        TmdbId = 644,
+                        ED2K = "aa9f497e20846c5018f47e025d06d190"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 10,
+                        Title = "Blade Runner 2049",
+                        TmdbId = 335984,
+                        ED2K = "6dc784b7b42faa32d70106b6008137fc"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 11,
+                        Title = "Flight of the Navigator",
+                        TmdbId = 10122,
+                        ED2K = "8891dba5d7423e41be1670f5022514a6"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 12,
+                        Title = "The Iron Giant",
+                        TmdbId = 10386,
+                        ED2K = "77ec11a8b08ee689cb4e8e9cbae406fb"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 13,
+                        Title = "Meet The Robinsons",
+                        TmdbId = 1267,
+                        ED2K = "cde961b6799ad092ffe00e17ebd95cdb"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 14,
+                        Title = "Event Horizon",
+                        TmdbId = 8413,
+                        ED2K = "e16a3334eaa4a1b36c7ffb0eb2ec0c35"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 15,
+                        Title = "Lilo & Stitch",
+                        TmdbId = 11544,
+                        ED2K = "89d725b0be5df4643edcaca155ecf165"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 16,
+                        Title = "E.T. The Extra Terrestrial",
+                        TmdbId = 601,
+                        ED2K = "4ca3e7ad70bd6595ee68fabfd0273534"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 17,
+                        Title = "The Thing",
+                        TmdbId = 1091,
+                        ED2K = "a60bc42199d8a34638087b267bea1400"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 18,
+                        Title = "The Last Starfighter",
+                        TmdbId = 11884,
+                        ED2K = "f69fa1b76e69c8141e52945175bd81d0"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 19,
+                        Title = "Treasure Planet",
+                        TmdbId = 9016,
+                        ED2K = "b092919efab8f3c27e5e67cf15a02acd"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 20,
+                        Title = "WALL-E",
+                        TmdbId = 10681,
+                        ED2K = "8ca300a5aa1a73c8419f4d1622c3364d"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 21,
+                        Title = "Total Recall",
+                        TmdbId = 861,
+                        ED2K = "c0c717a4f8fad3366520d47c702ab5ad"
                     }
                 );
             });
@@ -335,6 +462,62 @@ namespace Nostromo.Server.Database
                           });
             });
 
+            modelBuilder.Entity<TvShow>(entity =>
+            {
+                entity.HasKey(e => e.TvShowID);
+                entity.Property(e => e.OriginalLanguage);
+                entity.Property(e => e.OriginalName);
+                entity.Property(e => e.Overview);
+                entity.Property(e => e.Popularity);
+                entity.Property(e => e.PosterPath);
+                entity.Property(e => e.BackdropPath);
+                entity.Property(e => e.FirstAirDate);
+                entity.Property(e => e.VoteAverage);
+                entity.Property(e => e.VoteCount);
+                entity.Property(e => e.IsInCollection).HasDefaultValue(false);
+
+                entity.HasMany(e => e.Seasons)
+                      .WithOne(s => s.TvShow)
+                      .HasForeignKey(s => s.TvShowID)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Season>(entity =>
+            {
+                entity.HasKey(e => e.SeasonID);
+                entity.Property(e => e.seasonName);
+                entity.Property(e => e.SeasonNumber);
+                entity.Property(e => e.Airdate);
+                entity.Property(e => e.EpisodeCount);
+                entity.Property(e => e.Overview);
+                entity.Property(e => e.PosterPath);
+                entity.Property(e => e.VoteAverage);
+
+                entity.HasOne(e => e.TvShow)
+                      .WithMany(t => t.Seasons)
+                      .HasForeignKey(e => e.TvShowID)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Episode>(entity =>
+            {
+                entity.HasKey(e => e.EpisodeID);
+                entity.Property(e => e.EpisodeName);
+                entity.Property(e => e.EpisodeNumber);
+                entity.Property(e => e.Airdate);
+                entity.Property(e => e.Overview);
+                entity.Property(e => e.SeasonNumber);
+                entity.Property(e => e.Runtime);
+                entity.Property(e => e.VoteAverage);
+                entity.Property(e => e.VoteCount);
+                entity.Property(e => e.StillPath);
+
+                entity.HasOne(e => e.Season)
+                      .WithMany()
+                      .HasForeignKey(e => e.SeasonID)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
             modelBuilder.Entity<WatchList>(entity =>
             {
                 entity.HasKey(wl => wl.WatchListID);
@@ -356,6 +539,32 @@ namespace Nostromo.Server.Database
                 entity.HasOne(wli => wli.Movie)
                     .WithMany()
                     .HasForeignKey(wli => wli.MovieID);
+            });
+
+            modelBuilder.Entity<Collection>(entity =>
+            {
+                entity.HasKey(c => c.CollectionID);
+                entity.Property(c => c.Name).IsRequired();
+            });
+
+            modelBuilder.Entity<CollectionItem>(entity =>
+            {
+                entity.HasKey(ci => ci.CollectionItemID);
+
+                entity.HasOne(ci => ci.Collection)
+                      .WithMany(c => c.Items)
+                      .HasForeignKey(ci => ci.CollectionID)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(ci => ci.TmdbMovie)
+                      .WithMany()
+                      .HasForeignKey(ci => ci.TmdbMovieID)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(ci => ci.TmdbTv)
+                      .WithMany()
+                      .HasForeignKey(ci => ci.TmdbTvID)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
@@ -423,6 +632,7 @@ namespace Nostromo.Server.Database
         public int CreatedAt { get; set; }
         public DateTime LastUpdatedAt { get; set; }
         public string? Certification { get; set; }
+        public bool IsInCollection { get; set; } = false;
         public virtual ICollection<Genre> Genres { get; set; } = new List<Genre>();
     }
 
@@ -675,8 +885,10 @@ namespace Nostromo.Server.Database
          public double VoteAverage { get; set; }
 
          public int VoteCount { get; set; }
-         
-         public List<Season> Seasons { get; set; }
+
+        public bool IsInCollection { get; set; } = false;
+
+        public List<Season> Seasons { get; set; }
          
          public TvShow(){
          }
@@ -811,4 +1023,26 @@ namespace Nostromo.Server.Database
          public virtual TvShow TvShow { get; set; }
          
      }
+
+    public class Collection
+    {
+        public int CollectionID { get; set; }
+        public string Name { get; set; }
+
+        public virtual ICollection<CollectionItem> Items { get; set; } = new List<CollectionItem>();
+    }
+
+    public class CollectionItem
+    {
+        public int CollectionItemID { get; set; }
+
+        public int CollectionID { get; set; }
+        public virtual Collection Collection { get; set; }
+
+        public int? TmdbMovieID { get; set; }
+        public virtual TMDBMovie? TmdbMovie { get; set; }
+
+        public int? TmdbTvID { get; set; }
+        public virtual TvShow? TmdbTv { get; set; }
+    }
 }

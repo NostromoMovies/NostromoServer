@@ -14,6 +14,19 @@ namespace Nostromo.Server.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Collections",
+                columns: table => new
+                {
+                    CollectionID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Collections", x => x.CollectionID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DuplicateFiles",
                 columns: table => new
                 {
@@ -86,7 +99,8 @@ namespace Nostromo.Server.Migrations
                     BackdropPath = table.Column<string>(type: "TEXT", nullable: false),
                     CreatedAt = table.Column<int>(type: "INTEGER", nullable: false),
                     LastUpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Certification = table.Column<string>(type: "TEXT", nullable: true)
+                    Certification = table.Column<string>(type: "TEXT", nullable: true),
+                    IsInCollection = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -132,7 +146,8 @@ namespace Nostromo.Server.Migrations
                     BackdropPath = table.Column<string>(type: "TEXT", nullable: true),
                     FirstAirDate = table.Column<string>(type: "TEXT", nullable: true),
                     VoteAverage = table.Column<double>(type: "REAL", nullable: false),
-                    VoteCount = table.Column<int>(type: "INTEGER", nullable: false)
+                    VoteCount = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsInCollection = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -282,6 +297,39 @@ namespace Nostromo.Server.Migrations
                         column: x => x.TMDBPersonID,
                         principalTable: "People",
                         principalColumn: "TMDBPersonID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CollectionItems",
+                columns: table => new
+                {
+                    CollectionItemID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    CollectionID = table.Column<int>(type: "INTEGER", nullable: false),
+                    TmdbMovieID = table.Column<int>(type: "INTEGER", nullable: true),
+                    TmdbTvID = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CollectionItems", x => x.CollectionItemID);
+                    table.ForeignKey(
+                        name: "FK_CollectionItems_Collections_CollectionID",
+                        column: x => x.CollectionID,
+                        principalTable: "Collections",
+                        principalColumn: "CollectionID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CollectionItems_Movies_TmdbMovieID",
+                        column: x => x.TmdbMovieID,
+                        principalTable: "Movies",
+                        principalColumn: "TMDBMovieID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CollectionItems_TvShows_TmdbTvID",
+                        column: x => x.TmdbTvID,
+                        principalTable: "TvShows",
+                        principalColumn: "TvShowID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -560,14 +608,47 @@ namespace Nostromo.Server.Migrations
                 values: new object[,]
                 {
                     { 1, "5d886780825db91bbc390f10f1b6c95c", "Alien", 348 },
-                    { 2, "ee4a746481ec4a6a909943562aefe86a", "Aliens", 679 },
-                    { 3, "b33d9c30eb480eca99e82dbbab3aad0e", "Alien 3", 8077 }
+                    { 2, "da1a506c0ee1fe6c46ec64fd57faa924", "Aliens", 679 },
+                    { 3, "b33d9c30eb480eca99e82dbbab3aad0e", "Alien 3", 8077 },
+                    { 4, "b8b18d2129c23ce7be0f20192ab5cc7d", "2001: A Space Odyssey", 62 },
+                    { 5, "f1f92c24015ee61c26ee14e1a620c2f1", "Blade Runner", 78 },
+                    { 6, "5c397afacb0a7e4ca53a208c70a60312", "Close Encounters of the Third Kind", 840 },
+                    { 7, "bd48b94f65b1cb6526acc0cd0b52e733", "Big Hero 6", 177572 },
+                    { 8, "2bc38b9668690f1b5d83bcd5d0b8875c", "Arrival", 329865 },
+                    { 9, "aa9f497e20846c5018f47e025d06d190", "A.I. Artificial Intelligence", 644 },
+                    { 10, "6dc784b7b42faa32d70106b6008137fc", "Blade Runner 2049", 335984 },
+                    { 11, "8891dba5d7423e41be1670f5022514a6", "Flight of the Navigator", 10122 },
+                    { 12, "77ec11a8b08ee689cb4e8e9cbae406fb", "The Iron Giant", 10386 },
+                    { 13, "cde961b6799ad092ffe00e17ebd95cdb", "Meet The Robinsons", 1267 },
+                    { 14, "e16a3334eaa4a1b36c7ffb0eb2ec0c35", "Event Horizon", 8413 },
+                    { 15, "89d725b0be5df4643edcaca155ecf165", "Lilo & Stitch", 11544 },
+                    { 16, "4ca3e7ad70bd6595ee68fabfd0273534", "E.T. The Extra Terrestrial", 601 },
+                    { 17, "a60bc42199d8a34638087b267bea1400", "The Thing", 1091 },
+                    { 18, "f69fa1b76e69c8141e52945175bd81d0", "The Last Starfighter", 11884 },
+                    { 19, "b092919efab8f3c27e5e67cf15a02acd", "Treasure Planet", 9016 },
+                    { 20, "8ca300a5aa1a73c8419f4d1622c3364d", "WALL-E", 10681 },
+                    { 21, "c0c717a4f8fad3366520d47c702ab5ad", "Total Recall", 861 }
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuthTokens_UserId",
                 table: "AuthTokens",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CollectionItems_CollectionID",
+                table: "CollectionItems",
+                column: "CollectionID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CollectionItems_TmdbMovieID",
+                table: "CollectionItems",
+                column: "TmdbMovieID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CollectionItems_TmdbTvID",
+                table: "CollectionItems",
+                column: "TmdbTvID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CrossRefVideoTMDBMovies_TMDBMovieID",
@@ -663,6 +744,9 @@ namespace Nostromo.Server.Migrations
                 name: "AuthTokens");
 
             migrationBuilder.DropTable(
+                name: "CollectionItems");
+
+            migrationBuilder.DropTable(
                 name: "CrossRefVideoTMDBMovies");
 
             migrationBuilder.DropTable(
@@ -694,6 +778,9 @@ namespace Nostromo.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "WatchListItems");
+
+            migrationBuilder.DropTable(
+                name: "Collections");
 
             migrationBuilder.DropTable(
                 name: "Seasons");

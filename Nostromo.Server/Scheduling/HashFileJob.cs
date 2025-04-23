@@ -154,7 +154,24 @@ public class HashFileJob : BaseJob
                    result.ED2K,
                    result.ProcessingTime.TotalSeconds
                );
+
+                var metadataJobId = Guid.NewGuid().ToString();
+                var metadataJobKey = new JobKey(metadataJobId, "ConsolidateGroup");
+
+                var metadataJob = JobBuilder.Create<DownloadMovieMetadataJob>()
+                    .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, result.ED2K)
+                    .WithIdentity(metadataJobKey)
+                    .Build();
+
+                var metadataTrigger = TriggerBuilder.Create()
+                    .StartNow()
+                    .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "ConsolidateGroup"))
+                    .Build();
+
+                await Context.Scheduler.ScheduleJob(metadataJob, metadataTrigger);
+                _logger.LogInformation("Scheduled DownloadMovieMetadataJob for file hash: {Hash}", result.ED2K);
             }
+
             else
             {
                 _logger.LogInformation(

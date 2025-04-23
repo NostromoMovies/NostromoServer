@@ -419,10 +419,11 @@ namespace Nostromo.Server.API.Controllers
             return await _databaseService.GetGenreMovieCount();
         }
 
-        
-
-
-
-
+        [HttpGet("{id}/getVideoID")]
+        public async Task<ActionResult<int>> GetVideoiD(int id)
+        {
+            var videoId = await _databaseService.GetVideoID(id);
+            return videoId;
+        }
     }
 }

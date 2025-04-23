@@ -1,7 +1,70 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Quartz;
 using System;
+using System.IO;
+using System.Threading.Tasks;
+using Nostromo.Server.Scheduling.Jobs;
+using Nostromo.Server.Database;
+using Microsoft.EntityFrameworkCore;
+using Nostromo.Server.Services;
+
+namespace Nostromo.Server.Scheduling;
+
+public class ProcessVideoJob : BaseJob
+{
+    private readonly ILogger<ProcessVideoJob> _logger;
+    private readonly IServiceProvider _serviceProvider;
+
+    public ProcessVideoJob(
+        ILogger<ProcessVideoJob> logger,
+        IServiceProvider serviceProvider)
+    {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+    }
+
+    public override string Name => "Process Video Job";
+    public override string Type => "Workflow Orchestration";
+
+    public override async Task ProcessJob()
+    {
+        var jobDataMap = Context.MergedJobDataMap;
+        var filePath = jobDataMap.GetString("FilePath");
+
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            _logger.LogError("FilePath is missing in job data map.");
+            return;
+        }
+
+        _logger.LogInformation("Starting ProcessVideoJob for file: {FilePath}", filePath);
+
+        var jobId = Guid.NewGuid().ToString();
+        var hashJobKey = new JobKey(jobId, "ConsolidateGroup");
+
+        var hashJob = JobBuilder.Create<HashFileJob>()
+            .UsingJobData(HashFileJob.FILE_PATH_KEY, filePath)
+            .WithIdentity(hashJobKey)
+            .Build();
+
+        var hashTrigger = TriggerBuilder.Create()
+            .StartNow()
+            .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "ConsolidateGroup"))
+            .Build();
+
+        await Context.Scheduler.ScheduleJob(hashJob, hashTrigger);
+
+        _logger.LogInformation("Scheduled HashFileJob with Job ID: {JobId} for file: {FilePath}", jobId, filePath);
+
+        _logger.LogInformation("Process video job workflow for file {FilePath} is complete.", filePath);
+    }
+}
+
+/*using System;
 using System.IO;
 using System.Threading.Tasks;
 using Nostromo.Server.Scheduling.Jobs;
@@ -105,7 +168,7 @@ public class ProcessVideoJob : BaseJob
         return computedHash;
     }
 
-    /*private async Task TemporaryMetadataJob(string fileHash)
+    private async Task TemporaryMetadataJob(string fileHash)
     {
         //check if hash value is null or empty, if it is -- break
         if (string.IsNullOrWhiteSpace(fileHash))
@@ -225,7 +288,7 @@ public class ProcessVideoJob : BaseJob
             throw;
         }
     }
-    */
+  
     
     private async Task<string> WaitForHashCompletion(string filePath)
     {
@@ -264,4 +327,4 @@ public class ProcessVideoJob : BaseJob
 
         return null;
     }
-}
+}*/

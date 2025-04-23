@@ -11,7 +11,7 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    [Migration("20250422200442_InitialCreate")]
+    [Migration("20250423025858_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -42,6 +42,47 @@ namespace Nostromo.Server.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AuthTokens");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.Collection", b =>
+                {
+                    b.Property<int>("CollectionID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("CollectionID");
+
+                    b.ToTable("Collections");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.CollectionItem", b =>
+                {
+                    b.Property<int>("CollectionItemID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CollectionID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("TmdbMovieID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("TmdbTvID")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("CollectionItemID");
+
+                    b.HasIndex("CollectionID");
+
+                    b.HasIndex("TmdbMovieID");
+
+                    b.HasIndex("TmdbTvID");
+
+                    b.ToTable("CollectionItems");
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.CrossRefVideoTMDBMovie", b =>
@@ -172,7 +213,7 @@ namespace Nostromo.Server.Migrations
                         new
                         {
                             Id = 2,
-                            ED2K = "ee4a746481ec4a6a909943562aefe86a",
+                            ED2K = "da1a506c0ee1fe6c46ec64fd57faa924",
                             Title = "Aliens",
                             TmdbId = 679
                         },
@@ -182,6 +223,132 @@ namespace Nostromo.Server.Migrations
                             ED2K = "b33d9c30eb480eca99e82dbbab3aad0e",
                             Title = "Alien 3",
                             TmdbId = 8077
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ED2K = "b8b18d2129c23ce7be0f20192ab5cc7d",
+                            Title = "2001: A Space Odyssey",
+                            TmdbId = 62
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ED2K = "f1f92c24015ee61c26ee14e1a620c2f1",
+                            Title = "Blade Runner",
+                            TmdbId = 78
+                        },
+                        new
+                        {
+                            Id = 6,
+                            ED2K = "5c397afacb0a7e4ca53a208c70a60312",
+                            Title = "Close Encounters of the Third Kind",
+                            TmdbId = 840
+                        },
+                        new
+                        {
+                            Id = 7,
+                            ED2K = "bd48b94f65b1cb6526acc0cd0b52e733",
+                            Title = "Big Hero 6",
+                            TmdbId = 177572
+                        },
+                        new
+                        {
+                            Id = 8,
+                            ED2K = "2bc38b9668690f1b5d83bcd5d0b8875c",
+                            Title = "Arrival",
+                            TmdbId = 329865
+                        },
+                        new
+                        {
+                            Id = 9,
+                            ED2K = "aa9f497e20846c5018f47e025d06d190",
+                            Title = "A.I. Artificial Intelligence",
+                            TmdbId = 644
+                        },
+                        new
+                        {
+                            Id = 10,
+                            ED2K = "6dc784b7b42faa32d70106b6008137fc",
+                            Title = "Blade Runner 2049",
+                            TmdbId = 335984
+                        },
+                        new
+                        {
+                            Id = 11,
+                            ED2K = "8891dba5d7423e41be1670f5022514a6",
+                            Title = "Flight of the Navigator",
+                            TmdbId = 10122
+                        },
+                        new
+                        {
+                            Id = 12,
+                            ED2K = "77ec11a8b08ee689cb4e8e9cbae406fb",
+                            Title = "The Iron Giant",
+                            TmdbId = 10386
+                        },
+                        new
+                        {
+                            Id = 13,
+                            ED2K = "cde961b6799ad092ffe00e17ebd95cdb",
+                            Title = "Meet The Robinsons",
+                            TmdbId = 1267
+                        },
+                        new
+                        {
+                            Id = 14,
+                            ED2K = "e16a3334eaa4a1b36c7ffb0eb2ec0c35",
+                            Title = "Event Horizon",
+                            TmdbId = 8413
+                        },
+                        new
+                        {
+                            Id = 15,
+                            ED2K = "89d725b0be5df4643edcaca155ecf165",
+                            Title = "Lilo & Stitch",
+                            TmdbId = 11544
+                        },
+                        new
+                        {
+                            Id = 16,
+                            ED2K = "4ca3e7ad70bd6595ee68fabfd0273534",
+                            Title = "E.T. The Extra Terrestrial",
+                            TmdbId = 601
+                        },
+                        new
+                        {
+                            Id = 17,
+                            ED2K = "a60bc42199d8a34638087b267bea1400",
+                            Title = "The Thing",
+                            TmdbId = 1091
+                        },
+                        new
+                        {
+                            Id = 18,
+                            ED2K = "f69fa1b76e69c8141e52945175bd81d0",
+                            Title = "The Last Starfighter",
+                            TmdbId = 11884
+                        },
+                        new
+                        {
+                            Id = 19,
+                            ED2K = "b092919efab8f3c27e5e67cf15a02acd",
+                            Title = "Treasure Planet",
+                            TmdbId = 9016
+                        },
+                        new
+                        {
+                            Id = 20,
+                            ED2K = "8ca300a5aa1a73c8419f4d1622c3364d",
+                            Title = "WALL-E",
+                            TmdbId = 10681
+                        },
+                        new
+                        {
+                            Id = 21,
+                            ED2K = "c0c717a4f8fad3366520d47c702ab5ad",
+                            Title = "Total Recall",
+                            TmdbId = 861
                         });
                 });
 
@@ -330,6 +497,11 @@ namespace Nostromo.Server.Migrations
 
                     b.Property<bool>("IsAdult")
                         .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsInCollection")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsVideo")
                         .HasColumnType("INTEGER");
@@ -703,6 +875,11 @@ namespace Nostromo.Server.Migrations
                     b.Property<string>("FirstAirDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsInCollection")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("OriginalLanguage")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -883,6 +1060,31 @@ namespace Nostromo.Server.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Nostromo.Server.Database.CollectionItem", b =>
+                {
+                    b.HasOne("Nostromo.Server.Database.Collection", "Collection")
+                        .WithMany("Items")
+                        .HasForeignKey("CollectionID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Nostromo.Server.Database.TMDBMovie", "TmdbMovie")
+                        .WithMany()
+                        .HasForeignKey("TmdbMovieID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Nostromo.Server.Database.TvShow", "TmdbTv")
+                        .WithMany()
+                        .HasForeignKey("TmdbTvID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Collection");
+
+                    b.Navigation("TmdbMovie");
+
+                    b.Navigation("TmdbTv");
+                });
+
             modelBuilder.Entity("Nostromo.Server.Database.CrossRefVideoTMDBMovie", b =>
                 {
                     b.HasOne("Nostromo.Server.Database.TMDBMovie", "TMDBMovie")
@@ -1060,6 +1262,11 @@ namespace Nostromo.Server.Migrations
                     b.Navigation("Movie");
 
                     b.Navigation("WatchList");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.Collection", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.TvRecommendation", b =>

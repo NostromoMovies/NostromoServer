@@ -36,22 +36,22 @@ namespace Nostromo.Server.Services
         Task<List<Video>> GetAllUnrecognizedVideosAsync();
         Task InsertExampleHashAsync(string ed2kHash, int tmdbId, string title);
         Task StoreTmdbRecommendationsAsync(int movieId, TmdbRecommendation recommendation);
-        
         Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
         Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string  maxYear,List<string> genreIds);
-        
         Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy);
         Task<List<Genre>> getGenre();
         Task<int> GetMinYear();
         Task<TvShow> GetTvShowAsync(int id);
-        
         Task StoreMovieGenresAsync(int movieId, List<TmdbGenre> genres);
         Task<int> GetMovieCount();
         Task<List<GenreCounter>> GetGenreMovieCount();
         Task InsertRecommendationGenreAsync(int recommendationId, int genreId, string genreName);
         Task<int?> GetActualRecommendationDbIdAsync(int tmdbMovieId, int recommendationTmdbId);
         Task UpdateMovieCertificationAsync(int movieId, string certification);
+        Task<Collection> CreateCollectionAsync(string name);
+        Task AddItemsToCollectionAsync(int collectionId, List<int>? movieIds, List<int>? tvIds);
+        Task<int> GetVideoID(int movieId);
     }
 
     public class DatabaseService : IDatabaseService
@@ -950,6 +950,70 @@ namespace Nostromo.Server.Services
 
             movie.Certification = certification;
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<Collection> CreateCollectionAsync(string name)
+        {
+            var collection = new Collection
+            {
+                Name = name
+            };
+
+            _context.Collections.Add(collection);
+            await _context.SaveChangesAsync();
+
+            return collection;
+        }
+
+        public async Task AddItemsToCollectionAsync(int collectionId, List<int>? movieIds, List<int>? tvIds)
+        {
+            if (movieIds != null)
+            {
+                foreach (var movieId in movieIds)
+                {
+                    var item = new CollectionItem
+                    {
+                        CollectionID = collectionId,
+                        TmdbMovieID = movieId
+                    };
+                    _context.CollectionItems.Add(item);
+
+                    var movie = await _context.Movies.FindAsync(movieId);
+                    if (movie != null)
+                    {
+                        movie.IsInCollection = true;
+                    }
+                }
+            }
+
+            if (tvIds != null)
+            {
+                foreach (var tvId in tvIds)
+                {
+                    var item = new CollectionItem
+                    {
+                        CollectionID = collectionId,
+                        TmdbTvID = tvId
+                    };
+                    _context.CollectionItems.Add(item);
+
+                    var show = await _context.TvShows.FindAsync(tvId);
+                    if (show != null)
+                    {
+                        show.IsInCollection = true;
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> GetVideoID(int movieId)
+        {
+            return await _context.CrossRefVideoTMDBMovies
+                .Where(x => x.TMDBMovieID == movieId)
+                .Select(x => x.VideoID)
+                .FirstOrDefaultAsync();
         }
     }
 }
