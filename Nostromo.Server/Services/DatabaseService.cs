@@ -32,13 +32,13 @@ namespace Nostromo.Server.Services
         Task StoreMovieCastAsync(int movieId, List<TmdbCastMember> cast);
         Task StoreMovieCrewAsync(int movieId, List<TmdbCrewMember> crew);
         
-        Task StoreTvCastAsync(int showId, List<TmdbCastMember> cast);
-        Task StoreTvCrewAsync(int showId, List<TmdbCrewMember> crew);
+        Task StoreTvMediaCastAsync(int mediaId, List<TmdbCastMember> cast);
+        Task StoreTvMediaCrewAsync(int mediaId, List<TmdbCrewMember> crew);
         
-        Task StoreEpisodeCastAsync(int episodeId, List<TmdbCastMember> cast);
-        Task StoreEpisodeCrewAsync(int episodeId, List<TmdbCrewMember> crew);
         Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int movieId);
         Task<List<TmdbCrewMember>> GetCrewByMovieIdAsync(int movieId);
+        Task<List<TmdbCastMember>> GetCastByTvMediaIdAsync(int mediaId);
+        Task<List<TmdbCrewMember>> GetCrewByTvMediaIdAsync(int mediaId);
         Task<DateTime> GetCreatedAtByVideoIdAsync(int? videoId);
         Task<Video?> GetVideoByIdAsync(int videoId);
         Task MarkVideoAsUnrecognizedAsync(int? videoId);
@@ -460,20 +460,30 @@ namespace Nostromo.Server.Services
             _logger.LogInformation("Stored {Count} cast members for movie ID {MovieId}", crew.Count, movieId);
         }
 
-        public async Task StoreTvCastAsync(int showId, List<TmdbCastMember> cast)
+        public async Task StoreTvMediaCastAsync(int mediaId, List<TmdbCastMember> cast)
         {   
             
-            var show = await _context.TvShows.FirstOrDefaultAsync(tv => tv.TvShowID == showId);
+            var show = await _context.TvShows.FirstOrDefaultAsync(tv => tv.TvShowID == mediaId);
             if (show == null)
             {
-                _logger.LogWarning("Show with ID {ShowId} not found in database, skipping cast storage", showId);
+                _logger.LogWarning("Show with ID {mediaId} not found in database, skipping cast storage", mediaId);
                 return;
             }
 
+            var tmdbIDs = cast.Select(c => c.id).ToList();
+            var existingPeopleIds = new HashSet<int>(
+                await _context.People
+                    .Where(p => tmdbIDs.Contains(p.TMDBID))
+                    .Select(p=>p.TMDBID)
+                    .ToListAsync());
+            
+            var showCasts = new List<TvMediaCast>();
+            
             foreach (var castMember in cast)
             {
-                var tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == castMember.id);
-                if (tmdbPerson == null)
+                TMDBPerson tmdbPerson;
+                
+                if (!existingPeopleIds.Contains(castMember.id))
                 {
                     tmdbPerson = new TMDBPerson
                     {
@@ -483,48 +493,77 @@ namespace Nostromo.Server.Services
                         CreatedAt = DateTime.UtcNow,
                         LastUpdatedAt = DateTime.UtcNow
                     };
-                    await _context.People.AddAsync(tmdbPerson);
-                    await _context.SaveChangesAsync();
+                    try
+                    {
+                        await _context.People.AddAsync(tmdbPerson);
+                        await _context.SaveChangesAsync();
+                        existingPeopleIds.Add(castMember.id);
+                    }
+                    catch (DbUpdateException)
+                    {
+                        tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == castMember.id);
+                    }
+                    
                 }
-
-                var showCast = new TvMediaCast
+                else
                 {
-                    TMDBPersonID = tmdbPerson.TMDBPersonID,
-                    MediaID = show.TvShowID,
-                    Adult = castMember.adult,
-                    Gender = castMember.gender,
-                    Id = castMember.id,
-                    KnownForDepartment = castMember.known_for_department,
-                    Name = castMember.name,
-                    OriginalName = castMember.original_name,
-                    Popularity = castMember.popularity,
-                    ProfilePath = castMember.profile_path,
-                    CastId = castMember.cast_id ?? 0,
-                    Character = castMember.character,
-                    CreditID = castMember.credit_id,
-                    Order = castMember.order
-                };
-
-                await _context.TvMediaCasts.AddAsync(showCast);
+                    tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == castMember.id);
+                }
+                
+                var existingCast = await _context.TvMediaCasts
+                    .FirstOrDefaultAsync(c => c.MediaID == mediaId &&
+                                              c.Id == castMember.id &&
+                                              c.KnownForDepartment == castMember.known_for_department);
+                if (existingCast == null)
+                {
+                    var showCast = new TvMediaCast
+                    {
+                        TMDBPersonID = tmdbPerson.TMDBPersonID,
+                        MediaID = show.TvShowID,
+                        Adult = castMember.adult,
+                        Gender = castMember.gender,
+                        Id = castMember.id,
+                        KnownForDepartment = castMember.known_for_department,
+                        Name = castMember.name,
+                        OriginalName = castMember.original_name,
+                        Popularity = castMember.popularity,
+                        ProfilePath = castMember.profile_path,
+                        CastId = castMember.cast_id ?? 0,
+                        Character = castMember.character,
+                        CreditID = castMember.credit_id,
+                        Order = castMember.order
+                    };
+                    showCasts.Add(showCast);
+                }
             }
-
+            await _context.TvMediaCasts.AddRangeAsync(showCasts);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Stored {Count} cast members for show ID {ShowId}", cast.Count, showId);
+            _logger.LogInformation("Stored {Count} cast members for show ID {ShowId}", cast.Count, mediaId);
         }
 
-        public async Task StoreTvCrewAsync(int showId, List<TmdbCrewMember> crew)
+        public async Task StoreTvMediaCrewAsync(int mediaId, List<TmdbCrewMember> crew)
         {
-            var show = await _context.TvShows.FirstOrDefaultAsync(tv => tv.TvShowID == showId);
+            var show = await _context.TvShows.FirstOrDefaultAsync(tv => tv.TvShowID == mediaId);
             if (show == null)
             {
-                _logger.LogWarning("Show with ID {ShowId} not found in database, skipping cast storage", showId);
+                _logger.LogWarning("Show with ID {ShowId} not found in database, skipping cast storage", mediaId);
                 return;
             }
-
+            
+            var tmdbIds = crew.Select(c => c.id).ToList();
+            var existingPeopleIds = new HashSet<int>(
+                await _context.People
+                    .Where(p => tmdbIds.Contains(p.TMDBID))
+                    .Select(p => p.TMDBID)
+                    .ToListAsync()
+            );
+            
+            var showCrews = new List<TvMediaCrew>();
+            
             foreach (var crewMember in crew)
             {
-                var tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == crewMember.id);
-                if (tmdbPerson == null)
+                TMDBPerson tmdbPerson; 
+                if (!existingPeopleIds.Contains(crewMember.id))
                 {
                     tmdbPerson = new TMDBPerson
                     {
@@ -534,135 +573,60 @@ namespace Nostromo.Server.Services
                         CreatedAt = DateTime.UtcNow,
                         LastUpdatedAt = DateTime.UtcNow
                     };
-                    await _context.People.AddAsync(tmdbPerson);
-                    await _context.SaveChangesAsync();
+
+                    try
+                    {
+                        await _context.People.AddAsync(tmdbPerson);
+                        await _context.SaveChangesAsync();
+                        existingPeopleIds.Add(crewMember.id);
+                    }
+                    catch (DbUpdateException)
+                    {
+                        tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == crewMember.id);
+                    }
                 }
-
-                var showCrew = new TvMediaCrew
+                else
                 {
-                    TMDBPersonID = tmdbPerson.TMDBPersonID,
-                    MediaID = show.TvShowID,
-                    Adult = crewMember.adult,
-                    Gender = crewMember.gender,
-                    Id = crewMember.id,
-                    KnownForDepartment = crewMember.known_for_department,
-                    Name = crewMember.name,
-                    OriginalName = crewMember.original_name,
-                    Popularity = crewMember.popularity,
-                    ProfilePath = crewMember.profile_path,
-                    CreditID = crewMember.credit_id,
-                    Department = crewMember.department,
-                    Job = crewMember.job
-                };
+                    tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == crewMember.id);
+                }
+                var existingCrew = await _context.TvMediaCrews
+                    .FirstOrDefaultAsync(c => c.MediaID == show.TvShowID &&
+                                              c.Id == crewMember.id &&
+                                              c.KnownForDepartment == crewMember.known_for_department);
 
-                await _context.TvMediaCrews.AddAsync(showCrew);
+                if (existingCrew == null)
+                {
+                    var showCrew = new TvMediaCrew
+                    {
+                        TMDBPersonID = tmdbPerson.TMDBPersonID,
+                        MediaID = show.TvShowID,
+                        Adult = crewMember.adult,
+                        Gender = crewMember.gender,
+                        Id = crewMember.id,
+                        KnownForDepartment = crewMember.known_for_department,
+                        Name = crewMember.name,
+                        OriginalName = crewMember.original_name,
+                        Popularity = crewMember.popularity,
+                        ProfilePath = crewMember.profile_path,
+                        CreditID = crewMember.credit_id,
+                        Department = crewMember.department,
+                        Job = crewMember.job
+                    };
+
+                    showCrews.Add(showCrew);
+                }
+                
             }
 
-            await _context.SaveChangesAsync();
-            _logger.LogInformation("Stored {Count} cast members for show ID {ShowId}", crew.Count, showId);
+            if (showCrews.Any())
+            {
+                await _context.TvMediaCrews.AddRangeAsync(showCrews);
+                await _context.SaveChangesAsync();
+            }
+            
+            _logger.LogInformation("Stored {Count} cast members for show ID {ShowId}", crew.Count, mediaId);
         }
         
-        public async Task StoreEpisodeCastAsync(int episodeId, List<TmdbCastMember> cast)
-        {   
-            
-            var episode = await _context.Episodes.FirstOrDefaultAsync(ep => ep.EpisodeID == episodeId);
-            if (episode == null)
-            {
-                _logger.LogWarning("Episode with ID {ShowId} not found in database, skipping cast storage", episodeId);
-                return;
-            }
-
-            foreach (var castMember in cast)
-            {
-                var tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == castMember.id);
-                if (tmdbPerson == null)
-                {
-                    tmdbPerson = new TMDBPerson
-                    {
-                        TMDBID = castMember.id,
-                        EnglishName = castMember.name,
-                        ProfilePath = castMember.profile_path,
-                        CreatedAt = DateTime.UtcNow,
-                        LastUpdatedAt = DateTime.UtcNow
-                    };
-                    await _context.People.AddAsync(tmdbPerson);
-                    await _context.SaveChangesAsync();
-                }
-
-                var episodeCast = new TvMediaCast
-                {
-                    TMDBPersonID = tmdbPerson.TMDBPersonID,
-                    MediaID = episode.EpisodeID,
-                    Adult = castMember.adult,
-                    Gender = castMember.gender,
-                    Id = castMember.id,
-                    KnownForDepartment = castMember.known_for_department,
-                    Name = castMember.name,
-                    OriginalName = castMember.original_name,
-                    Popularity = castMember.popularity,
-                    ProfilePath = castMember.profile_path,
-                    CastId = castMember.cast_id ?? 0,
-                    Character = castMember.character,
-                    CreditID = castMember.credit_id,
-                    Order = castMember.order
-                };
-
-                await _context.TvMediaCasts.AddAsync(episodeCast);
-            }
-
-            await _context.SaveChangesAsync();
-            _logger.LogInformation("Stored {Count} cast members for episode ID {EpisodeId}", cast.Count, episodeId);
-        }
-
-        public async Task StoreEpisodeCrewAsync(int episodeId, List<TmdbCrewMember> crew)
-        {
-            var episode = await _context.Episodes.FirstOrDefaultAsync(ep => ep.EpisodeID == episodeId);
-            if (episode == null)
-            {
-                _logger.LogWarning("Episode with ID {EpisodeId} not found in database, skipping cast storage", episodeId);
-                return;
-            }
-
-            foreach (var crewMember in crew)
-            {
-                var tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == crewMember.id);
-                if (tmdbPerson == null)
-                {
-                    tmdbPerson = new TMDBPerson
-                    {
-                        TMDBID = crewMember.id,
-                        EnglishName = crewMember.name,
-                        ProfilePath = crewMember.profile_path,
-                        CreatedAt = DateTime.UtcNow,
-                        LastUpdatedAt = DateTime.UtcNow
-                    };
-                    await _context.People.AddAsync(tmdbPerson);
-                    await _context.SaveChangesAsync();
-                }
-
-                var episodeCrew = new TvMediaCrew
-                {
-                    TMDBPersonID = tmdbPerson.TMDBPersonID,
-                    MediaID = episode.EpisodeID,
-                    Adult = crewMember.adult,
-                    Gender = crewMember.gender,
-                    Id = crewMember.id,
-                    KnownForDepartment = crewMember.known_for_department,
-                    Name = crewMember.name,
-                    OriginalName = crewMember.original_name,
-                    Popularity = crewMember.popularity,
-                    ProfilePath = crewMember.profile_path,
-                    CreditID = crewMember.credit_id,
-                    Department = crewMember.department,
-                    Job = crewMember.job
-                };
-
-                await _context.TvMediaCrews.AddAsync(episodeCrew);
-            }
-
-            await _context.SaveChangesAsync();
-            _logger.LogInformation("Stored {Count} cast members for show ID {ShowId}", crew.Count, episodeId);
-        }
         public async Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int movieId)
         {
             return await _context.MovieCasts
@@ -706,7 +670,49 @@ namespace Nostromo.Server.Services
                 .ToListAsync();
         }
 
+        public async Task<List<TmdbCastMember>> GetCastByTvMediaIdAsync(int mediaId)
+        {
+            return await _context.TvMediaCasts
+                .Where(tmc => tmc.MediaID == mediaId)
+                .Select(tmc => new TmdbCastMember
+                {
+                    id = tmc.Id,
+                    name = tmc.Name,
+                    original_name = tmc.OriginalName,
+                    character = tmc.Character,
+                    credit_id = tmc.CreditID,
+                    cast_id = tmc.CastId,
+                    profile_path = tmc.ProfilePath,
+                    popularity = tmc.Popularity,
+                    gender = tmc.Gender,
+                    known_for_department = tmc.KnownForDepartment,
+                    adult = tmc.Adult,
+                    order = tmc.Order ?? 0
 
+                }).ToListAsync();
+        }
+
+        public async Task<List<TmdbCrewMember>> GetCrewByTvMediaIdAsync(int mediaId)
+        {
+            return await _context.TvMediaCrews
+                .Where(tmc => tmc.MediaID == mediaId)
+                .Select(tmc => new TmdbCrewMember
+                {
+                    id = tmc.Id,
+                    name = tmc.Name,
+                    original_name = tmc.OriginalName,
+                    credit_id = tmc.CreditID,
+                    profile_path = tmc.ProfilePath,
+                    popularity = tmc.Popularity,
+                    gender = tmc.Gender,
+                    known_for_department = tmc.KnownForDepartment,
+                    department = tmc.Department,
+                    job = tmc.Job,
+                    adult = tmc.Adult
+                })
+                .ToListAsync();
+        }
+        
         public async Task<DateTime> GetCreatedAtByVideoIdAsync(int? videoId)
         {
             _logger.LogInformation("Retrieving CreatedAt for VideoID: {VideoId}", videoId);

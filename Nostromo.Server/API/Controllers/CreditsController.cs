@@ -58,5 +58,85 @@ namespace Nostromo.Server.API.Controllers
 
             return ApiResults.SuccessCollection(crew);
         }
+        
+        [HttpGet("tv/cast/{showId}")]
+        [ProducesResponseType(typeof(SuccessResponse<IEnumerable<TmdbCastMember>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IResult> GetCastByTvId(int showId)
+        {
+            if (showId <= 0)
+            {
+                return ApiResults.BadRequest("Invalid show ID.");
+            }
+
+            var cast = await _databaseService.GetCastByTvMediaIdAsync(showId);
+
+            if (cast == null || cast.Count == 0)
+            {
+                return ApiResults.NotFound($"No cast found for show ID {showId}.");
+            }
+
+            return ApiResults.SuccessCollection(cast);
+        }
+
+        [HttpGet("tv/crew/{showId}")]
+        [ProducesResponseType(typeof(SuccessResponse<IEnumerable<TmdbCrewMember>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IResult> GetCrewByTvId(int showId)
+        { 
+            if (showId <= 0)
+            {
+                return ApiResults.BadRequest("Invalid show ID.");
+            }
+
+            var crew = await _databaseService.GetCrewByTvMediaIdAsync(showId);
+
+            if (crew == null || crew.Count == 0)
+            {
+                return ApiResults.NotFound($"No crew found for show ID {showId}.");
+            }
+
+            return ApiResults.SuccessCollection(crew);
+        }
+        
+        [HttpGet("episode/cast/{episodeId}")]
+        [ProducesResponseType(typeof(SuccessResponse<IEnumerable<TmdbCastMember>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IResult> GetCastByEpisodeId(int episodeId)
+        {
+            if (episodeId <= 0)
+            {
+                return ApiResults.BadRequest("Invalid episode ID.");
+            }
+
+            var cast = await _databaseService.GetCastByTvMediaIdAsync(episodeId);
+
+            if (cast == null || cast.Count == 0)
+            {
+                return ApiResults.NotFound($"No cast found for episode ID {episodeId}.");
+            }
+
+            return ApiResults.SuccessCollection(cast);
+        }
+
+        [HttpGet("episode/crew/{episodeId}")]
+        [ProducesResponseType(typeof(SuccessResponse<IEnumerable<TmdbCrewMember>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IResult> GetCrewByEpisodeId(int episodeId)
+        {
+            if (episodeId <= 0)
+            {
+                return ApiResults.BadRequest("Invalid episode ID.");
+            }
+
+            var crew = await _databaseService.GetCrewByTvMediaIdAsync(episodeId);
+
+            if (crew == null || crew.Count == 0)
+            {
+                return ApiResults.NotFound($"No crew found for episode ID {episodeId}.");
+            }
+
+            return ApiResults.SuccessCollection(crew);
+        }
     }
 }
