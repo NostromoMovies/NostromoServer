@@ -223,10 +223,14 @@ namespace Nostromo.Server.Database
             modelBuilder.Entity<TMDBPerson>(entity =>
             {
                 entity.HasKey(e => e.TMDBPersonID);
-
+                
+                
                 entity.Property(e => e.TMDBID)
                         .IsRequired();
-
+                
+                entity.HasIndex(e => e.TMDBID)
+                    .IsUnique();
+                
                 entity.Property(e => e.EnglishName)
                         .HasMaxLength(255)
                         .IsRequired(false);

@@ -101,9 +101,9 @@ public class DownloadTvMetadataJob : BaseJob
                     var showCreditsWrapper = await _tmdbService.GetTvShowCreditsAsync(showId.Value);
                     if (showCreditsWrapper?.Cast != null)
                     {
-                        await _databaseService.StoreTvCastAsync(showId.Value, showCreditsWrapper.Cast);
+                        await _databaseService.StoreTvMediaCastAsync(showId.Value, showCreditsWrapper.Cast);
                         _logger.LogInformation("Successfully processed and stored cast for show ID {ShowId}", showId);
-                        await _databaseService.StoreTvCrewAsync(showId.Value, showCreditsWrapper.Crew);
+                        await _databaseService.StoreTvMediaCrewAsync(showId.Value, showCreditsWrapper.Crew);
                         _logger.LogInformation("Successfully processed and stored crew for show ID {ShowId}", showId);
                     }
                 }
@@ -117,13 +117,13 @@ public class DownloadTvMetadataJob : BaseJob
                     var episodeCreditsWrapper = await _tmdbService.GetTvEpisodeCreditsAsync(showId.Value, seasonNumber.Value, episodeNumber.Value);
                     if (episodeCreditsWrapper?.Cast != null)
                     {
-                        await _databaseService.StoreEpisodeCastAsync(episodeID, episodeCreditsWrapper.Cast);
+                        await _databaseService.StoreTvMediaCastAsync(episodeID, episodeCreditsWrapper.Cast);
                         _logger.LogInformation("Successfully processed and stored episode cast for show ID {ShowId}", showId);
 
-                        await _databaseService.StoreEpisodeCastAsync(episodeID, episodeCreditsWrapper.GuestStars);
+                        await _databaseService.StoreTvMediaCastAsync(episodeID, episodeCreditsWrapper.GuestStars);
                         _logger.LogInformation("Successfully processed and stored episode guest cast for show ID {ShowId}", showId);
                         
-                        await _databaseService.StoreEpisodeCrewAsync(episodeID, episodeCreditsWrapper.Crew);
+                        await _databaseService.StoreTvMediaCrewAsync(episodeID, episodeCreditsWrapper.Crew);
                         _logger.LogInformation("Successfully processed and stored episode crew for show ID {ShowId}", showId);
                     }
                 }
