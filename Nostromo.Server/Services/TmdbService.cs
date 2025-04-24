@@ -34,6 +34,7 @@ namespace Nostromo.Server.Services
         Task<TmdbTvResponse> GetTvShowById(int showId);
         Task<TmdbTvEpisodeResponse> GetTvEpisodeById(int showId, int seasonNumber, int episodeNumber, int seasonID);
         Task<string?> GetCertificationAsync(int movieId);
+        Task<string?> GetTvCertificationAsync(int showId);
     }
 
     public class TmdbService : ITmdbService
@@ -81,12 +82,21 @@ namespace Nostromo.Server.Services
                 var genreResponse = await _httpClient.GetFromJsonAsync<GenreResponse>(genreUrl)
                     .ConfigureAwait(false)
                     ?? throw new NotFoundException("Genre list not found");
-
+                
+                var tvGenreUrl = $"genre/tv/list?api_key={_tmdbApiKey}";
+                var tvGenreResponse = await _httpClient.GetFromJsonAsync<GenreResponse>(tvGenreUrl)
+                                        .ConfigureAwait(false)
+                                    ?? throw new NotFoundException("Tv Genre list not found");
+                
                 var genreDict = new Dictionary<int, string>();
 
+                var combinedGenres = genreResponse.genres.Concat(tvGenreResponse.genres)
+                    .GroupBy(g => g.id)
+                    .Select(g => g.First());
+                
                 if (genreResponse.genres != null)
                 {
-                    foreach (var genre in genreResponse.genres)
+                    foreach (var genre in combinedGenres)
                     {
                         genreDict[genre.id] = genre.name;
                         await _databaseService.InsertGenreAsync(genre);
@@ -441,7 +451,7 @@ namespace Nostromo.Server.Services
                     {
                         Adult = existingShow.Adult,
                         BackdropPath = existingShow.BackdropPath,
-                        FirstAirDate = existingShow.FirstAirDate,
+                        FirstAirDate = existingShow.FirstAirDate?.ToString("MM/dd/yyyy"),
                         Id = existingShow.TvShowID,
                         OriginalLanguage = existingShow.OriginalLanguage,
                         Overview = existingShow.Overview,
@@ -490,6 +500,21 @@ namespace Nostromo.Server.Services
                 .Where(r => !string.IsNullOrWhiteSpace(r.Certification))
                 .OrderByDescending(r => r.ReleaseDate)
                 .FirstOrDefault()?.Certification;
+
+            return string.IsNullOrWhiteSpace(certification) ? null : certification;
+        }
+        
+        public async Task<string?> GetTvCertificationAsync(int showId)
+        {
+            var url = $"tv/{showId}/content_ratings?api_key={_tmdbApiKey}";
+            var response = await _httpClient.GetFromJsonAsync<TvRatingListResponse>(url);
+
+            if (response.Results == null || response == null)
+            {
+                return null;
+            }
+            var usRelease = response?.Results.FirstOrDefault(r => r.Iso3166_1 == "US");
+            var certification = usRelease?.Rating;
 
             return string.IsNullOrWhiteSpace(certification) ? null : certification;
         }

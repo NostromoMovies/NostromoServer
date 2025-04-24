@@ -146,11 +146,13 @@ namespace Nostromo.Server.Server
                 q.AddJob<DownloadMovieMetadataJob>(opts => opts.WithIdentity("DownloadMovieMetadataJob"));
                 q.AddJob<DownloadTMDBMetadataJob>(opts => opts.WithIdentity("DownloadTMDBMetadataJob"));
                 q.AddJob<DownloadTmdbImageJob>(opts => opts.WithIdentity("DownloadTmdbImageJob"));
-
+                q.AddJob<DownloadTvMetadataJob>(opts => opts.WithIdentity("DownloadTvMetadataJob"));
             });
 
             services.AddTransient<DownloadMovieMetadataJob>();
             services.AddTransient<DownloadTMDBMetadataJob>();
+
+            services.AddTransient<DownloadTvMetadataJob>();
           
 
             services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);

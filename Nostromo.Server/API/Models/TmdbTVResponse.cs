@@ -42,4 +42,7 @@ public class TmdbTvResponse {
     
     [JsonPropertyName("seasons")]
     public List<TmdbTvSeasonResponse> Seasons {get; set;}
+    
+    [JsonPropertyName("genres")]
+    public List<TmdbGenre> Genres{get; set;}
 }

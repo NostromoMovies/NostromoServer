@@ -42,6 +42,14 @@ namespace Nostromo.Server.Database
         public DbSet<TvRecommendation> TvRecommendations { get; set; }
         public DbSet<Collection> Collections { get; set; }
         public DbSet<CollectionItem> CollectionItems { get; set; }
+        
+        public DbSet<TvGenre> TvGenres { get; set; } 
+        public DbSet<TvMediaCast> TvMediaCasts { get; set; }  
+        public DbSet<TvMediaCrew> TvMediaCrews { get; set; }  
+        public DbSet<TvRecommendationGenre> TvRecommendationGenres { get; set; } 
+        public DbSet<TvExampleHash> TvExampleHashes { get; set; }
+        
+        public DbSet<CrossRefVideoTvEpisode> CrossRefVideoTvEpisodes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -271,7 +279,20 @@ namespace Nostromo.Server.Database
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
+            modelBuilder.Entity<CrossRefVideoTvEpisode>(entity =>
+            {
+                entity.HasKey(e => e.CrossRefVideoTvEpisodeID);
 
+                entity.HasOne(e => e.Video)
+                    .WithMany()
+                    .HasForeignKey(e => e.VideoID)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.TvEpisode)
+                    .WithMany()
+                    .HasForeignKey(e => e.TvEpisodeId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
             modelBuilder.Entity<ExampleHash>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -431,6 +452,128 @@ namespace Nostromo.Server.Database
                 );
             });
 
+            modelBuilder.Entity<TvExampleHash>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Title);
+                entity.Property(e => e.TvShowId);
+                entity.Property(e => e.SeasonNumber);
+                entity.Property(e => e.EpisodeNumber);
+                entity.Property(e => e.ED2K);
+
+                entity.HasData(
+                    new TvExampleHash
+                    {
+                        Id = 1,
+                        Title = "The Blacklist",
+                        TvShowId = 46952,
+                        SeasonNumber = 1,
+                        EpisodeNumber = 1,
+                        ED2K = "a413da8e3e3bb02237795b2dc9e06b8d"
+                    },
+                    new TvExampleHash
+                    {
+                        Id = 2,
+                        Title = "The Blacklist",
+                        TvShowId = 46952,
+                        SeasonNumber = 1,
+                        EpisodeNumber = 2,
+                        ED2K = "ee4a746481ec4a6a909943562aefe86a"
+                    },
+                    new TvExampleHash
+                    {
+                        Id = 3,
+                        Title = "The Blacklist",
+                        TvShowId = 46952,
+                        SeasonNumber = 1,
+                        EpisodeNumber = 3,
+                        ED2K = "a73c8cf075a960af6004a257432b2435"
+                    },
+                    new TvExampleHash
+                    {
+                        Id = 4,
+                        Title = "The Blacklist",
+                        TvShowId = 46952,
+                        SeasonNumber = 1,
+                        EpisodeNumber = 4,
+                        ED2K = "ea85563f8f9c051cab70a0139c5118da"
+                    },
+                    new TvExampleHash
+                    {
+                        Id = 5,
+                        Title = "The Blacklist",
+                        TvShowId = 46952,
+                        SeasonNumber = 1,
+                        EpisodeNumber = 5,
+                        ED2K = "c5f51c3dc5b4b45c68e428ccc062949f"
+                    },
+                    new TvExampleHash
+                    {
+                        Id = 6,
+                        Title = "The Blacklist",
+                        TvShowId = 46952,
+                        SeasonNumber = 2,
+                        EpisodeNumber = 1,
+                        ED2K = "7203ced34b4989a4527457a4c564e2c1"
+                    },
+                    new TvExampleHash
+                    {
+                        Id = 7,
+                        Title = "The Blacklist",
+                        TvShowId = 46952,
+                        SeasonNumber = 2,
+                        EpisodeNumber = 2,
+                        ED2K = "8accb9f07416005acdd4d4d9bc790295"
+                    },
+                    new TvExampleHash
+                    {
+                        Id = 8,
+                        Title = "The Blacklist",
+                        TvShowId = 46952,
+                        SeasonNumber = 2,
+                        EpisodeNumber = 3,
+                        ED2K = "41da21faa145d66664535b5084240096"
+                    },
+                    new TvExampleHash
+                    {
+                        Id = 9,
+                        Title = "The Blacklist",
+                        TvShowId = 46952,
+                        SeasonNumber = 2,
+                        EpisodeNumber = 4,
+                        ED2K = "2bda47a34c226363615c0355e001683b"
+                    }
+                );
+            });
+            
+
+            modelBuilder.Entity<TvRecommendation>(entity =>
+            {
+                entity.HasMany(r => r.TvRecommendationGenres)
+                    .WithOne(r => r.TvRecommendation)
+                    .HasForeignKey(r => r.TvRecommendationID);
+            });
+
+            modelBuilder.Entity<TvRecommendationGenre>(entity =>
+            {
+                entity.HasKey(r => new
+                {
+                    r.TvRecommendationID,
+                    r.GenreID,
+                    r.Name
+                });
+                
+                entity.HasOne(r=>r.TvRecommendation)
+                    .WithMany(r=>r.TvRecommendationGenres)
+                    .HasForeignKey(r=>r.TvRecommendationID);
+                
+                entity.HasOne(r => r.Genre)
+                    .WithMany()
+                    .HasForeignKey(r => new { r.GenreID, r.Name })
+                    .HasPrincipalKey((g => new { g.GenreID, g.Name }));
+            });
+
             modelBuilder.Entity<TMDBRecommendation>(entity =>
             {
                 entity.HasKey(e => e.RecommendationID);
@@ -480,8 +623,40 @@ namespace Nostromo.Server.Database
                       .WithOne(s => s.TvShow)
                       .HasForeignKey(s => s.TvShowID)
                       .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(tv => tv.Genres)
+                    .WithMany(g => g.TvShows)
+                    .UsingEntity<TvGenre>(
+                        j => j.HasOne(g => g.Genre)
+                            .WithMany()
+                            .HasForeignKey(g => new { g.GenreID, g.Name }),
+
+                        j => j.HasOne(g => g.TvShow)
+                            .WithMany(tv => tv.TvGenres)
+                            .HasForeignKey(g => g.TvShowID),
+
+                        j =>
+                        {
+                            j.HasKey(g => new { g.TvShowID, g.GenreID, g.Name });
+                        }
+                    );
             });
 
+            modelBuilder.Entity<TvGenre>(entity =>
+            {
+                entity.HasKey(g => new { g.TvShowID, g.GenreID, g.Name });
+
+                entity.HasOne(g => g.TvShow)
+                    .WithMany(t => t.TvGenres)
+                    .HasForeignKey(g => g.TvShowID);
+
+                entity.HasOne(g => g.Genre)
+                    .WithMany()
+                    .HasForeignKey(g => new { g.GenreID, g.Name })
+                    .HasPrincipalKey(g => new { g.GenreID, g.Name });
+
+            });
+            
             modelBuilder.Entity<Season>(entity =>
             {
                 entity.HasKey(e => e.SeasonID);
@@ -566,6 +741,7 @@ namespace Nostromo.Server.Database
                       .HasForeignKey(ci => ci.TmdbTvID)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+            
         }
     }
 
@@ -641,8 +817,19 @@ namespace Nostromo.Server.Database
         public int GenreID { get; set; }
         public string Name { get; set; }
         public virtual ICollection<TMDBMovie> Movies { get; set; } = new List<TMDBMovie>();
+        public virtual ICollection<TvRecommendation> TvRecommendations { get; set; } = new List<TvRecommendation>();
+        public virtual ICollection<TvShow> TvShows { get; set; } = new List<TvShow>();
     }
 
+    public class TvGenre
+    {
+        public int TvShowID { get; set; }
+        public int GenreID { get; set; }
+        public string Name { get; set; }
+        
+        public virtual TvShow TvShow { get; set; }
+        public virtual Genre Genre { get; set; }
+    }
     public class MovieGenre
     {
         public int MovieID { get; set; }
@@ -741,7 +928,47 @@ namespace Nostromo.Server.Database
         public string? Department { get; set; }
         public string? Job { get; set; }
     }
+    
+    public class TvMediaCast
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int MediaCastID { get; set; }
+        public int MediaID { get; set; }
+        public int TMDBPersonID { get; set; }
+        public bool Adult { get; set; }
+        public int Gender { get; set; }
+        public int Id { get; set; }
+        public string? KnownForDepartment { get; set; }
+        public string? Name { get; set; }
+        public string? OriginalName { get; set; }
+        public double Popularity { get; set; }
+        public string? ProfilePath { get; set; }
+        public int? CastId { get; set; }
+        public string? Character { get; set; }
+        public string? CreditID { get; set; }
+        public int? Order { get; set; }
+    }
 
+    public class TvMediaCrew
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int MediaCrewID { get; set; }
+        public int MediaID { get; set; }
+        public int TMDBPersonID { get; set; }
+        public bool Adult { get; set; }
+        public int Gender { get; set; }
+        public int Id { get; set; }
+        public string? KnownForDepartment { get; set; }
+        public string? Name { get; set; }
+        public string? OriginalName { get; set; }
+        public double Popularity { get; set; }
+        public string? ProfilePath { get; set; }
+        public string? CreditID { get; set; }
+        public string? Department { get; set; }
+        public string? Job { get; set; }
+    }
     public class TMDBPerson
     {
         public int TMDBPersonID { get; set; }
@@ -782,12 +1009,39 @@ namespace Nostromo.Server.Database
         public virtual Video Video { get; set; }
         public virtual TMDBMovie TMDBMovie { get; set; }
     }
-
+    
+    public class CrossRefVideoTvEpisode
+    {
+        public int CrossRefVideoTvEpisodeID { get; set; }
+        public int VideoID { get; set; }
+        public int TvEpisodeId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public virtual Video Video { get; set; }
+        public virtual Episode TvEpisode { get; set; }
+    }
     public class ExampleHash
     {
         public int Id { get; set; }
         public int TmdbId { get; set; }
         public string Title { get; set; }
+        public string ED2K { get; set; }
+    }
+
+
+    public class TvExampleHash
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        
+        public int TvShowId { get; set; }
+        
+        public int SeasonNumber { get; set; }
+        
+        public int EpisodeNumber { get; set; }
+        
+        public string Title { get; set; }
+        
         public string ED2K { get; set; }
     }
 
@@ -824,6 +1078,15 @@ namespace Nostromo.Server.Database
         public virtual Genre Genre { get; set; }
     }
 
+    public class TvRecommendationGenre
+    {
+        public int TvRecommendationID { get; set; }
+        public int GenreID { get; set; }
+        public string Name { get; set; }
+        
+        public virtual TvRecommendation TvRecommendation { get; set; }
+        public virtual Genre Genre { get; set; }
+    }
     public class WatchList
     {
         public int WatchListID { get; set; }
@@ -845,6 +1108,7 @@ namespace Nostromo.Server.Database
 
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;
     }
+
     
     public class TvShow
      {
@@ -861,6 +1125,22 @@ namespace Nostromo.Server.Database
              BackdropPath = api.BackdropPath;
              VoteAverage = api.VoteAverage ?? 0.0;
              VoteCount = api.VoteCount ?? 0;
+             
+             if (DateTime.TryParse(api.FirstAirDate, out var parsedDate))
+             {
+                 FirstAirDate = parsedDate;
+             }
+             else
+             {
+                 FirstAirDate = null;
+             }
+             
+             TvGenres = api.Genres?.Select(g => new TvGenre
+             {
+                 GenreID = g.id,
+                 Name = g.name,
+                 TvShowID = api.Id
+             }).ToList() ?? new List<TvGenre>();
          }
 
          [Key]
@@ -880,17 +1160,24 @@ namespace Nostromo.Server.Database
          
          public string? BackdropPath { get; set; }
          
-         public string? FirstAirDate { get; set; }
+         public DateTime? FirstAirDate { get; set; }
          
          public double VoteAverage { get; set; }
 
          public int VoteCount { get; set; }
+         
+         public string? Certification { get; set; }
+         
+         public List<TvGenre> TvGenres { get; set; } = new List<TvGenre>();
 
-        public bool IsInCollection { get; set; } = false;
+         public List<Genre> Genres { get; set; } = new List<Genre>();
 
-        public List<Season> Seasons { get; set; }
+         public bool IsInCollection { get; set; } = false;
+
+         public List<Season> Seasons { get; set; }
          
          public TvShow(){
+             
          }
          
      }
@@ -903,11 +1190,19 @@ namespace Nostromo.Server.Database
              TvShowID = tvShowId;
              seasonName = api.seasonName;
              SeasonNumber = api.SeasonNumber;
-             Airdate = api.Airdate;
              EpisodeCount = api.EpisodeCount;
              Overview = api.Overview;
              PosterPath = api.PosterPath;
              VoteAverage = api.VoteAverage;
+
+             if (DateTime.TryParse(api.Airdate, out var parsedDate))
+             {
+                 Airdate = parsedDate;
+             }
+             else
+             {
+                 Airdate = null;
+             }
          }
          
          public Season(){}
@@ -923,7 +1218,7 @@ namespace Nostromo.Server.Database
          
          public int SeasonNumber { get; set; }
          
-         public string Airdate { get; set; }
+         public DateTime? Airdate { get; set; }
          
          public int EpisodeCount { get; set; }
          
@@ -944,13 +1239,21 @@ namespace Nostromo.Server.Database
              SeasonID = seasonID;
              EpisodeNumber = episodeNum;
              EpisodeName = api.EpisodeName;
-             Airdate = api.Airdate;
              Overview = api.Overview;
              SeasonNumber = api.SeasonNumber;
              Runtime = api.Runtime;
              VoteAverage = api.VoteAverage;
              VoteCount = api.VoteCount;
              StillPath = api.StillPath;
+
+             if (DateTime.TryParse(api.Airdate, out var parsedDate))
+             {
+                 Airdate = parsedDate;
+             }
+             else
+             {
+                 Airdate = null;
+             }
          }
 
          public Episode()
@@ -967,7 +1270,7 @@ namespace Nostromo.Server.Database
 
          public int EpisodeNumber { get; set; }
 
-         public string Airdate { get; set; }
+         public DateTime? Airdate { get; set; }
 
          public string Overview { get; set; }
 
@@ -1000,28 +1303,28 @@ namespace Nostromo.Server.Database
          
          public bool Adult { get; set; }
          
-         public string BackdropPath { get; set; }
+         public string? BackdropPath { get; set; }
          
-         public string OriginalName { get; set; }
+         public string? OriginalName { get; set; }
          
-         public string Overview { get; set; }
+         public string? Overview { get; set; }
          
-         public string PosterPath { get; set; }
+         public string? PosterPath { get; set; }
          
-         public string MediaType { get; set; }
          
-         public List<Genre> Genres { get; set; }
+         public double? Popularity { get; set; }
          
-         public double Popularity { get; set; }
+         public string? firstAirDate { get; set; }
          
-         public string firstAirDate { get; set; }
+         public double? VoteAverage { get; set; }
          
-         public double VoteAverage { get; set; }
-         
-         public int VoteCount { get; set; }
+         public int? VoteCount { get; set; }
          
          public virtual TvShow TvShow { get; set; }
          
+         public List<TvRecommendationGenre> TvRecommendationGenres { get; set; } = new List<TvRecommendationGenre>();
+         
+         public virtual ICollection<Genre> Genres { get; set; } = new List<Genre>();
      }
 
     public class Collection

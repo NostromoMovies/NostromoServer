@@ -28,7 +28,18 @@ public class HashFileJob : BaseJob
         _dbContext = dbContext;
         _progressStore = progressStore;
     }
-
+    private static string GetHashKeyForJob(Type jobType)
+    {
+        if (jobType == typeof(DownloadMovieMetadataJob))
+        {
+            return DownloadMovieMetadataJob.HASH_KEY;
+        }
+        else if (jobType == typeof(DownloadTvMetadataJob))
+        {
+            return DownloadTvMetadataJob.HASH_KEY;
+        }
+        throw new ArgumentException($"{nameof(jobType)} is not supported");
+    }
 
     public override string Name => "Hash File Job";
     public override string Type => "FileProcessing";
@@ -154,12 +165,18 @@ public class HashFileJob : BaseJob
                    result.ED2K,
                    result.ProcessingTime.TotalSeconds
                );
-
+                
+                var movieResponse = await _dbContext.ExampleHash.FirstOrDefaultAsync(e=>e.ED2K == result.ED2K);
+                
+                Type jobType = movieResponse != null ? typeof(DownloadMovieMetadataJob) : typeof(DownloadTvMetadataJob);
+                string jobName = jobType == typeof(DownloadMovieMetadataJob) ? "DownloadTMDBMetadataJob" : "DownloadTvMetadataJob";
+                
+                
                 var metadataJobId = Guid.NewGuid().ToString();
                 var metadataJobKey = new JobKey(metadataJobId, "ConsolidateGroup");
-
-                var metadataJob = JobBuilder.Create<DownloadMovieMetadataJob>()
-                    .UsingJobData(DownloadMovieMetadataJob.HASH_KEY, result.ED2K)
+            
+                var metadataJob = JobBuilder.Create(jobType)
+                    .UsingJobData(GetHashKeyForJob(jobType), result.ED2K)
                     .WithIdentity(metadataJobKey)
                     .Build();
 
@@ -169,7 +186,10 @@ public class HashFileJob : BaseJob
                     .Build();
 
                 await Context.Scheduler.ScheduleJob(metadataJob, metadataTrigger);
-                _logger.LogInformation("Scheduled DownloadMovieMetadataJob for file hash: {Hash}", result.ED2K);
+                _logger.LogInformation("Scheduled {JobName} for file hash: {Hash}", jobName, result.ED2K);
+            
+            
+                
             }
 
             else
@@ -191,5 +211,7 @@ public class HashFileJob : BaseJob
             _logger.LogError(ex, "An error occurred while processing file: {FilePath}", filePath);
             throw;
         }
+        
     }
 }
+

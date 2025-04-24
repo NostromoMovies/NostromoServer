@@ -58,6 +58,18 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Genres",
+                columns: table => new
+                {
+                    GenreID = table.Column<int>(type: "INTEGER", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Genres", x => new { x.GenreID, x.Name });
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ImportFolders",
                 columns: table => new
                 {
@@ -132,6 +144,74 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TvExampleHashes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    TvShowId = table.Column<int>(type: "INTEGER", nullable: false),
+                    SeasonNumber = table.Column<int>(type: "INTEGER", nullable: false),
+                    EpisodeNumber = table.Column<int>(type: "INTEGER", nullable: false),
+                    Title = table.Column<string>(type: "TEXT", nullable: false),
+                    ED2K = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TvExampleHashes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TvMediaCasts",
+                columns: table => new
+                {
+                    MediaCastID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    MediaID = table.Column<int>(type: "INTEGER", nullable: false),
+                    TMDBPersonID = table.Column<int>(type: "INTEGER", nullable: false),
+                    Adult = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Gender = table.Column<int>(type: "INTEGER", nullable: false),
+                    Id = table.Column<int>(type: "INTEGER", nullable: false),
+                    KnownForDepartment = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    OriginalName = table.Column<string>(type: "TEXT", nullable: true),
+                    Popularity = table.Column<double>(type: "REAL", nullable: false),
+                    ProfilePath = table.Column<string>(type: "TEXT", nullable: true),
+                    CastId = table.Column<int>(type: "INTEGER", nullable: true),
+                    Character = table.Column<string>(type: "TEXT", nullable: true),
+                    CreditID = table.Column<string>(type: "TEXT", nullable: true),
+                    Order = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TvMediaCasts", x => x.MediaCastID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TvMediaCrews",
+                columns: table => new
+                {
+                    MediaCrewID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    MediaID = table.Column<int>(type: "INTEGER", nullable: false),
+                    TMDBPersonID = table.Column<int>(type: "INTEGER", nullable: false),
+                    Adult = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Gender = table.Column<int>(type: "INTEGER", nullable: false),
+                    Id = table.Column<int>(type: "INTEGER", nullable: false),
+                    KnownForDepartment = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    OriginalName = table.Column<string>(type: "TEXT", nullable: true),
+                    Popularity = table.Column<double>(type: "REAL", nullable: false),
+                    ProfilePath = table.Column<string>(type: "TEXT", nullable: true),
+                    CreditID = table.Column<string>(type: "TEXT", nullable: true),
+                    Department = table.Column<string>(type: "TEXT", nullable: true),
+                    Job = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TvMediaCrews", x => x.MediaCrewID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TvShows",
                 columns: table => new
                 {
@@ -144,9 +224,10 @@ namespace Nostromo.Server.Migrations
                     Popularity = table.Column<double>(type: "REAL", nullable: false),
                     PosterPath = table.Column<string>(type: "TEXT", nullable: true),
                     BackdropPath = table.Column<string>(type: "TEXT", nullable: true),
-                    FirstAirDate = table.Column<string>(type: "TEXT", nullable: true),
+                    FirstAirDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     VoteAverage = table.Column<double>(type: "REAL", nullable: false),
                     VoteCount = table.Column<int>(type: "INTEGER", nullable: false),
+                    Certification = table.Column<string>(type: "TEXT", nullable: true),
                     IsInCollection = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
@@ -190,6 +271,31 @@ namespace Nostromo.Server.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Videos", x => x.VideoID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MovieGenres",
+                columns: table => new
+                {
+                    MovieID = table.Column<int>(type: "INTEGER", nullable: false),
+                    GenreID = table.Column<int>(type: "INTEGER", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MovieGenres", x => new { x.MovieID, x.GenreID, x.Name });
+                    table.ForeignKey(
+                        name: "FK_MovieGenres_Genres_GenreID_Name",
+                        columns: x => new { x.GenreID, x.Name },
+                        principalTable: "Genres",
+                        principalColumns: new[] { "GenreID", "Name" },
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MovieGenres_Movies_MovieID",
+                        column: x => x.MovieID,
+                        principalTable: "Movies",
+                        principalColumn: "TMDBMovieID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -342,7 +448,7 @@ namespace Nostromo.Server.Migrations
                     TvShowID = table.Column<int>(type: "INTEGER", nullable: false),
                     seasonName = table.Column<string>(type: "TEXT", nullable: false),
                     SeasonNumber = table.Column<int>(type: "INTEGER", nullable: false),
-                    Airdate = table.Column<string>(type: "TEXT", nullable: false),
+                    Airdate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     EpisodeCount = table.Column<int>(type: "INTEGER", nullable: false),
                     Overview = table.Column<string>(type: "TEXT", nullable: false),
                     PosterPath = table.Column<string>(type: "TEXT", nullable: false),
@@ -353,6 +459,31 @@ namespace Nostromo.Server.Migrations
                     table.PrimaryKey("PK_Seasons", x => x.SeasonID);
                     table.ForeignKey(
                         name: "FK_Seasons_TvShows_TvShowID",
+                        column: x => x.TvShowID,
+                        principalTable: "TvShows",
+                        principalColumn: "TvShowID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TvGenres",
+                columns: table => new
+                {
+                    TvShowID = table.Column<int>(type: "INTEGER", nullable: false),
+                    GenreID = table.Column<int>(type: "INTEGER", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TvGenres", x => new { x.TvShowID, x.GenreID, x.Name });
+                    table.ForeignKey(
+                        name: "FK_TvGenres_Genres_GenreID_Name",
+                        columns: x => new { x.GenreID, x.Name },
+                        principalTable: "Genres",
+                        principalColumns: new[] { "GenreID", "Name" },
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TvGenres_TvShows_TvShowID",
                         column: x => x.TvShowID,
                         principalTable: "TvShows",
                         principalColumn: "TvShowID",
@@ -482,6 +613,31 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RecommendationGenres",
+                columns: table => new
+                {
+                    RecommendationID = table.Column<int>(type: "INTEGER", nullable: false),
+                    GenreID = table.Column<int>(type: "INTEGER", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RecommendationGenres", x => new { x.RecommendationID, x.GenreID, x.Name });
+                    table.ForeignKey(
+                        name: "FK_RecommendationGenres_Genres_GenreID_Name",
+                        columns: x => new { x.GenreID, x.Name },
+                        principalTable: "Genres",
+                        principalColumns: new[] { "GenreID", "Name" },
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RecommendationGenres_Recommendations_RecommendationID",
+                        column: x => x.RecommendationID,
+                        principalTable: "Recommendations",
+                        principalColumn: "RecommendationID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Episodes",
                 columns: table => new
                 {
@@ -490,7 +646,7 @@ namespace Nostromo.Server.Migrations
                     SeasonID = table.Column<int>(type: "INTEGER", nullable: false),
                     EpisodeName = table.Column<string>(type: "TEXT", nullable: false),
                     EpisodeNumber = table.Column<int>(type: "INTEGER", nullable: false),
-                    Airdate = table.Column<string>(type: "TEXT", nullable: false),
+                    Airdate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Overview = table.Column<string>(type: "TEXT", nullable: false),
                     SeasonNumber = table.Column<int>(type: "INTEGER", nullable: false),
                     Runtime = table.Column<int>(type: "INTEGER", nullable: false),
@@ -510,21 +666,28 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Genres",
+                name: "TvRecommendationGenres",
                 columns: table => new
                 {
+                    TvRecommendationID = table.Column<int>(type: "INTEGER", nullable: false),
                     GenreID = table.Column<int>(type: "INTEGER", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    TvRecommendationRecommendationID = table.Column<int>(type: "INTEGER", nullable: true)
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Genres", x => new { x.GenreID, x.Name });
+                    table.PrimaryKey("PK_TvRecommendationGenres", x => new { x.TvRecommendationID, x.GenreID, x.Name });
                     table.ForeignKey(
-                        name: "FK_Genres_TvRecommendations_TvRecommendationRecommendationID",
-                        column: x => x.TvRecommendationRecommendationID,
+                        name: "FK_TvRecommendationGenres_Genres_GenreID_Name",
+                        columns: x => new { x.GenreID, x.Name },
+                        principalTable: "Genres",
+                        principalColumns: new[] { "GenreID", "Name" },
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TvRecommendationGenres_TvRecommendations_TvRecommendationID",
+                        column: x => x.TvRecommendationID,
                         principalTable: "TvRecommendations",
-                        principalColumn: "RecommendationID");
+                        principalColumn: "RecommendationID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -549,56 +712,6 @@ namespace Nostromo.Server.Migrations
                         column: x => x.WatchListID,
                         principalTable: "WatchLists",
                         principalColumn: "WatchListID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MovieGenres",
-                columns: table => new
-                {
-                    MovieID = table.Column<int>(type: "INTEGER", nullable: false),
-                    GenreID = table.Column<int>(type: "INTEGER", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MovieGenres", x => new { x.MovieID, x.GenreID, x.Name });
-                    table.ForeignKey(
-                        name: "FK_MovieGenres_Genres_GenreID_Name",
-                        columns: x => new { x.GenreID, x.Name },
-                        principalTable: "Genres",
-                        principalColumns: new[] { "GenreID", "Name" },
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_MovieGenres_Movies_MovieID",
-                        column: x => x.MovieID,
-                        principalTable: "Movies",
-                        principalColumn: "TMDBMovieID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RecommendationGenres",
-                columns: table => new
-                {
-                    RecommendationID = table.Column<int>(type: "INTEGER", nullable: false),
-                    GenreID = table.Column<int>(type: "INTEGER", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RecommendationGenres", x => new { x.RecommendationID, x.GenreID, x.Name });
-                    table.ForeignKey(
-                        name: "FK_RecommendationGenres_Genres_GenreID_Name",
-                        columns: x => new { x.GenreID, x.Name },
-                        principalTable: "Genres",
-                        principalColumns: new[] { "GenreID", "Name" },
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RecommendationGenres_Recommendations_RecommendationID",
-                        column: x => x.RecommendationID,
-                        principalTable: "Recommendations",
-                        principalColumn: "RecommendationID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -629,6 +742,11 @@ namespace Nostromo.Server.Migrations
                     { 20, "8ca300a5aa1a73c8419f4d1622c3364d", "WALL-E", 10681 },
                     { 21, "c0c717a4f8fad3366520d47c702ab5ad", "Total Recall", 861 }
                 });
+
+            migrationBuilder.InsertData(
+                table: "TvExampleHashes",
+                columns: new[] { "Id", "ED2K", "EpisodeNumber", "SeasonNumber", "Title", "TvShowId" },
+                values: new object[] { 1, "ee4a746481ec4a6a909943562aefe86a", 1, 1, "The Blacklist", 46952 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuthTokens_UserId",
@@ -672,11 +790,6 @@ namespace Nostromo.Server.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Genres_TvRecommendationRecommendationID",
-                table: "Genres",
-                column: "TvRecommendationRecommendationID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MovieCasts_TMDBMovieID",
                 table: "MovieCasts",
                 column: "TMDBMovieID");
@@ -715,6 +828,16 @@ namespace Nostromo.Server.Migrations
                 name: "IX_Seasons_TvShowID",
                 table: "Seasons",
                 column: "TvShowID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TvGenres_GenreID_Name",
+                table: "TvGenres",
+                columns: new[] { "GenreID", "Name" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TvRecommendationGenres_GenreID_Name",
+                table: "TvRecommendationGenres",
+                columns: new[] { "GenreID", "Name" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_TvRecommendations_TvShowID",
@@ -774,6 +897,21 @@ namespace Nostromo.Server.Migrations
                 name: "RecommendationGenres");
 
             migrationBuilder.DropTable(
+                name: "TvExampleHashes");
+
+            migrationBuilder.DropTable(
+                name: "TvGenres");
+
+            migrationBuilder.DropTable(
+                name: "TvMediaCasts");
+
+            migrationBuilder.DropTable(
+                name: "TvMediaCrews");
+
+            migrationBuilder.DropTable(
+                name: "TvRecommendationGenres");
+
+            migrationBuilder.DropTable(
                 name: "VideoPlaces");
 
             migrationBuilder.DropTable(
@@ -789,10 +927,13 @@ namespace Nostromo.Server.Migrations
                 name: "People");
 
             migrationBuilder.DropTable(
+                name: "Recommendations");
+
+            migrationBuilder.DropTable(
                 name: "Genres");
 
             migrationBuilder.DropTable(
-                name: "Recommendations");
+                name: "TvRecommendations");
 
             migrationBuilder.DropTable(
                 name: "Videos");
@@ -801,16 +942,13 @@ namespace Nostromo.Server.Migrations
                 name: "WatchLists");
 
             migrationBuilder.DropTable(
-                name: "TvRecommendations");
-
-            migrationBuilder.DropTable(
                 name: "Movies");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "TvShows");
 
             migrationBuilder.DropTable(
-                name: "TvShows");
+                name: "Users");
         }
     }
 }

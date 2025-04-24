@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nostromo.Server.Database;
 
@@ -10,9 +11,11 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    partial class NostromoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250423221052_FixedTv")]
+    partial class FixedTv
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -861,81 +864,9 @@ namespace Nostromo.Server.Migrations
                         new
                         {
                             Id = 1,
-                            ED2K = "a413da8e3e3bb02237795b2dc9e06b8d",
-                            EpisodeNumber = 1,
-                            SeasonNumber = 1,
-                            Title = "The Blacklist",
-                            TvShowId = 46952
-                        },
-                        new
-                        {
-                            Id = 2,
                             ED2K = "ee4a746481ec4a6a909943562aefe86a",
-                            EpisodeNumber = 2,
-                            SeasonNumber = 1,
-                            Title = "The Blacklist",
-                            TvShowId = 46952
-                        },
-                        new
-                        {
-                            Id = 3,
-                            ED2K = "a73c8cf075a960af6004a257432b2435",
-                            EpisodeNumber = 3,
-                            SeasonNumber = 1,
-                            Title = "The Blacklist",
-                            TvShowId = 46952
-                        },
-                        new
-                        {
-                            Id = 4,
-                            ED2K = "ea85563f8f9c051cab70a0139c5118da",
-                            EpisodeNumber = 4,
-                            SeasonNumber = 1,
-                            Title = "The Blacklist",
-                            TvShowId = 46952
-                        },
-                        new
-                        {
-                            Id = 5,
-                            ED2K = "c5f51c3dc5b4b45c68e428ccc062949f",
-                            EpisodeNumber = 5,
-                            SeasonNumber = 1,
-                            Title = "The Blacklist",
-                            TvShowId = 46952
-                        },
-                        new
-                        {
-                            Id = 6,
-                            ED2K = "7203ced34b4989a4527457a4c564e2c1",
                             EpisodeNumber = 1,
-                            SeasonNumber = 2,
-                            Title = "The Blacklist",
-                            TvShowId = 46952
-                        },
-                        new
-                        {
-                            Id = 7,
-                            ED2K = "8accb9f07416005acdd4d4d9bc790295",
-                            EpisodeNumber = 2,
-                            SeasonNumber = 2,
-                            Title = "The Blacklist",
-                            TvShowId = 46952
-                        },
-                        new
-                        {
-                            Id = 8,
-                            ED2K = "41da21faa145d66664535b5084240096",
-                            EpisodeNumber = 3,
-                            SeasonNumber = 2,
-                            Title = "The Blacklist",
-                            TvShowId = 46952
-                        },
-                        new
-                        {
-                            Id = 9,
-                            ED2K = "2bda47a34c226363615c0355e001683b",
-                            EpisodeNumber = 4,
-                            SeasonNumber = 2,
+                            SeasonNumber = 1,
                             Title = "The Blacklist",
                             TvShowId = 46952
                         });

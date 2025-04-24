@@ -7,6 +7,5 @@ public class TvRecommendationListResponse
 {
     [JsonPropertyName("results")]
     public List<TvRecommendationResponse>? Results { get; set; }
-
-    public int Id { get; set; }
+    
 }
