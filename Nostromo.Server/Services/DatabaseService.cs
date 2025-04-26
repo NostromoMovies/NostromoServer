@@ -956,8 +956,113 @@ namespace Nostromo.Server.Services
                 throw;
             }
         }
+        public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy, string minYear, string maxYear, List<string> filterGenre)
+{
+   
+    IQueryable<TMDBMovie> query = _context.Movies;
+    
+    // Apply search term r
+    if (!string.IsNullOrEmpty(searchTerm))
+    {
+        query = query.Where(c => c.Title.ToLower().Contains(searchTerm.ToLower()));
+    }
+    
+    // Apply runtime 
+    if (maxRuntime > 0)
+    {
+        query = query.Where(c => c.Runtime <= maxRuntime);
+    }
+    
+    // Apply genre 
+    List<int> genreIds = new List<int>();
+    if (filterGenre != null && filterGenre.Any())
+    {
+        foreach (var genre in filterGenre)
+        {
+            if (int.TryParse(genre, out int id))
+            {
+                genreIds.Add(id);
+            }
+        }
+    }
 
-        public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string maxYear,List<string> filterGenre)
+    // Recently added
+    if (sortBy == 3)    
+    {
+        var moviesQuery = _context.CrossRefVideoTMDBMovies
+            .Include(c => c.TMDBMovie)
+            .Where(c => genreIds.Count == 0 || _context.MovieGenres
+                .Where(mg => mg.MovieID == c.TMDBMovie.MovieID && genreIds.Contains(mg.GenreID))
+                .Any())
+            .Select(c => c.TMDBMovie);
+
+       
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            moviesQuery = moviesQuery.Where(c => c.Title.ToLower().Contains(searchTerm.ToLower()));
+        }
+        if (maxRuntime > 0)
+        {
+            moviesQuery = moviesQuery.Where(c => c.Runtime <= maxRuntime);
+        }
+
+        var movies = await moviesQuery
+            .OrderByDescending(c => c.CreatedAt)
+            .ToListAsync();
+
+        // Apply year filters 
+        if (!string.IsNullOrEmpty(minYear) && int.TryParse(minYear, out int minYearInt))
+        {
+            movies = movies.Where(c => DateTime.TryParse(c.ReleaseDate, out var releaseDate) && releaseDate.Year >= minYearInt).ToList();
+        }
+        if (!string.IsNullOrEmpty(maxYear) && int.TryParse(maxYear, out int maxYearInt))
+        {
+            movies = movies.Where(c => DateTime.TryParse(c.ReleaseDate, out var releaseDate) && releaseDate.Year <= maxYearInt).ToList();
+        }
+
+        return movies;
+    }
+    // For other sort options (alphabetical, highest rated, popularity)
+    else
+    {
+        // Apply genre filter 
+        if (genreIds.Any())
+        {
+            var movieIdsWithGenres = await _context.MovieGenres
+                .Where(mg => genreIds.Contains(mg.GenreID))
+                .Select(mg => mg.MovieID)
+                .Distinct()
+                .ToListAsync();
+                
+            query = query.Where(m => movieIdsWithGenres.Contains(m.MovieID));
+        }
+
+        var movies = await query.ToListAsync();
+
+        // Apply year filters in memory
+        if (!string.IsNullOrEmpty(minYear) && int.TryParse(minYear, out int minYearInt))
+        {
+            movies = movies.Where(c => DateTime.TryParse(c.ReleaseDate, out var releaseDate) && releaseDate.Year >= minYearInt).ToList();
+        }
+        if (!string.IsNullOrEmpty(maxYear) && int.TryParse(maxYear, out int maxYearInt))
+        {
+            movies = movies.Where(c => DateTime.TryParse(c.ReleaseDate, out var releaseDate) && releaseDate.Year <= maxYearInt).ToList();
+        }
+
+     
+        return sortBy switch
+        {
+            // Alphabetical
+            1 => movies.OrderBy(c => c.Title.ToLower()).ToList(),
+            // Highest rated
+            2 => movies.OrderByDescending(c => c.VoteAverage).ToList(),
+            // Popularity (default)
+            _ => movies.OrderByDescending(c => c.Popularity).ToList(),
+        };
+    }
+}
+
+        /*public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string maxYear,List<string> filterGenre)
         {
             // recently added -- good
             if (sortBy == 3)    
@@ -1020,7 +1125,7 @@ namespace Nostromo.Server.Services
                         (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
                         (maxRuntime == null || c.Runtime <= maxRuntime))
                     .OrderBy(c => c.Title.ToLower())
-                    .ToListAsync();*/
+                    .ToListAsync();#1#
                 
                 var movies = await _context.Movies
                     .Where(c =>
@@ -1057,7 +1162,7 @@ namespace Nostromo.Server.Services
                         (maxRuntime == null || c.Runtime <= maxRuntime))
                     .OrderByDescending(c => c.VoteAverage)
                     .ToListAsync();
-                    */
+                    #1#
                 
                 
                 var movies = await  _context.Movies
@@ -1107,13 +1212,13 @@ namespace Nostromo.Server.Services
                         (string.IsNullOrEmpty(searchTerm) || c.Title.ToLower().Contains(searchTerm.ToLower())) &&
                         (maxRuntime == null || c.Runtime <= maxRuntime))
                     .OrderByDescending(c => c.Popularity)
-                    .ToListAsync();*/
+                    .ToListAsync();#1#
             }
 
 
 
             return await _context.Movies.ToListAsync();
-        }
+        }*/
         
         public async Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy)
         {
@@ -1192,14 +1297,22 @@ namespace Nostromo.Server.Services
 
         public async Task<List<GenreCounter>> GetGenreMovieCount()
         {
-            var result = await _context.MovieGenres
-                .GroupBy(mg => mg.GenreID)
+            var genreCounts = await _context.MovieGenres
+                .Select(mg => new { mg.GenreID, mg.MovieID })
+                .Distinct()
+                .GroupBy(x => x.GenreID)
+                .ToListAsync();
+
+            var genreList = await _context.Genres.ToListAsync();
+
+            var result = genreCounts
                 .Select(g => new GenreCounter
                 {
-                    GenreID = g.Key,
-                    GenreCount = g.Select(x => x.MovieID).Distinct().Count()
+                  
+                    GenreName = genreList.FirstOrDefault(genre => genre.GenreID == g.Key)?.Name ?? "Unknown",
+                    GenreCount = g.Count()
                 })
-                .ToListAsync();
+                .ToList();
 
             return result;
         }
