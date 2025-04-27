@@ -46,7 +46,7 @@ namespace Nostromo.Server.Services
         Task<List<Video>> GetAllUnrecognizedVideosAsync();
         Task InsertExampleHashAsync(string ed2kHash, int tmdbId, string title);
         Task StoreTmdbRecommendationsAsync(int movieId, TmdbRecommendation recommendation);
-        Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation);
+        Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation, Dictionary<int, string> GenreDict);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
         Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy, string minYear, string maxYear, List<string> genreIds);
         Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy);
@@ -60,9 +60,14 @@ namespace Nostromo.Server.Services
         Task<int?> GetActualRecommendationDbIdAsync(int tmdbMovieId, int recommendationTmdbId);
         Task UpdateMovieCertificationAsync(int movieId, string certification);
         Task UpdateTvCertificationAsync(int showId, string certification);
+        
+        Task UpdateTvRecommendationCertificationAsync(int showId, string certification);
         Task<Collection> CreateCollectionAsync(string name);
         Task AddItemsToCollectionAsync(int collectionId, List<int>? movieIds, List<int>? tvIds);
         Task<int> GetVideoID(int movieId);
+        
+        Task<Dictionary<int, string>> GetGenreDictionary();
+      
         Task<List<object>> GetAllCollectionsAsync();
         Task UpdateCollectionPosterAsync(int collectionId);
         Task<string> GetCollectionPosterPathAsync(int collectionId);
@@ -845,8 +850,8 @@ namespace Nostromo.Server.Services
                 throw;
             }
         }
-
-        public async Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation)
+        
+        public async Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation, Dictionary<int, string> GenreDict)
         {
             try
             {
@@ -865,13 +870,28 @@ namespace Nostromo.Server.Services
                     firstAirDate = recommendation.firstAirDate,
                     Popularity = recommendation.Popularity ?? 0.0,
                     TvRecommendationGenres = recommendation.Genres?
-                        .Select(id => new TvRecommendationGenre
+                        .Select(id =>
                         {
-                            GenreID = id
-                        }).ToList() ?? new List<TvRecommendationGenre>()
-                };
+                            if (GenreDict.TryGetValue(id, out var genreName) && !string.IsNullOrWhiteSpace(genreName))
+                            {
+                                return new TvRecommendationGenre
+                                {
+                                    GenreID = id,
+                                    Name = genreName,
+                                    //TvRecommendationID = recommendation.Id
+                                };
+                            }
+                            else 
+                            {
+                                _logger.LogWarning("Genre Id {GenreID} was not found in the database.", id);
+                                return null;
+                            }
+                        }).Where(result => result!= null)
+                          .ToList() ?? new List<TvRecommendationGenre>()
+                }; 
 
-                var existingRecommendation = await _context.Recommendations
+
+                var existingRecommendation = await _context.TvRecommendations
                     .FirstOrDefaultAsync(r => r.Id == recommendationEntity.Id);
 
                 if (existingRecommendation == null)
@@ -1341,6 +1361,17 @@ namespace Nostromo.Server.Services
             await _context.SaveChangesAsync();
         }
 
+
+        public async Task UpdateTvRecommendationCertificationAsync(int showId, string certification)
+        {
+            var show = await _context.TvRecommendations.FirstOrDefaultAsync(show => show.Id == showId);
+            if(show == null)
+                throw new InvalidOperationException($"Tv show with ID {showId} not found.");
+
+            show.Certification = certification;
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<int> GetVideoID(int movieId)
         {
             return await _context.CrossRefVideoTMDBMovies
@@ -1348,6 +1379,7 @@ namespace Nostromo.Server.Services
                 .Select(x => x.VideoID)
                 .FirstOrDefaultAsync();
         }
+
 
         public async Task<Collection> CreateCollectionAsync(string name)
         {
@@ -1477,6 +1509,12 @@ namespace Nostromo.Server.Services
                 .ToListAsync();
 
             return movieItems;
+        }
+
+        public async Task <Dictionary<int, string>> GetGenreDictionary()
+        {
+            var GenreDict = await _context.Genres.ToDictionaryAsync(g => g.GenreID, g => g.Name);
+            return GenreDict;
         }
     }
 }

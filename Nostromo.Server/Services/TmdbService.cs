@@ -284,7 +284,7 @@ namespace Nostromo.Server.Services
         }
 
         public async Task<TvRecommendationListResponse> GetTvRecommendation(int showId)
-        {
+        { 
             try
             {
                 string tmdbUrl = $"tv/{showId}/recommendations?api_key={_tmdbApiKey}";
@@ -303,27 +303,16 @@ namespace Nostromo.Server.Services
                     jsonResponse,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
                 );
+                
 
-                if (recommendations?.Results == null || !recommendations.Results.Any())
-                {
-                    _logger.LogWarning("No recommendations found for show ID: {ShowId}", showId);
-                    return recommendations;
-                }
-
-                foreach (var recommendation in recommendations.Results)
-                {
-                    await _databaseService.StoreTvRecommendationsAsync(showId, recommendation);
-                    
-                }
-
-                _logger.LogInformation("Fetched and stored {Count} recommendations for Tv Show ID {ShowId}",
+                _logger.LogInformation("Fetched  {Count} recommendations for Tv Show ID {ShowId}",
                     recommendations.Results.Count, showId);
 
                 return recommendations;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching or storing movie recommendations for movie ID: {ShowId}", showId);
+                _logger.LogError(ex, "Error fetching tv recommendations for movie ID: {ShowId}", showId);
                 throw;
             }
         }
