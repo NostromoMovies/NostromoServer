@@ -69,6 +69,9 @@ namespace Nostromo.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("PosterPath")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("CollectionID");
 
                     b.ToTable("Collections");
@@ -941,6 +944,33 @@ namespace Nostromo.Server.Migrations
                             SeasonNumber = 2,
                             Title = "The Blacklist",
                             TvShowId = 46952
+                        },
+                        new
+                        {
+                            Id = 10,
+                            ED2K = "15f73bad52cd5ce13a95673e90708939",
+                            EpisodeNumber = 1,
+                            SeasonNumber = 1,
+                            Title = "The National Anthem",
+                            TvShowId = 42009
+                        },
+                        new
+                        {
+                            Id = 11,
+                            ED2K = "1f0103e25e21ae6b3092a3a53c91f21b",
+                            EpisodeNumber = 2,
+                            SeasonNumber = 1,
+                            Title = "Fifteen Million Merits",
+                            TvShowId = 42009
+                        },
+                        new
+                        {
+                            Id = 12,
+                            ED2K = "4dc74beecc6eb8937b540ff4a51a8bea",
+                            EpisodeNumber = 3,
+                            SeasonNumber = 1,
+                            Title = "The Entire History of You",
+                            TvShowId = 42009
                         });
                 });
 

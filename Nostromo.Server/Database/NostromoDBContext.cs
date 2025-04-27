@@ -547,6 +547,33 @@ namespace Nostromo.Server.Database
                         SeasonNumber = 2,
                         EpisodeNumber = 4,
                         ED2K = "2bda47a34c226363615c0355e001683b"
+                    },
+                    new TvExampleHash
+                    {
+                        Id = 10,
+                        Title = "The National Anthem",
+                        TvShowId = 42009,
+                        SeasonNumber = 1,
+                        EpisodeNumber = 1,
+                        ED2K = "15f73bad52cd5ce13a95673e90708939"
+                    },
+                    new TvExampleHash
+                    {
+                        Id = 11,
+                        Title = "Fifteen Million Merits",
+                        TvShowId = 42009,
+                        SeasonNumber = 1,
+                        EpisodeNumber = 2,
+                        ED2K = "1f0103e25e21ae6b3092a3a53c91f21b"
+                    },
+                    new TvExampleHash
+                    {
+                        Id = 12,
+                        Title = "The Entire History of You",
+                        TvShowId = 42009,
+                        SeasonNumber = 1,
+                        EpisodeNumber = 3,
+                        ED2K = "4dc74beecc6eb8937b540ff4a51a8bea"
                     }
                 );
             });
@@ -724,6 +751,7 @@ namespace Nostromo.Server.Database
             {
                 entity.HasKey(c => c.CollectionID);
                 entity.Property(c => c.Name).IsRequired();
+                entity.Property(c => c.PosterPath);
             });
 
             modelBuilder.Entity<CollectionItem>(entity =>
@@ -745,7 +773,6 @@ namespace Nostromo.Server.Database
                       .HasForeignKey(ci => ci.TmdbTvID)
                       .OnDelete(DeleteBehavior.Cascade);
             });
-            
         }
     }
 
@@ -1335,6 +1362,7 @@ namespace Nostromo.Server.Database
     {
         public int CollectionID { get; set; }
         public string Name { get; set; }
+        public string? PosterPath { get; set; }
 
         public virtual ICollection<CollectionItem> Items { get; set; } = new List<CollectionItem>();
     }

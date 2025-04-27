@@ -19,7 +19,8 @@ namespace Nostromo.Server.Migrations
                 {
                     CollectionID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    PosterPath = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -500,15 +501,14 @@ namespace Nostromo.Server.Migrations
                     ShowId = table.Column<int>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Adult = table.Column<bool>(type: "INTEGER", nullable: false),
-                    BackdropPath = table.Column<string>(type: "TEXT", nullable: false),
-                    OriginalName = table.Column<string>(type: "TEXT", nullable: false),
-                    Overview = table.Column<string>(type: "TEXT", nullable: false),
-                    PosterPath = table.Column<string>(type: "TEXT", nullable: false),
-                    MediaType = table.Column<string>(type: "TEXT", nullable: false),
-                    Popularity = table.Column<double>(type: "REAL", nullable: false),
-                    firstAirDate = table.Column<string>(type: "TEXT", nullable: false),
-                    VoteAverage = table.Column<double>(type: "REAL", nullable: false),
-                    VoteCount = table.Column<int>(type: "INTEGER", nullable: false),
+                    BackdropPath = table.Column<string>(type: "TEXT", nullable: true),
+                    OriginalName = table.Column<string>(type: "TEXT", nullable: true),
+                    Overview = table.Column<string>(type: "TEXT", nullable: true),
+                    PosterPath = table.Column<string>(type: "TEXT", nullable: true),
+                    Popularity = table.Column<double>(type: "REAL", nullable: true),
+                    firstAirDate = table.Column<string>(type: "TEXT", nullable: true),
+                    VoteAverage = table.Column<double>(type: "REAL", nullable: true),
+                    VoteCount = table.Column<int>(type: "INTEGER", nullable: true),
                     TvShowID = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
@@ -666,6 +666,31 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "GenreTvRecommendation",
+                columns: table => new
+                {
+                    TvRecommendationsRecommendationID = table.Column<int>(type: "INTEGER", nullable: false),
+                    GenresGenreID = table.Column<int>(type: "INTEGER", nullable: false),
+                    GenresName = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GenreTvRecommendation", x => new { x.TvRecommendationsRecommendationID, x.GenresGenreID, x.GenresName });
+                    table.ForeignKey(
+                        name: "FK_GenreTvRecommendation_Genres_GenresGenreID_GenresName",
+                        columns: x => new { x.GenresGenreID, x.GenresName },
+                        principalTable: "Genres",
+                        principalColumns: new[] { "GenreID", "Name" },
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_GenreTvRecommendation_TvRecommendations_TvRecommendationsRecommendationID",
+                        column: x => x.TvRecommendationsRecommendationID,
+                        principalTable: "TvRecommendations",
+                        principalColumn: "RecommendationID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TvRecommendationGenres",
                 columns: table => new
                 {
@@ -715,6 +740,33 @@ namespace Nostromo.Server.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "CrossRefVideoTvEpisodes",
+                columns: table => new
+                {
+                    CrossRefVideoTvEpisodeID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    VideoID = table.Column<int>(type: "INTEGER", nullable: false),
+                    TvEpisodeId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CrossRefVideoTvEpisodes", x => x.CrossRefVideoTvEpisodeID);
+                    table.ForeignKey(
+                        name: "FK_CrossRefVideoTvEpisodes_Episodes_TvEpisodeId",
+                        column: x => x.TvEpisodeId,
+                        principalTable: "Episodes",
+                        principalColumn: "EpisodeID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CrossRefVideoTvEpisodes_Videos_VideoID",
+                        column: x => x.VideoID,
+                        principalTable: "Videos",
+                        principalColumn: "VideoID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "ExampleHash",
                 columns: new[] { "Id", "ED2K", "Title", "TmdbId" },
@@ -746,7 +798,21 @@ namespace Nostromo.Server.Migrations
             migrationBuilder.InsertData(
                 table: "TvExampleHashes",
                 columns: new[] { "Id", "ED2K", "EpisodeNumber", "SeasonNumber", "Title", "TvShowId" },
-                values: new object[] { 1, "ee4a746481ec4a6a909943562aefe86a", 1, 1, "The Blacklist", 46952 });
+                values: new object[,]
+                {
+                    { 1, "a413da8e3e3bb02237795b2dc9e06b8d", 1, 1, "The Blacklist", 46952 },
+                    { 2, "ee4a746481ec4a6a909943562aefe86a", 2, 1, "The Blacklist", 46952 },
+                    { 3, "a73c8cf075a960af6004a257432b2435", 3, 1, "The Blacklist", 46952 },
+                    { 4, "ea85563f8f9c051cab70a0139c5118da", 4, 1, "The Blacklist", 46952 },
+                    { 5, "c5f51c3dc5b4b45c68e428ccc062949f", 5, 1, "The Blacklist", 46952 },
+                    { 6, "7203ced34b4989a4527457a4c564e2c1", 1, 2, "The Blacklist", 46952 },
+                    { 7, "8accb9f07416005acdd4d4d9bc790295", 2, 2, "The Blacklist", 46952 },
+                    { 8, "41da21faa145d66664535b5084240096", 3, 2, "The Blacklist", 46952 },
+                    { 9, "2bda47a34c226363615c0355e001683b", 4, 2, "The Blacklist", 46952 },
+                    { 10, "15f73bad52cd5ce13a95673e90708939", 1, 1, "The National Anthem", 42009 },
+                    { 11, "1f0103e25e21ae6b3092a3a53c91f21b", 2, 1, "Fifteen Million Merits", 42009 },
+                    { 12, "4dc74beecc6eb8937b540ff4a51a8bea", 3, 1, "The Entire History of You", 42009 }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuthTokens_UserId",
@@ -779,6 +845,16 @@ namespace Nostromo.Server.Migrations
                 column: "VideoID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CrossRefVideoTvEpisodes_TvEpisodeId",
+                table: "CrossRefVideoTvEpisodes",
+                column: "TvEpisodeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CrossRefVideoTvEpisodes_VideoID",
+                table: "CrossRefVideoTvEpisodes",
+                column: "VideoID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Episodes_SeasonID",
                 table: "Episodes",
                 column: "SeasonID");
@@ -788,6 +864,11 @@ namespace Nostromo.Server.Migrations
                 table: "Genres",
                 columns: new[] { "GenreID", "Name" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GenreTvRecommendation_GenresGenreID_GenresName",
+                table: "GenreTvRecommendation",
+                columns: new[] { "GenresGenreID", "GenresName" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_MovieCasts_TMDBMovieID",
@@ -813,6 +894,12 @@ namespace Nostromo.Server.Migrations
                 name: "IX_MovieGenres_GenreID_Name",
                 table: "MovieGenres",
                 columns: new[] { "GenreID", "Name" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_People_TMDBID",
+                table: "People",
+                column: "TMDBID",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_RecommendationGenres_GenreID_Name",
@@ -873,13 +960,16 @@ namespace Nostromo.Server.Migrations
                 name: "CrossRefVideoTMDBMovies");
 
             migrationBuilder.DropTable(
+                name: "CrossRefVideoTvEpisodes");
+
+            migrationBuilder.DropTable(
                 name: "DuplicateFiles");
 
             migrationBuilder.DropTable(
-                name: "Episodes");
+                name: "ExampleHash");
 
             migrationBuilder.DropTable(
-                name: "ExampleHash");
+                name: "GenreTvRecommendation");
 
             migrationBuilder.DropTable(
                 name: "ImportFolders");
@@ -921,7 +1011,7 @@ namespace Nostromo.Server.Migrations
                 name: "Collections");
 
             migrationBuilder.DropTable(
-                name: "Seasons");
+                name: "Episodes");
 
             migrationBuilder.DropTable(
                 name: "People");
@@ -942,13 +1032,16 @@ namespace Nostromo.Server.Migrations
                 name: "WatchLists");
 
             migrationBuilder.DropTable(
+                name: "Seasons");
+
+            migrationBuilder.DropTable(
                 name: "Movies");
 
             migrationBuilder.DropTable(
-                name: "TvShows");
+                name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "TvShows");
         }
     }
 }

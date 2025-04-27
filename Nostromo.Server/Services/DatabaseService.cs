@@ -19,11 +19,11 @@ namespace Nostromo.Server.Services
         //Task CreateUserAsync(User userModel);
         Task<List<TMDBMovie>> SearchMoviesAsync(string title);
         Task<int?> GetMovieIdByHashAsync(string hash);
-        
+
         Task<(int?, int?, int?)> GetTvShowIdSeasonEpByHashAsync(string hash);
         Task<int?> GetVideoIdByHashAsync(string fileHash);
         Task InsertCrossRefAsync(CrossRefVideoTMDBMovie crossRefModel);
-        
+
         Task InsertTvCrossRefAsync(CrossRefVideoTvEpisode crossRefModel);
         Task<List<TMDBMovie>> GetFilterMediaGenre(List<int> genresID);
         Task<List<TMDBMovie>> movieRatingsSorted();
@@ -31,10 +31,10 @@ namespace Nostromo.Server.Services
         Task<bool> CheckCrossRefExistsAsync(int videoID, int tmdbMovieID);
         Task StoreMovieCastAsync(int movieId, List<TmdbCastMember> cast);
         Task StoreMovieCrewAsync(int movieId, List<TmdbCrewMember> crew);
-        
+
         Task StoreTvMediaCastAsync(int mediaId, List<TmdbCastMember> cast);
         Task StoreTvMediaCrewAsync(int mediaId, List<TmdbCrewMember> crew);
-        
+
         Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int movieId);
         Task<List<TmdbCrewMember>> GetCrewByMovieIdAsync(int movieId);
         Task<List<TmdbCastMember>> GetCastByTvMediaIdAsync(int mediaId);
@@ -48,7 +48,7 @@ namespace Nostromo.Server.Services
         Task StoreTmdbRecommendationsAsync(int movieId, TmdbRecommendation recommendation);
         Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
-        Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string  maxYear,List<string> genreIds);
+        Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy, string minYear, string maxYear, List<string> genreIds);
         Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy);
         Task<List<Genre>> getGenre();
         Task<int> GetMinYear();
@@ -63,6 +63,10 @@ namespace Nostromo.Server.Services
         Task<Collection> CreateCollectionAsync(string name);
         Task AddItemsToCollectionAsync(int collectionId, List<int>? movieIds, List<int>? tvIds);
         Task<int> GetVideoID(int movieId);
+        Task<List<object>> GetAllCollectionsAsync();
+        Task UpdateCollectionPosterAsync(int collectionId);
+        Task<string> GetCollectionPosterPathAsync(int collectionId);
+        Task<List<CollectionItemDto>> GetCollectionItemsAsync(int collectionId);
     }
 
     public class DatabaseService : IDatabaseService
@@ -112,11 +116,11 @@ namespace Nostromo.Server.Services
 
             return exampleHash?.TmdbId; // Return null if not found
         }
-        
+
         public async Task<(int?, int?, int?)> GetTvShowIdSeasonEpByHashAsync(string hash)
         {
             _logger.LogInformation("Searching for TvShowId, SeasonNum and EpisodeNum with hash: {InputHash}", hash);
-            
+
             var exampleHash = _context.TvExampleHashes.FirstOrDefault(eh => eh.ED2K == hash);
             if (exampleHash != null)
             {
@@ -126,7 +130,7 @@ namespace Nostromo.Server.Services
             {
                 _logger.LogWarning("No matching hash found for: {InputHash}", hash);
             }
-            
+
             return (exampleHash?.TvShowId, exampleHash?.SeasonNumber, exampleHash?.EpisodeNumber);
         }
 
@@ -142,7 +146,7 @@ namespace Nostromo.Server.Services
         {
             return await _movieRepository.GetByIdAsync(id);
         }
-        
+
         public async Task<TvShow> GetTvShowAsync(int id)
         {
             return await _tvShowRepository.GetByIdAsync(id);
@@ -241,7 +245,7 @@ namespace Nostromo.Server.Services
                 _logger.LogError(ex, "Unexpected error while inserting cross-reference for TvEpisodeID={TvEpisodeID} and VideoID={VideoID}",
                     crossRefModel.TvEpisodeId, crossRefModel.VideoID);
                 throw;
-            } 
+            }
         }
         public async Task InsertCrossRefAsync(CrossRefVideoTMDBMovie crossRefModel)
         {
@@ -461,8 +465,8 @@ namespace Nostromo.Server.Services
         }
 
         public async Task StoreTvMediaCastAsync(int mediaId, List<TmdbCastMember> cast)
-        {   
-            
+        {
+
             var show = await _context.TvShows.FirstOrDefaultAsync(tv => tv.TvShowID == mediaId);
             if (show == null)
             {
@@ -474,15 +478,15 @@ namespace Nostromo.Server.Services
             var existingPeopleIds = new HashSet<int>(
                 await _context.People
                     .Where(p => tmdbIDs.Contains(p.TMDBID))
-                    .Select(p=>p.TMDBID)
+                    .Select(p => p.TMDBID)
                     .ToListAsync());
-            
+
             var showCasts = new List<TvMediaCast>();
-            
+
             foreach (var castMember in cast)
             {
                 TMDBPerson tmdbPerson;
-                
+
                 if (!existingPeopleIds.Contains(castMember.id))
                 {
                     tmdbPerson = new TMDBPerson
@@ -503,13 +507,13 @@ namespace Nostromo.Server.Services
                     {
                         tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == castMember.id);
                     }
-                    
+
                 }
                 else
                 {
                     tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == castMember.id);
                 }
-                
+
                 var existingCast = await _context.TvMediaCasts
                     .FirstOrDefaultAsync(c => c.MediaID == mediaId &&
                                               c.Id == castMember.id &&
@@ -549,7 +553,7 @@ namespace Nostromo.Server.Services
                 _logger.LogWarning("Show with ID {ShowId} not found in database, skipping cast storage", mediaId);
                 return;
             }
-            
+
             var tmdbIds = crew.Select(c => c.id).ToList();
             var existingPeopleIds = new HashSet<int>(
                 await _context.People
@@ -557,12 +561,12 @@ namespace Nostromo.Server.Services
                     .Select(p => p.TMDBID)
                     .ToListAsync()
             );
-            
+
             var showCrews = new List<TvMediaCrew>();
-            
+
             foreach (var crewMember in crew)
             {
-                TMDBPerson tmdbPerson; 
+                TMDBPerson tmdbPerson;
                 if (!existingPeopleIds.Contains(crewMember.id))
                 {
                     tmdbPerson = new TMDBPerson
@@ -615,7 +619,7 @@ namespace Nostromo.Server.Services
 
                     showCrews.Add(showCrew);
                 }
-                
+
             }
 
             if (showCrews.Any())
@@ -623,10 +627,10 @@ namespace Nostromo.Server.Services
                 await _context.TvMediaCrews.AddRangeAsync(showCrews);
                 await _context.SaveChangesAsync();
             }
-            
+
             _logger.LogInformation("Stored {Count} cast members for show ID {ShowId}", crew.Count, mediaId);
         }
-        
+
         public async Task<List<TmdbCastMember>> GetCastByMovieIdAsync(int movieId)
         {
             return await _context.MovieCasts
@@ -712,7 +716,7 @@ namespace Nostromo.Server.Services
                 })
                 .ToListAsync();
         }
-        
+
         public async Task<DateTime> GetCreatedAtByVideoIdAsync(int? videoId)
         {
             _logger.LogInformation("Retrieving CreatedAt for VideoID: {VideoId}", videoId);
@@ -865,7 +869,7 @@ namespace Nostromo.Server.Services
                         {
                             GenreID = id
                         }).ToList() ?? new List<TvRecommendationGenre>()
-                }; 
+                };
 
                 var existingRecommendation = await _context.Recommendations
                     .FirstOrDefaultAsync(r => r.Id == recommendationEntity.Id);
@@ -889,7 +893,7 @@ namespace Nostromo.Server.Services
                 throw;
             }
         }
-        
+
         public async Task InsertRecommendationGenreAsync(int recommendationId, int genreId, string genreName)
         {
             // Check if the Genre exists
@@ -957,110 +961,110 @@ namespace Nostromo.Server.Services
             }
         }
         public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy, string minYear, string maxYear, List<string> filterGenre)
-{
-   
-    IQueryable<TMDBMovie> query = _context.Movies;
-    
-    // Apply search term r
-    if (!string.IsNullOrEmpty(searchTerm))
-    {
-        query = query.Where(c => c.Title.ToLower().Contains(searchTerm.ToLower()));
-    }
-    
-    // Apply runtime 
-    if (maxRuntime > 0)
-    {
-        query = query.Where(c => c.Runtime <= maxRuntime);
-    }
-    
-    // Apply genre 
-    List<int> genreIds = new List<int>();
-    if (filterGenre != null && filterGenre.Any())
-    {
-        foreach (var genre in filterGenre)
         {
-            if (int.TryParse(genre, out int id))
+
+            IQueryable<TMDBMovie> query = _context.Movies;
+
+            // Apply search term r
+            if (!string.IsNullOrEmpty(searchTerm))
             {
-                genreIds.Add(id);
+                query = query.Where(c => c.Title.ToLower().Contains(searchTerm.ToLower()));
+            }
+
+            // Apply runtime 
+            if (maxRuntime > 0)
+            {
+                query = query.Where(c => c.Runtime <= maxRuntime);
+            }
+
+            // Apply genre 
+            List<int> genreIds = new List<int>();
+            if (filterGenre != null && filterGenre.Any())
+            {
+                foreach (var genre in filterGenre)
+                {
+                    if (int.TryParse(genre, out int id))
+                    {
+                        genreIds.Add(id);
+                    }
+                }
+            }
+
+            // Recently added
+            if (sortBy == 3)
+            {
+                var moviesQuery = _context.CrossRefVideoTMDBMovies
+                    .Include(c => c.TMDBMovie)
+                    .Where(c => genreIds.Count == 0 || _context.MovieGenres
+                        .Where(mg => mg.MovieID == c.TMDBMovie.MovieID && genreIds.Contains(mg.GenreID))
+                        .Any())
+                    .Select(c => c.TMDBMovie);
+
+
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    moviesQuery = moviesQuery.Where(c => c.Title.ToLower().Contains(searchTerm.ToLower()));
+                }
+                if (maxRuntime > 0)
+                {
+                    moviesQuery = moviesQuery.Where(c => c.Runtime <= maxRuntime);
+                }
+
+                var movies = await moviesQuery
+                    .OrderByDescending(c => c.CreatedAt)
+                    .ToListAsync();
+
+                // Apply year filters 
+                if (!string.IsNullOrEmpty(minYear) && int.TryParse(minYear, out int minYearInt))
+                {
+                    movies = movies.Where(c => DateTime.TryParse(c.ReleaseDate, out var releaseDate) && releaseDate.Year >= minYearInt).ToList();
+                }
+                if (!string.IsNullOrEmpty(maxYear) && int.TryParse(maxYear, out int maxYearInt))
+                {
+                    movies = movies.Where(c => DateTime.TryParse(c.ReleaseDate, out var releaseDate) && releaseDate.Year <= maxYearInt).ToList();
+                }
+
+                return movies;
+            }
+            // For other sort options (alphabetical, highest rated, popularity)
+            else
+            {
+                // Apply genre filter 
+                if (genreIds.Any())
+                {
+                    var movieIdsWithGenres = await _context.MovieGenres
+                        .Where(mg => genreIds.Contains(mg.GenreID))
+                        .Select(mg => mg.MovieID)
+                        .Distinct()
+                        .ToListAsync();
+
+                    query = query.Where(m => movieIdsWithGenres.Contains(m.MovieID));
+                }
+
+                var movies = await query.ToListAsync();
+
+                // Apply year filters in memory
+                if (!string.IsNullOrEmpty(minYear) && int.TryParse(minYear, out int minYearInt))
+                {
+                    movies = movies.Where(c => DateTime.TryParse(c.ReleaseDate, out var releaseDate) && releaseDate.Year >= minYearInt).ToList();
+                }
+                if (!string.IsNullOrEmpty(maxYear) && int.TryParse(maxYear, out int maxYearInt))
+                {
+                    movies = movies.Where(c => DateTime.TryParse(c.ReleaseDate, out var releaseDate) && releaseDate.Year <= maxYearInt).ToList();
+                }
+
+
+                return sortBy switch
+                {
+                    // Alphabetical
+                    1 => movies.OrderBy(c => c.Title.ToLower()).ToList(),
+                    // Highest rated
+                    2 => movies.OrderByDescending(c => c.VoteAverage).ToList(),
+                    // Popularity (default)
+                    _ => movies.OrderByDescending(c => c.Popularity).ToList(),
+                };
             }
         }
-    }
-
-    // Recently added
-    if (sortBy == 3)    
-    {
-        var moviesQuery = _context.CrossRefVideoTMDBMovies
-            .Include(c => c.TMDBMovie)
-            .Where(c => genreIds.Count == 0 || _context.MovieGenres
-                .Where(mg => mg.MovieID == c.TMDBMovie.MovieID && genreIds.Contains(mg.GenreID))
-                .Any())
-            .Select(c => c.TMDBMovie);
-
-       
-        if (!string.IsNullOrEmpty(searchTerm))
-        {
-            moviesQuery = moviesQuery.Where(c => c.Title.ToLower().Contains(searchTerm.ToLower()));
-        }
-        if (maxRuntime > 0)
-        {
-            moviesQuery = moviesQuery.Where(c => c.Runtime <= maxRuntime);
-        }
-
-        var movies = await moviesQuery
-            .OrderByDescending(c => c.CreatedAt)
-            .ToListAsync();
-
-        // Apply year filters 
-        if (!string.IsNullOrEmpty(minYear) && int.TryParse(minYear, out int minYearInt))
-        {
-            movies = movies.Where(c => DateTime.TryParse(c.ReleaseDate, out var releaseDate) && releaseDate.Year >= minYearInt).ToList();
-        }
-        if (!string.IsNullOrEmpty(maxYear) && int.TryParse(maxYear, out int maxYearInt))
-        {
-            movies = movies.Where(c => DateTime.TryParse(c.ReleaseDate, out var releaseDate) && releaseDate.Year <= maxYearInt).ToList();
-        }
-
-        return movies;
-    }
-    // For other sort options (alphabetical, highest rated, popularity)
-    else
-    {
-        // Apply genre filter 
-        if (genreIds.Any())
-        {
-            var movieIdsWithGenres = await _context.MovieGenres
-                .Where(mg => genreIds.Contains(mg.GenreID))
-                .Select(mg => mg.MovieID)
-                .Distinct()
-                .ToListAsync();
-                
-            query = query.Where(m => movieIdsWithGenres.Contains(m.MovieID));
-        }
-
-        var movies = await query.ToListAsync();
-
-        // Apply year filters in memory
-        if (!string.IsNullOrEmpty(minYear) && int.TryParse(minYear, out int minYearInt))
-        {
-            movies = movies.Where(c => DateTime.TryParse(c.ReleaseDate, out var releaseDate) && releaseDate.Year >= minYearInt).ToList();
-        }
-        if (!string.IsNullOrEmpty(maxYear) && int.TryParse(maxYear, out int maxYearInt))
-        {
-            movies = movies.Where(c => DateTime.TryParse(c.ReleaseDate, out var releaseDate) && releaseDate.Year <= maxYearInt).ToList();
-        }
-
-     
-        return sortBy switch
-        {
-            // Alphabetical
-            1 => movies.OrderBy(c => c.Title.ToLower()).ToList(),
-            // Highest rated
-            2 => movies.OrderByDescending(c => c.VoteAverage).ToList(),
-            // Popularity (default)
-            _ => movies.OrderByDescending(c => c.Popularity).ToList(),
-        };
-    }
-}
 
         /*public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy,string minYear, string maxYear,List<string> filterGenre)
         {
@@ -1219,7 +1223,7 @@ namespace Nostromo.Server.Services
 
             return await _context.Movies.ToListAsync();
         }*/
-        
+
         public async Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy)
         {
 
@@ -1236,7 +1240,7 @@ namespace Nostromo.Server.Services
                 2 => result.OrderByDescending(c => c.VoteAverage),
                 _ => result.OrderByDescending(c => c.Popularity),
             };
-            
+
             return await result.ToListAsync();
         }
         public async Task<List<Genre>> getGenre()
@@ -1308,7 +1312,7 @@ namespace Nostromo.Server.Services
             var result = genreCounts
                 .Select(g => new GenreCounter
                 {
-                  
+
                     GenreName = genreList.FirstOrDefault(genre => genre.GenreID == g.Key)?.Name ?? "Unknown",
                     GenreCount = g.Count()
                 })
@@ -1330,7 +1334,7 @@ namespace Nostromo.Server.Services
         public async Task UpdateTvCertificationAsync(int showId, string certification)
         {
             var show = await _context.TvShows.FindAsync(showId);
-            if(show == null)
+            if (show == null)
                 throw new InvalidOperationException($"Tv show with ID {showId} not found.");
 
             show.Certification = certification;
@@ -1399,6 +1403,144 @@ namespace Nostromo.Server.Services
                 .Where(x => x.TMDBMovieID == movieId)
                 .Select(x => x.VideoID)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<Collection> CreateCollectionAsync(string name)
+        {
+            var collection = new Collection
+            {
+                Name = name
+            };
+
+            _context.Collections.Add(collection);
+            await _context.SaveChangesAsync();
+
+            return collection;
+        }
+
+        public async Task AddItemsToCollectionAsync(int collectionId, List<int>? movieIds, List<int>? tvIds)
+        {
+            if (movieIds != null)
+            {
+                foreach (var movieId in movieIds)
+                {
+                    var item = new CollectionItem
+                    {
+                        CollectionID = collectionId,
+                        TmdbMovieID = movieId
+                    };
+                    _context.CollectionItems.Add(item);
+
+                    var movie = await _context.Movies.FindAsync(movieId);
+                    if (movie != null)
+                    {
+                        movie.IsInCollection = true;
+                    }
+                }
+            }
+
+            if (tvIds != null)
+            {
+                foreach (var tvId in tvIds)
+                {
+                    var item = new CollectionItem
+                    {
+                        CollectionID = collectionId,
+                        TmdbTvID = tvId
+                    };
+                    _context.CollectionItems.Add(item);
+
+                    var show = await _context.TvShows.FindAsync(tvId);
+                    if (show != null)
+                    {
+                        show.IsInCollection = true;
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> GetVideoID(int movieId)
+        {
+            return await _context.CrossRefVideoTMDBMovies
+                .Where(x => x.TMDBMovieID == movieId)
+                .Select(x => x.VideoID)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<object>> GetAllCollectionsAsync()
+        {
+            var collections = await _context.Collections
+                .Include(c => c.Items)
+                .Select(c => new
+                {
+                    c.CollectionID,
+                    c.Name,
+                    c.PosterPath,
+                    Items = c.Items.Select(item => new
+                    {
+                        item.CollectionItemID,
+                        item.CollectionID,
+                        item.TmdbMovieID,
+                        item.TmdbTvID
+                    }).ToList()
+                })
+                .ToListAsync();
+
+            return collections.Cast<object>().ToList();
+        }
+
+        public async Task UpdateCollectionPosterAsync(int collectionId)
+        {
+            var collection = await _context.Collections
+                .Include(c => c.Items)
+                    .ThenInclude(i => i.TmdbMovie)
+                .Include(c => c.Items)
+                    .ThenInclude(i => i.TmdbTv)
+                .FirstOrDefaultAsync(c => c.CollectionID == collectionId);
+
+            if (collection == null) return;
+
+            var oldestItem = collection.Items
+                .Select(item => new
+                {
+                    PosterPath = item.TmdbMovie?.PosterPath ?? item.TmdbTv?.PosterPath,
+                    ReleaseDate = item.TmdbMovie != null
+                        ? (DateTime.TryParse(item.TmdbMovie.ReleaseDate, out var date) ? date : (DateTime?)null)
+                        : item.TmdbTv?.FirstAirDate
+                })
+                .Where(x => x.PosterPath != null && x.ReleaseDate != null)
+                .OrderBy(x => x.ReleaseDate)
+                .FirstOrDefault();
+
+            if (oldestItem != null)
+            {
+                collection.PosterPath = oldestItem.PosterPath;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<string> GetCollectionPosterPathAsync(int collectionId)
+        {
+            var collection = await _context.Collections.FindAsync(collectionId);
+
+            return collection?.PosterPath;
+        }
+
+        public async Task<List<CollectionItemDto>> GetCollectionItemsAsync(int collectionId)
+        {
+            var movieItems = await _context.CollectionItems
+                .Where(ci => ci.CollectionID == collectionId && ci.TmdbMovieID != null)
+                .Select(ci => new CollectionItemDto
+                {
+                    MovieID = ci.TmdbMovie.MovieID,
+                    Title = ci.TmdbMovie.Title,
+                    PosterPath = ci.TmdbMovie.PosterPath
+                })
+                .ToListAsync();
+
+            return movieItems;
         }
     }
 }
