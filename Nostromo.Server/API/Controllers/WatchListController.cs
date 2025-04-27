@@ -128,4 +128,9 @@ public class WatchListController : ControllerBase
 
         return Ok(movies);
     }
+    [HttpGet("{watchListId}")]
+    public async Task<IActionResult> GetWatchListById(int watchListId)
+    {
+        return Ok(await _context.WatchLists.FindAsync(watchListId));
+    }
 }
