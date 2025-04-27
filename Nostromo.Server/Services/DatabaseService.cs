@@ -1341,62 +1341,6 @@ namespace Nostromo.Server.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Collection> CreateCollectionAsync(string name)
-        {
-            var collection = new Collection
-            {
-                Name = name
-            };
-
-            _context.Collections.Add(collection);
-            await _context.SaveChangesAsync();
-
-            return collection;
-        }
-
-        public async Task AddItemsToCollectionAsync(int collectionId, List<int>? movieIds, List<int>? tvIds)
-        {
-            if (movieIds != null)
-            {
-                foreach (var movieId in movieIds)
-                {
-                    var item = new CollectionItem
-                    {
-                        CollectionID = collectionId,
-                        TmdbMovieID = movieId
-                    };
-                    _context.CollectionItems.Add(item);
-
-                    var movie = await _context.Movies.FindAsync(movieId);
-                    if (movie != null)
-                    {
-                        movie.IsInCollection = true;
-                    }
-                }
-            }
-
-            if (tvIds != null)
-            {
-                foreach (var tvId in tvIds)
-                {
-                    var item = new CollectionItem
-                    {
-                        CollectionID = collectionId,
-                        TmdbTvID = tvId
-                    };
-                    _context.CollectionItems.Add(item);
-
-                    var show = await _context.TvShows.FindAsync(tvId);
-                    if (show != null)
-                    {
-                        show.IsInCollection = true;
-                    }
-                }
-            }
-
-            await _context.SaveChangesAsync();
-        }
-
         public async Task<int> GetVideoID(int movieId)
         {
             return await _context.CrossRefVideoTMDBMovies
@@ -1459,14 +1403,6 @@ namespace Nostromo.Server.Services
             }
 
             await _context.SaveChangesAsync();
-        }
-
-        public async Task<int> GetVideoID(int movieId)
-        {
-            return await _context.CrossRefVideoTMDBMovies
-                .Where(x => x.TMDBMovieID == movieId)
-                .Select(x => x.VideoID)
-                .FirstOrDefaultAsync();
         }
 
         public async Task<List<object>> GetAllCollectionsAsync()
