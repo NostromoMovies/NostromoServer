@@ -554,6 +554,11 @@ namespace Nostromo.Server.Database
 
             modelBuilder.Entity<TvRecommendation>(entity =>
             {
+                entity.HasOne(e => e.TvShow)
+                    .WithMany()
+                    .HasForeignKey(e => e.ShowId)
+                    .HasPrincipalKey(tv => tv.TvShowID);
+                
                 entity.HasMany(r => r.TvRecommendationGenres)
                     .WithOne(r => r.TvRecommendation)
                     .HasForeignKey(r => r.TvRecommendationID);
@@ -1321,6 +1326,8 @@ namespace Nostromo.Server.Database
          public string? firstAirDate { get; set; }
          
          public double? VoteAverage { get; set; }
+         
+         public string? Certification { get; set; }
          
          public int? VoteCount { get; set; }
          

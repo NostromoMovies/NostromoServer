@@ -26,9 +26,22 @@ public class TmdbController : ControllerBase
     public async Task<IResult> GetMovieById(int id)
     {
         var movie = await _tmdbService.GetMovieById(id);
+        if (movie == null)
+        {
+            return ApiResults.NotFound($"Tv with id {id} does not exist");
+        }
         return ApiResults.Success(movie);
     }
-
+    
+    [HttpGet("tv/recommendation/{id}")]
+    [ProducesResponseType(typeof(SuccessResponse<TvRecommendationResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IResult> GetTvRecommendationById(int id)
+    {
+        var movie = await _tmdbService.GetTvRecommendation(id);
+        return ApiResults.Success(movie);
+    }
+    
     [HttpGet("media/{mediaType}/{id}/images")]
     public async Task<IResult> GetMediaImagesById(string mediaType, int id, int? seasonNumber = null, int? episodeNumber = null)
     {
