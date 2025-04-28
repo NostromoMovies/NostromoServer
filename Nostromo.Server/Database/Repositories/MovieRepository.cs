@@ -12,7 +12,6 @@ public class MovieRepository : Repository<TMDBMovie>, IMovieRepository
     {
     }
 
-    //override makes sense here
     public override async Task<TMDBMovie> GetByIdAsync(int id)
     {
         return await Query()
@@ -30,7 +29,6 @@ public class MovieRepository : Repository<TMDBMovie>, IMovieRepository
 
     public async Task<(bool exists, string path)> GetPosterPathAsync(int id)
     {
-        // First check if movie exists
         var movie = await GetByIdAsync(id);
         if (movie == null)
             return (false, string.Empty);
@@ -62,6 +60,11 @@ public class MovieRepository : Repository<TMDBMovie>, IMovieRepository
             .Where(m => m.Genres != null && m.Genres.Any(g => genreIds.Contains(g.GenreID)))
             .ToListAsync(); 
     }
-    
 
+    public async Task<TMDBMovie> GetByTMDBIdAsync(int tmdbId)
+    {
+        return await Query()
+            .Include(m => m.Genres)
+            .FirstOrDefaultAsync(m => m.MovieID == tmdbId);
+    }
 }

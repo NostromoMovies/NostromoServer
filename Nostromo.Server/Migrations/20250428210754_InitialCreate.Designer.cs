@@ -11,7 +11,7 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    [Migration("20250427161903_InitialCreate")]
+    [Migration("20250428210754_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -1359,6 +1359,20 @@ namespace Nostromo.Server.Migrations
                     b.HasIndex("MovieID");
 
                     b.ToTable("WatchListItems");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.WatchStatistic", b =>
+                {
+                    b.Property<int>("MovieID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("WatchDuration")
+                        .HasColumnType("int");
+
+                    b.HasKey("MovieID");
+
+                    b.ToTable("WatchStatistics");
                 });
 
             modelBuilder.Entity("GenreTvRecommendation", b =>

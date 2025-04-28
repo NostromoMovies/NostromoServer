@@ -42,7 +42,8 @@ namespace Nostromo.Server.Database
         public DbSet<TvRecommendation> TvRecommendations { get; set; }
         public DbSet<Collection> Collections { get; set; }
         public DbSet<CollectionItem> CollectionItems { get; set; }
-        
+        public DbSet<WatchStatistic> WatchStatistics { get; set; }
+
         public DbSet<TvGenre> TvGenres { get; set; } 
         public DbSet<TvMediaCast> TvMediaCasts { get; set; }  
         public DbSet<TvMediaCrew> TvMediaCrews { get; set; }  
@@ -778,6 +779,17 @@ namespace Nostromo.Server.Database
                       .HasForeignKey(ci => ci.TmdbTvID)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+
+            modelBuilder.Entity<WatchStatistic>(entity =>
+            {
+                entity.HasKey(ws => ws.MovieID);
+                entity.Property(ws => ws.MovieID)
+                      .IsRequired();
+                entity.Property(ws => ws.WatchDuration)
+                      .IsRequired();
+                entity.Property(ws => ws.WatchDuration)
+                      .HasColumnType("int");
+            });
         }
     }
 
@@ -1386,5 +1398,11 @@ namespace Nostromo.Server.Database
 
         public int? TmdbTvID { get; set; }
         public virtual TvShow? TmdbTv { get; set; }
+    }
+
+    public class WatchStatistic
+    {
+        public int MovieID { get; set; }
+        public int WatchDuration { get; set; }
     }
 }

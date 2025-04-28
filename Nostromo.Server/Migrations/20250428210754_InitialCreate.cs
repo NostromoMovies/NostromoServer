@@ -275,6 +275,19 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "WatchStatistics",
+                columns: table => new
+                {
+                    MovieID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    WatchDuration = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WatchStatistics", x => x.MovieID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MovieGenres",
                 columns: table => new
                 {
@@ -1006,6 +1019,9 @@ namespace Nostromo.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "WatchListItems");
+
+            migrationBuilder.DropTable(
+                name: "WatchStatistics");
 
             migrationBuilder.DropTable(
                 name: "Collections");

@@ -123,4 +123,26 @@ public class CollectionController : ControllerBase
         }
     }
 
+    [HttpDelete("{collectionId}/remove-item/{mediaId}/{mediaType}")]
+    public async Task<IActionResult> RemoveFromCollection(int collectionId, int mediaId, string mediaType)
+    {
+        try
+        {
+            if (mediaType == "movie" || mediaType == "tv")
+            {
+                await _databaseService.RemoveItemFromCollectionAsync(collectionId, mediaId, mediaType);
+                await _databaseService.UpdateCollectionPosterAsync(collectionId);
+            }
+            else
+            {
+                return BadRequest("Invalid media type.");
+            }
+
+            return Ok("Item removed from collection.");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }

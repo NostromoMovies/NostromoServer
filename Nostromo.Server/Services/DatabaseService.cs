@@ -49,7 +49,7 @@ namespace Nostromo.Server.Services
         Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation, Dictionary<int, string> GenreDict);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
         Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy, string minYear, string maxYear, List<string> genreIds);
-        Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy);
+        Task<List<TvShowDto>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy);
         Task<List<Genre>> getGenre();
         Task<int> GetMinYear();
         Task<TvShow> GetTvShowAsync(int id);
@@ -72,6 +72,8 @@ namespace Nostromo.Server.Services
         Task UpdateCollectionPosterAsync(int collectionId);
         Task<string> GetCollectionPosterPathAsync(int collectionId);
         Task<List<CollectionItemDto>> GetCollectionItemsAsync(int collectionId);
+        Task RemoveItemFromCollectionAsync(int collectionId, int mediaId, string mediaType);
+        Task<bool> IsMovieAsync(int mediaId);
     }
 
     public class DatabaseService : IDatabaseService
@@ -1244,25 +1246,43 @@ namespace Nostromo.Server.Services
             return await _context.Movies.ToListAsync();
         }*/
 
-        public async Task<List<TvShow>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy)
+        public async Task<List<TvShowDto>> GetTvShowsByUserAsync(
+            string searchTerm, int minYear, int maxYear, int sortBy)
         {
+            var query = _context.TvShows
+                .Select(s => new TvShowDto
+                {
+                    TvShowID = s.TvShowID,
+                    OriginalName = s.OriginalName,
+                    PosterPath = s.PosterPath,
+                    BackdropPath = s.BackdropPath,
+                    Overview = s.Overview,
+                    FirstAirDate = s.FirstAirDate,
+                    Popularity = s.Popularity,
+                    VoteAverage = s.VoteAverage,
+                    CollectionId = _context.CollectionItems
+                        .Where(ci => ci.TmdbTvID == s.TvShowID)
+                        .Select(ci => (int?)ci.CollectionID)
+                        .FirstOrDefault(),
+                    IsInCollection = _context.CollectionItems
+                        .Any(ci => ci.TmdbTvID == s.TvShowID)
+                });
 
-            var result = _context.TvShows
-                    .Where(c =>
-                        (string.IsNullOrEmpty(searchTerm) || c.OriginalName.ToLower().Contains(searchTerm.ToLower()))); /*&&
-                        (maxYear == 0 || DateTime.Parse(c.FirstAirDate).Year <= maxYear) &&
-                        (minYear == 3000 || DateTime.Parse(c.FirstAirDate).Year >= minYear));*/
+            if (!string.IsNullOrEmpty(searchTerm))
+                query = query.Where(s =>
+                    s.OriginalName.ToLower().Contains(searchTerm.ToLower()));
 
-            result = sortBy switch
+            query = sortBy switch
             {
-                0 => result.OrderByDescending(c => c.Popularity),
-                1 => result.OrderByDescending(c => c.OriginalName.ToLower()),
-                2 => result.OrderByDescending(c => c.VoteAverage),
-                _ => result.OrderByDescending(c => c.Popularity),
+                0 => query.OrderByDescending(c => c.Popularity),
+                1 => query.OrderByDescending(c => c.OriginalName.ToLower()),
+                2 => query.OrderByDescending(c => c.VoteAverage),
+                _ => query.OrderByDescending(c => c.Popularity),
             };
 
-            return await result.ToListAsync();
+            return await query.ToListAsync();
         }
+
         public async Task<List<Genre>> getGenre()
         {
 
@@ -1400,17 +1420,23 @@ namespace Nostromo.Server.Services
             {
                 foreach (var movieId in movieIds)
                 {
-                    var item = new CollectionItem
-                    {
-                        CollectionID = collectionId,
-                        TmdbMovieID = movieId
-                    };
-                    _context.CollectionItems.Add(item);
+                    var existingMovieItem = await _context.CollectionItems
+                        .FirstOrDefaultAsync(ci => ci.CollectionID == collectionId && ci.TmdbMovieID == movieId);
 
-                    var movie = await _context.Movies.FindAsync(movieId);
-                    if (movie != null)
+                    if (existingMovieItem == null)
                     {
-                        movie.IsInCollection = true;
+                        var item = new CollectionItem
+                        {
+                            CollectionID = collectionId,
+                            TmdbMovieID = movieId
+                        };
+                        _context.CollectionItems.Add(item);
+
+                        var movie = await _context.Movies.FindAsync(movieId);
+                        if (movie != null)
+                        {
+                            movie.IsInCollection = true;
+                        }
                     }
                 }
             }
@@ -1419,22 +1445,64 @@ namespace Nostromo.Server.Services
             {
                 foreach (var tvId in tvIds)
                 {
-                    var item = new CollectionItem
-                    {
-                        CollectionID = collectionId,
-                        TmdbTvID = tvId
-                    };
-                    _context.CollectionItems.Add(item);
+                    var existingTvItem = await _context.CollectionItems
+                        .FirstOrDefaultAsync(ci => ci.CollectionID == collectionId && ci.TmdbTvID == tvId);
 
-                    var show = await _context.TvShows.FindAsync(tvId);
-                    if (show != null)
+                    if (existingTvItem == null)
                     {
-                        show.IsInCollection = true;
+                        var item = new CollectionItem
+                        {
+                            CollectionID = collectionId,
+                            TmdbTvID = tvId
+                        };
+                        _context.CollectionItems.Add(item);
+
+                        var show = await _context.TvShows.FindAsync(tvId);
+                        if (show != null)
+                        {
+                            show.IsInCollection = true;
+                        }
                     }
                 }
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task RemoveItemFromCollectionAsync(int collectionId, int mediaId, string mediaType)
+        {
+            CollectionItem item = null;
+
+            if (mediaType == "movie")
+            {
+                item = await _context.CollectionItems
+                    .FirstOrDefaultAsync(ci => ci.CollectionID == collectionId && ci.TmdbMovieID == mediaId);
+
+                if (item != null)
+                {
+                    var movie = await _context.Movies.FirstOrDefaultAsync(m => m.MovieID == mediaId);
+                    if (movie != null)
+                        movie.IsInCollection = false;
+                }
+            }
+            else if (mediaType == "tv")
+            {
+                item = await _context.CollectionItems
+                    .FirstOrDefaultAsync(ci => ci.CollectionID == collectionId && ci.TmdbTvID == mediaId);
+
+                if (item != null)
+                {
+                    var show = await _context.TvShows.FirstOrDefaultAsync(t => t.TvShowID == mediaId);
+                    if (show != null)
+                        show.IsInCollection = false;
+                }
+            }
+
+            if (item != null)
+            {
+                _context.CollectionItems.Remove(item);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<List<object>> GetAllCollectionsAsync()
@@ -1504,12 +1572,36 @@ namespace Nostromo.Server.Services
                 {
                     MovieID = ci.TmdbMovie.MovieID,
                     Title = ci.TmdbMovie.Title,
-                    PosterPath = ci.TmdbMovie.PosterPath
+                    PosterPath = ci.TmdbMovie.PosterPath,
+                    MediaType = "movie",
+                    CollectionId = ci.CollectionID,
+                    IsInCollection = true
                 })
                 .ToListAsync();
 
-            return movieItems;
+            var tvItems = await _context.CollectionItems
+                .Where(ci => ci.CollectionID == collectionId && ci.TmdbTvID != null)
+                .Select(ci => new CollectionItemDto
+                {
+                    TvShowID = ci.TmdbTvID,
+                    Title = ci.TmdbTv.OriginalName,
+                    PosterPath = ci.TmdbTv.PosterPath,
+                    MediaType = "tv",
+                    CollectionId = ci.CollectionID,
+                    IsInCollection = true
+                })
+                .ToListAsync();
+
+            var combinedItems = movieItems.Concat(tvItems).ToList();
+
+            return combinedItems;
         }
+
+        public async Task<bool> IsMovieAsync(int mediaId)
+        {
+            return await _context.Movies.AnyAsync(m => m.TMDBID == mediaId);
+        }
+
 
         public async Task <Dictionary<int, string>> GetGenreDictionary()
         {

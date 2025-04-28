@@ -357,7 +357,7 @@ namespace Nostromo.Server.API.Controllers
         }
 
         [HttpGet("getshows")]
-        [ProducesResponseType(typeof(SuccessResponse<IEnumerable<TvShow>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SuccessResponse<IEnumerable<TvShowDto>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IResult> GetFilteredTvShows(
             [FromQuery] string query = null,

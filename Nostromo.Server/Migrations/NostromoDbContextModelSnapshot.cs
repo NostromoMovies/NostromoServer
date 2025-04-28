@@ -1358,6 +1358,20 @@ namespace Nostromo.Server.Migrations
                     b.ToTable("WatchListItems");
                 });
 
+            modelBuilder.Entity("Nostromo.Server.Database.WatchStatistic", b =>
+                {
+                    b.Property<int>("MovieID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("WatchDuration")
+                        .HasColumnType("int");
+
+                    b.HasKey("MovieID");
+
+                    b.ToTable("WatchStatistics");
+                });
+
             modelBuilder.Entity("GenreTvRecommendation", b =>
                 {
                     b.HasOne("Nostromo.Server.Database.TvRecommendation", null)
