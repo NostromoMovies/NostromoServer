@@ -145,6 +145,22 @@ namespace Nostromo.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Profiles",
+                columns: table => new
+                {
+                    ProfileID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Age = table.Column<int>(type: "INTEGER", nullable: false),
+                    Adult = table.Column<bool>(type: "INTEGER", nullable: false),
+                    posterPath = table.Column<string>(type: "TEXT", maxLength: 300, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Profiles", x => x.ProfileID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TvExampleHashes",
                 columns: table => new
                 {
@@ -995,6 +1011,9 @@ namespace Nostromo.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "MovieGenres");
+
+            migrationBuilder.DropTable(
+                name: "Profiles");
 
             migrationBuilder.DropTable(
                 name: "RecommendationGenres");

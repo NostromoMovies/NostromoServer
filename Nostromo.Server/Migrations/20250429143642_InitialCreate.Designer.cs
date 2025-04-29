@@ -11,7 +11,7 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    [Migration("20250428210754_InitialCreate")]
+    [Migration("20250429143642_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -456,6 +456,33 @@ namespace Nostromo.Server.Migrations
                     b.HasIndex("GenreID", "Name");
 
                     b.ToTable("MovieGenres");
+                });
+
+            modelBuilder.Entity("Nostromo.Server.Database.Profile", b =>
+                {
+                    b.Property<int>("ProfileID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Adult")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Age")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("posterPath")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ProfileID");
+
+                    b.ToTable("Profiles");
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.RecommendationGenre", b =>

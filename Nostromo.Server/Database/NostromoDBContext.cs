@@ -51,6 +51,8 @@ namespace Nostromo.Server.Database
         public DbSet<TvExampleHash> TvExampleHashes { get; set; }
         
         public DbSet<CrossRefVideoTvEpisode> CrossRefVideoTvEpisodes { get; set; }
+        
+        public DbSet<Profile> Profiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -790,6 +792,35 @@ namespace Nostromo.Server.Database
                 entity.Property(ws => ws.WatchDuration)
                       .HasColumnType("int");
             });
+            
+            modelBuilder.Entity<Profile>(entity =>
+            {
+                entity.HasKey(e => e.ProfileID);
+
+                entity.Property(e => e.ProfileID)
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.Age)
+                    .IsRequired();
+
+                entity.Property(e => e.Adult)
+                    .IsRequired();
+
+                entity.Property(e => e.posterPath)
+                    .HasMaxLength(300); 
+                
+                entity.Property(e => e.UserId)
+                    .IsRequired();
+                
+                entity.HasOne(p => p.User)
+                    .WithMany(u => u.Profiles)
+                    .HasForeignKey(p => p.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 
@@ -896,6 +927,9 @@ namespace Nostromo.Server.Database
         public string PasswordHash { get; set; }
         public bool IsAdmin { get; set; }
         public DateTime CreatedAt { get; set; }
+        
+        public virtual ICollection<Profile> Profiles { get; set; } = new List<Profile>();
+
     }
 
     public class AuthToken
@@ -1404,5 +1438,19 @@ namespace Nostromo.Server.Database
     {
         public int MovieID { get; set; }
         public int WatchDuration { get; set; }
+    }
+
+    public class Profile
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ProfileID { get; set; }
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public bool Adult { get; set; }
+        public string posterPath { get; set; }
+        
+        public int UserId { get; set; }
+        public virtual User User { get; set; }
     }
 }
