@@ -49,26 +49,37 @@ public class WatchListController : ControllerBase
     }
 
     [HttpPost("{watchListId}/add/{movieId}")]
-    public async Task<IActionResult> AddMovieToWatchList(int watchListId, int movieId)
+    public async Task<IActionResult> AddMoviesToWatchList(int watchListId, [FromBody] List<int> movieIds)
     {
         var watchList = await _context.WatchLists.FindAsync(watchListId);
         if (watchList == null)
             return NotFound("Watch list not found.");
 
-        var movie = await _context.Movies.FindAsync(movieId);
-        if (movie == null)
-            return NotFound("Movie not found.");
+        if (movieIds == null || !movieIds.Any())
+            return BadRequest("No movie IDs provided.");
 
-        var item = new db.WatchListItem
+        foreach (var movieId in movieIds)
         {
-            WatchListID = watchListId,
-            MovieID = movieId
-        };
+            var movie = await _context.Movies.FindAsync(movieId);
+            if (movie == null)
+                continue; // skip if movie doesn't exist
 
-        _context.WatchListItems.Add(item);
+            var existingItem = await _context.WatchListItems
+                .FirstOrDefaultAsync(wli => wli.WatchListID == watchListId && wli.MovieID == movieId);
+
+            if (existingItem == null)
+            {
+                var item = new db.WatchListItem
+                {
+                    WatchListID = watchListId,
+                    MovieID = movieId
+                };
+                _context.WatchListItems.Add(item);
+            }
+        }
+
         await _context.SaveChangesAsync();
-
-        return Ok("Movie added to watch list.");
+        return Ok("Movies added to watch list.");
     }
 
     [HttpDelete("{watchListId}/remove/{movieId}")]

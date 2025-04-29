@@ -363,11 +363,12 @@ namespace Nostromo.Server.API.Controllers
             [FromQuery] string query = null,
             [FromQuery] int searchTerm = 0,
             [FromQuery] int minYear = 0,
-            [FromQuery] int maxYear = 3000)
+            [FromQuery] int maxYear = 3000,
+            [FromQuery] List<string> filterGenre = null)
         {
             try
             {
-                var shows = await _databaseService.GetTvShowsByUserAsync(query, minYear, maxYear, searchTerm);
+                var shows = await _databaseService.GetTvShowsByUserAsync(query, minYear, maxYear, searchTerm,filterGenre);
 
                 var response = new
                 {

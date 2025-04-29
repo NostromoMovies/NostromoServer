@@ -49,7 +49,7 @@ namespace Nostromo.Server.Services
         Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation, Dictionary<int, string> GenreDict);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
         Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy, string minYear, string maxYear, List<string> genreIds);
-        Task<List<TvShowDto>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy);
+        Task<List<TvShowDto>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy, List<string> genreIds);
         Task<List<Genre>> getGenre();
         Task<int> GetMinYear();
         Task<TvShow> GetTvShowAsync(int id);
@@ -1247,8 +1247,20 @@ namespace Nostromo.Server.Services
         }*/
 
         public async Task<List<TvShowDto>> GetTvShowsByUserAsync(
-            string searchTerm, int minYear, int maxYear, int sortBy)
+            string searchTerm, int minYear, int maxYear, int sortBy,List<string> filterGenre)
         {
+            List<int> genreIds = new List<int>();
+            if (filterGenre != null && filterGenre.Any())
+            {
+                foreach (var genre in filterGenre)
+                {
+                    if (int.TryParse(genre, out int id))
+                    {
+                        genreIds.Add(id);
+                    }
+                }
+            }
+            
             var query = _context.TvShows
                 .Select(s => new TvShowDto
                 {
@@ -1267,6 +1279,17 @@ namespace Nostromo.Server.Services
                     IsInCollection = _context.CollectionItems
                         .Any(ci => ci.TmdbTvID == s.TvShowID)
                 });
+            
+            if (genreIds.Any())
+            {
+                var tvIdsWithGenres = await _context.TvGenres
+                    .Where(mg => genreIds.Contains(mg.GenreID))
+                    .Select(mg => mg.TvShowID)
+                    .Distinct()
+                    .ToListAsync();
+
+                query = query.Where(m => tvIdsWithGenres.Contains(m.TvShowID));
+            }
 
             if (!string.IsNullOrEmpty(searchTerm))
                 query = query.Where(s =>
