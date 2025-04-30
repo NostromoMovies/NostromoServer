@@ -1417,10 +1417,30 @@ namespace Nostromo.Server.Services
 
         public async Task<int> GetVideoID(int movieId)
         {
-            return await _context.CrossRefVideoTMDBMovies
-                .Where(x => x.TMDBMovieID == movieId)
-                .Select(x => x.VideoID)
-                .FirstOrDefaultAsync();
+            int videoId = await _context.CrossRefVideoTMDBMovies
+            .Where(movieCrossRef => movieCrossRef.TMDBMovieID == movieId)
+            .Select(movieCrossRef => movieCrossRef.VideoID)
+            .FirstOrDefaultAsync(); // Returns 0 if not found
+
+            // 2. Check if a valid VideoID was found (assuming 0 is not a valid/linked VideoID)
+            if (videoId > 0)
+            {
+                // Found in the movie table, return it.
+                return videoId;
+            }
+            else
+            {
+                // 3. Not found in movies (or result was 0), now try finding a VideoID 
+                //    by matching the SAME input ID against TvEpisodeId in the episode table.
+                videoId = await _context.CrossRefVideoTvEpisodes // Query the episode cross-ref table
+                    .Where(episodeCrossRef => episodeCrossRef.TvEpisodeId == movieId) // Match the input against TvEpisodeId
+                    .Select(episodeCrossRef => episodeCrossRef.VideoID) // Select the linked VideoID
+                    .FirstOrDefaultAsync(); // Returns 0 if not found
+
+                // 4. Return the result from the episode table lookup 
+                //    (This will be 0 if it wasn't found in either table)
+                return videoId;
+            }
         }
 
 
