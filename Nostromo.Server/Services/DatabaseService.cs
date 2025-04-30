@@ -474,8 +474,9 @@ namespace Nostromo.Server.Services
         public async Task StoreTvMediaCastAsync(int mediaId, List<TmdbCastMember> cast)
         {
 
-            var show = await _context.TvShows.FirstOrDefaultAsync(tv => tv.TvShowID == mediaId);
-            if (show == null)
+            var show = await _context.TvShows.AnyAsync(tv => tv.TvShowID == mediaId);
+            var episode = await _context.Episodes.AnyAsync(ep => ep.EpisodeID == mediaId);
+            if (!show && !episode)
             {
                 _logger.LogWarning("Show with ID {mediaId} not found in database, skipping cast storage", mediaId);
                 return;
@@ -530,7 +531,7 @@ namespace Nostromo.Server.Services
                     var showCast = new TvMediaCast
                     {
                         TMDBPersonID = tmdbPerson.TMDBPersonID,
-                        MediaID = show.TvShowID,
+                        MediaID = mediaId,
                         Adult = castMember.adult,
                         Gender = castMember.gender,
                         Id = castMember.id,
@@ -554,10 +555,11 @@ namespace Nostromo.Server.Services
 
         public async Task StoreTvMediaCrewAsync(int mediaId, List<TmdbCrewMember> crew)
         {
-            var show = await _context.TvShows.FirstOrDefaultAsync(tv => tv.TvShowID == mediaId);
-            if (show == null)
+            var show = await _context.TvShows.AnyAsync(tv => tv.TvShowID == mediaId);
+            var episode = await _context.Episodes.AnyAsync(ep => ep.EpisodeID == mediaId);
+            if (!show && !episode)
             {
-                _logger.LogWarning("Show with ID {ShowId} not found in database, skipping cast storage", mediaId);
+                _logger.LogWarning("Show with ID {mediaId} not found in database, skipping cast storage", mediaId);
                 return;
             }
 
@@ -601,7 +603,7 @@ namespace Nostromo.Server.Services
                     tmdbPerson = await _context.People.FirstOrDefaultAsync(p => p.TMDBID == crewMember.id);
                 }
                 var existingCrew = await _context.TvMediaCrews
-                    .FirstOrDefaultAsync(c => c.MediaID == show.TvShowID &&
+                    .FirstOrDefaultAsync(c => c.MediaID == mediaId &&
                                               c.Id == crewMember.id &&
                                               c.KnownForDepartment == crewMember.known_for_department);
 
@@ -610,7 +612,7 @@ namespace Nostromo.Server.Services
                     var showCrew = new TvMediaCrew
                     {
                         TMDBPersonID = tmdbPerson.TMDBPersonID,
-                        MediaID = show.TvShowID,
+                        MediaID = mediaId,
                         Adult = crewMember.adult,
                         Gender = crewMember.gender,
                         Id = crewMember.id,
