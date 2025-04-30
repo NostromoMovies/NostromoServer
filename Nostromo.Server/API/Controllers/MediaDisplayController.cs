@@ -20,15 +20,18 @@ namespace Nostromo.Server.API.Controllers
         private readonly IDatabaseService _databaseService;
         private readonly ILogger<MediaDisplayController> _logger;
         private readonly IScheduler _scheduler;
+        private readonly SelectedProfileService _selectedProfileService;
 
         public MediaDisplayController(
             IDatabaseService databaseService,
             ILogger<MediaDisplayController> logger,
-            IScheduler scheduler)
+            IScheduler scheduler,
+            SelectedProfileService selectedProfileService)
         {
             _databaseService = databaseService;
             _logger = logger;
             _scheduler = scheduler;
+            _selectedProfileService = selectedProfileService;
         }
 
         [HttpGet("searchMedia")]
@@ -331,7 +334,15 @@ namespace Nostromo.Server.API.Controllers
         {
             try
             {
-                var tmdbMovies = await _databaseService.GetMoviesByUserAsync(query, runtime, searchTerm,minYear, maxYear,filterGenre);
+                int? userAge = 0;
+                var profileId = _selectedProfileService.GetSelectedProfileId();
+                if (profileId == null)
+                {
+                    userAge = 21;
+                }
+
+                userAge = _selectedProfileService.GetUserAge();
+                var tmdbMovies = await _databaseService.GetMoviesByUserAsync(query, runtime, searchTerm,minYear, maxYear,filterGenre, userAge.Value);
 
                 var response = new
                 {
@@ -369,7 +380,16 @@ namespace Nostromo.Server.API.Controllers
         {
             try
             {
-                var shows = await _databaseService.GetTvShowsByUserAsync(query, minYear, maxYear, searchTerm,filterGenre);
+                int? userAge = 0;
+                
+                var profileId = _selectedProfileService.GetSelectedProfileId();
+                if (profileId == null)
+                {
+                    userAge = 21;
+                }
+                userAge = _selectedProfileService.GetUserAge();
+                
+                var shows = await _databaseService.GetTvShowsByUserAsync(query, minYear, maxYear, searchTerm,filterGenre, userAge.Value);
 
                 var response = new
                 {

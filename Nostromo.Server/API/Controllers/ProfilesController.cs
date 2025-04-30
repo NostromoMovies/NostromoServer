@@ -118,6 +118,12 @@ public class ProfilesController : ControllerBase
             return NotFound("Profile not found");
         }
 
+        var selectedProfileId = _selectedProfileService.GetSelectedProfileId();
+
+        if (profileToDelete.ProfileID == selectedProfileId)
+        {
+            _selectedProfileService.SetSelectedProfileIdAge(null, null);
+        }
         _context.Profiles.Remove(profileToDelete);
         await _context.SaveChangesAsync();
         return Ok("Profile deleted");
@@ -140,7 +146,7 @@ public class ProfilesController : ControllerBase
             return NotFound("Profile not found");
         }
 
-        _selectedProfileService.SetSelectedProfileId(selectedProfile.ProfileID);
+        _selectedProfileService.SetSelectedProfileIdAge(selectedProfile.ProfileID, selectedProfile.Age);
 
         return Ok(new
         {

@@ -128,6 +128,21 @@ public class WatchListController : ControllerBase
 
         return Ok("Movie removed from watch list.");
     }
+    
+    [HttpDelete("tv/{watchListId}/remove/{tvShowId}")]
+    public async Task<IActionResult> RemoveTvFromWatchList(int watchListId, int tvShowId)
+    {
+        var watchListItem = await _context.WatchListItems
+            .FirstOrDefaultAsync(wli => wli.WatchListID == watchListId && wli.TvShowID == tvShowId);
+
+        if (watchListItem == null)
+            return NotFound("This tv show is not in the specified watch list.");
+
+        _context.WatchListItems.Remove(watchListItem);
+        await _context.SaveChangesAsync();
+
+        return Ok("Tv show removed from watch list.");
+    }
 
     [HttpDelete("{watchListId}/delete")]
     public async Task<IActionResult> DeleteWatchList(int watchListId)
@@ -172,6 +187,22 @@ public class WatchListController : ControllerBase
             .ToListAsync();
 
         return Ok(movies);
+    }
+    
+    [HttpGet("{watchListId}/tv")]
+    public async Task<IActionResult> GetAllTvInWatchList(int watchListId)
+    {
+        var watchListExists = await _context.WatchLists.AnyAsync(w => w.WatchListID == watchListId);
+        if (!watchListExists)
+            return NotFound("Watch list not found.");
+
+        var tvShows = await _context.WatchListItems
+            .Where(wli => wli.WatchListID == watchListId)
+            .Include(wli => wli.TvShow)
+            .Select(wli => wli.TvShow)
+            .ToListAsync();
+
+        return Ok(tvShows);
     }
     [HttpGet("{watchListId}")]
     public async Task<IActionResult> GetWatchListById(int watchListId)

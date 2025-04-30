@@ -48,8 +48,8 @@ namespace Nostromo.Server.Services
         Task StoreTmdbRecommendationsAsync(int movieId, TmdbRecommendation recommendation);
         Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation, Dictionary<int, string> GenreDict);
         Task<List<TMDBRecommendation>> GetRecommendationsByMovieIdAsync(int movieId);
-        Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy, string minYear, string maxYear, List<string> genreIds);
-        Task<List<TvShowDto>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy, List<string> genreIds);
+        Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy, string minYear, string maxYear, List<string> genreIds, int age);
+        Task<List<TvShowDto>> GetTvShowsByUserAsync(string searchTerm, int minYear, int maxYear, int sortBy, List<string> genreIds, int age);
         Task<List<Genre>> getGenre();
         Task<int> GetMinYear();
         Task<TvShow> GetTvShowAsync(int id);
@@ -982,10 +982,12 @@ namespace Nostromo.Server.Services
                 throw;
             }
         }
-        public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy, string minYear, string maxYear, List<string> filterGenre)
+        public async Task<List<TMDBMovie>> GetMoviesByUserAsync(string searchTerm, int maxRuntime, int sortBy, string minYear, string maxYear, List<string> filterGenre, int age)
         {
 
-            IQueryable<TMDBMovie> query = _context.Movies;
+            var allowedRatings = Ratings.GetRatingsForAge(age).ToList();
+            IQueryable<TMDBMovie> query = _context.Movies
+                .Where(m => allowedRatings.Contains(m.Certification));
 
             // Apply search term r
             if (!string.IsNullOrEmpty(searchTerm))
@@ -1017,7 +1019,7 @@ namespace Nostromo.Server.Services
             {
                 var moviesQuery = _context.CrossRefVideoTMDBMovies
                     .Include(c => c.TMDBMovie)
-                    .Where(c => genreIds.Count == 0 || _context.MovieGenres
+                    .Where(c => allowedRatings.Contains(c.TMDBMovie.Certification) && genreIds.Count == 0 || _context.MovieGenres
                         .Where(mg => mg.MovieID == c.TMDBMovie.MovieID && genreIds.Contains(mg.GenreID))
                         .Any())
                     .Select(c => c.TMDBMovie);
@@ -1247,8 +1249,10 @@ namespace Nostromo.Server.Services
         }*/
 
         public async Task<List<TvShowDto>> GetTvShowsByUserAsync(
-            string searchTerm, int minYear, int maxYear, int sortBy, List<string> filterGenre)
+            string searchTerm, int minYear, int maxYear, int sortBy, List<string> filterGenre, int age)
         {
+            var allowedRatings = Ratings.GetRatingsForAge(age).ToList();
+            
             List<int> genreIds = new List<int>();
             if (filterGenre != null && filterGenre.Any())
             {
@@ -1261,8 +1265,11 @@ namespace Nostromo.Server.Services
                 }
             }
 
-            var query = _context.TvShows
-                .Select(s => new TvShowDto
+            var baseShows = _context.TvShows
+                .Where(s => allowedRatings.Contains(s.Certification));
+                
+                
+                var query = baseShows.Select(s => new TvShowDto
                 {
                     TvShowID = s.TvShowID,
                     OriginalName = s.OriginalName,
