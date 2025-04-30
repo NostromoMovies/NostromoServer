@@ -1,0 +1,1 @@
+import{_ as n,o as t,c as s,b as o}from"./index-A5nK4w7Y.js";const a={},c={class:"main-container"};function r(d,e){return t(),s("main",c,e[0]||(e[0]=[o("section",{class:"notfound-section"},[o("h1",null," Page Not Found ")],-1)]))}const i=n(a,[["render",r],["__scopeId","data-v-e8d63cea"]]);export{i as default};
