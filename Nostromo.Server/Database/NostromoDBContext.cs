@@ -4,6 +4,7 @@ using Nostromo.Server.Utilities;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using FluentNHibernate.Conventions.Inspections;
 using Nostromo.Models;
 using Nostromo.Server.API.Models;
 using Nostromo.Server.Services;
@@ -739,12 +740,17 @@ namespace Nostromo.Server.Database
                 entity.HasOne(wl => wl.User)
                     .WithMany()
                     .HasForeignKey(wl => wl.UserID)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.SetNull);
+                
+                entity.HasOne(wl => wl.Profile)
+                    .WithMany()
+                    .HasForeignKey(wl => wl.ProfileID)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             modelBuilder.Entity<WatchListItem>(entity =>
             {
-                entity.HasKey(wli => new { wli.WatchListID, wli.MovieID });
+                entity.HasKey(wli => wli.WatchListItemID);
 
                 entity.HasOne(wli => wli.WatchList)
                     .WithMany(wl => wl.Items)
@@ -752,7 +758,18 @@ namespace Nostromo.Server.Database
 
                 entity.HasOne(wli => wli.Movie)
                     .WithMany()
-                    .HasForeignKey(wli => wli.MovieID);
+                    .HasForeignKey(wli => wli.MovieID)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
+                
+                entity.HasOne(wli => wli.TvShow)
+                    .WithMany()
+                    .HasForeignKey(wli => wli.TvShowID)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
+                
+                entity.HasCheckConstraint("CK_WatchListItem_MovieOrTvShow", 
+                    "(MovieID IS NOT NULL AND TvShowID IS NULL) OR (MovieID IS NULL AND TvShowID IS NOT NULL)");
             });
 
             modelBuilder.Entity<Collection>(entity =>
@@ -760,6 +777,16 @@ namespace Nostromo.Server.Database
                 entity.HasKey(c => c.CollectionID);
                 entity.Property(c => c.Name).IsRequired();
                 entity.Property(c => c.PosterPath);
+                
+                entity.HasOne(c => c.Profile)
+                    .WithMany()
+                    .HasForeignKey(c => c.ProfileID)
+                    .OnDelete(DeleteBehavior.SetNull);
+                
+                entity.HasOne(c => c.User)
+                    .WithMany()
+                    .HasForeignKey(c => c.UserID)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             modelBuilder.Entity<CollectionItem>(entity =>
@@ -1174,19 +1201,29 @@ namespace Nostromo.Server.Database
         public int WatchListID { get; set; }
         public string Name { get; set; }
 
-        public int UserID { get; set; }
+        public int? UserID { get; set; }
         public virtual User? User { get; set; }
+        
+        public int? ProfileID { get; set; }
+        public virtual Profile? Profile { get; set; }
 
         public virtual ICollection<WatchListItem> Items { get; set; } = new List<WatchListItem>();
     }
 
     public class WatchListItem
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int WatchListItemID { get; set; }
         public int WatchListID { get; set; }
         public virtual WatchList WatchList { get; set; }
 
-        public int MovieID { get; set; }
+        public int? MovieID { get; set; }
         public virtual TMDBMovie Movie { get; set; }
+        
+        public int? TvShowID { get; set; }
+        
+        public virtual TvShow TvShow { get; set; }
 
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;
     }
@@ -1416,7 +1453,11 @@ namespace Nostromo.Server.Database
         public int CollectionID { get; set; }
         public string Name { get; set; }
         public string? PosterPath { get; set; }
-
+        
+        public int? UserID { get; set; }
+        public virtual User? User { get; set; }
+        public int? ProfileID { get; set; }
+        public virtual Profile? Profile { get; set; }
         public virtual ICollection<CollectionItem> Items { get; set; } = new List<CollectionItem>();
     }
 

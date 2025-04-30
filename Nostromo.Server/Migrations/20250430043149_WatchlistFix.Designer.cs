@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nostromo.Server.Database;
 
@@ -10,9 +11,11 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    partial class NostromoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250430043149_WatchlistFix")]
+    partial class WatchlistFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -1389,29 +1392,23 @@ namespace Nostromo.Server.Migrations
 
             modelBuilder.Entity("Nostromo.Server.Database.WatchListItem", b =>
                 {
-                    b.Property<int>("WatchListItemID")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("WatchListID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MovieID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TvShowID")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("AddedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("MovieID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("TvShowID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("WatchListID")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("WatchListItemID");
+                    b.HasKey("WatchListID", "MovieID", "TvShowID");
 
                     b.HasIndex("MovieID");
 
                     b.HasIndex("TvShowID");
-
-                    b.HasIndex("WatchListID");
 
                     b.ToTable("WatchListItems", t =>
                         {

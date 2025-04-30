@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Nostromo.Server.Services;
 using db = Nostromo.Server.Database;
 
 [ApiController]
@@ -13,12 +14,28 @@ using db = Nostromo.Server.Database;
 public class ProfilesController : ControllerBase
 {
     private readonly NostromoDbContext _context;
+    private readonly SelectedProfileService _selectedProfileService;
 
-    public ProfilesController(NostromoDbContext context)
+    public ProfilesController(NostromoDbContext context, SelectedProfileService selectedProfileService)
     {
         _context = context;
+        _selectedProfileService = selectedProfileService;
     }
-    
+
+    public class ProfileRequest
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public string PosterPath { get; set; }
+    }
+
+    public class ProfileUpdateRequest
+    {
+        public int ProfileId { get; set; }
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public string PosterPath { get; set; }
+    }
     private async Task<int?> GetLoggedInUserIdAsync()
     {
         var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -32,7 +49,7 @@ public class ProfilesController : ControllerBase
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> CreateProfile([FromBody] Profile profile)
+    public async Task<IActionResult> CreateProfile([FromBody] ProfileRequest request)
     {
         var userId = GetLoggedInUserIdAsync().Result;
         if (userId == null)
@@ -40,8 +57,17 @@ public class ProfilesController : ControllerBase
             return Unauthorized("You are not logged in");
         }
         
-        profile.Adult = profile.Age >= 18 ? true : false;
-        profile.UserId = userId.Value;
+        
+        var profile = new Profile
+        {
+            Name = request.Name,
+            Age = request.Age,
+            Adult = request.Age >= 18 ? true : false,
+            posterPath = request.PosterPath, 
+            UserId = userId.Value,
+        };
+        
+        
         
         _context.Profiles.Add(profile);
         
@@ -50,7 +76,7 @@ public class ProfilesController : ControllerBase
     }
 
     [HttpPost("update")]
-    public async Task<IActionResult> UpdateProfile([FromBody] Profile profile)
+    public async Task<IActionResult> UpdateProfile([FromBody] ProfileUpdateRequest request)
     {
         var userId = GetLoggedInUserIdAsync().Result;
         if (userId == null)
@@ -59,21 +85,24 @@ public class ProfilesController : ControllerBase
         }
         
         var profileToUpdate = await _context.Profiles.FirstOrDefaultAsync(
-            p => p.ProfileID == profile.ProfileID && p.UserId == userId);
+            p => p.ProfileID == request.ProfileId && p.UserId == userId);
 
         if (profileToUpdate == null)
         {
             return NotFound("Profile not found");
         }
         
-        _context.Profiles.Update(profile);
+        profileToUpdate.Name = request.Name;
+        profileToUpdate.Age = request.Age;
+        profileToUpdate.Adult = request.Age >= 18 ? true : false;
+        profileToUpdate.posterPath = request.PosterPath;
         
         await _context.SaveChangesAsync();
-        return Ok(new {profileId = profile.ProfileID});
+        return Ok(new {profileId = profileToUpdate.ProfileID});
     }
 
-    [HttpDelete("delete")]
-    public async Task<IActionResult> DeleteProfile([FromBody]  int profileId)
+    [HttpDelete("delete/{profileId}")]
+    public async Task<IActionResult> DeleteProfile(int profileId)
     {
         var userId = GetLoggedInUserIdAsync().Result;
         if (userId == null)
@@ -94,8 +123,8 @@ public class ProfilesController : ControllerBase
         return Ok("Profile deleted");
     }
 
-    [HttpPost("selectedProfile")]
-    public async Task<IActionResult> SelectProfile([FromBody] int profileId)
+    [HttpPost("selectedProfile/{profileId}")]
+    public async Task<IActionResult> SelectProfile(int profileId)
     {
         var userId = GetLoggedInUserIdAsync().Result;
         if (userId == null)
@@ -111,7 +140,7 @@ public class ProfilesController : ControllerBase
             return NotFound("Profile not found");
         }
         
-        HttpContext.Session.SetInt32("SelectedProfile", selectedProfile.ProfileID);
+        _selectedProfileService.SetSelectedProfileId(selectedProfile.ProfileID);
 
         return Ok(new
         {
@@ -131,7 +160,13 @@ public class ProfilesController : ControllerBase
             return Unauthorized("You are not logged in");
         }
         
-        var profiles = await _context.Profiles.Where(p => p.UserId == userId).ToListAsync();
+        var profiles = await _context.Profiles.Where(p => p.UserId == userId).Select(p => 
+            new {
+                    id = p.ProfileID,
+                    name = p.Name,
+                    age = p.Age,
+                    posterPath = p.posterPath
+                }).ToListAsync();
         
         return Ok(profiles);
         

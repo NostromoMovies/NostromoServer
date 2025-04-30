@@ -62,7 +62,7 @@ namespace Nostromo.Server.Services
         Task UpdateTvCertificationAsync(int showId, string certification);
         
         Task UpdateTvRecommendationCertificationAsync(int showId, string certification);
-        Task<Collection> CreateCollectionAsync(string name);
+        Task<Collection> CreateCollectionAsync(string name, int? userId, int? profileId);
         Task AddItemsToCollectionAsync(int collectionId, List<int>? movieIds, List<int>? tvIds);
         Task<int> GetVideoID(int movieId);
         
@@ -1424,11 +1424,13 @@ namespace Nostromo.Server.Services
         }
 
 
-        public async Task<Collection> CreateCollectionAsync(string name)
+        public async Task<Collection> CreateCollectionAsync(string name, int? userId = null, int? profileId = null)
         {
             var collection = new Collection
             {
-                Name = name
+                Name = name,
+                ProfileID = profileId,
+                UserID = userId
             };
 
             _context.Collections.Add(collection);

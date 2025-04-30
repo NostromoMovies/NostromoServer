@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nostromo.Server.Database;
 
@@ -10,9 +11,11 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    partial class NostromoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250430052600_WatchlistF")]
+    partial class WatchlistF
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");

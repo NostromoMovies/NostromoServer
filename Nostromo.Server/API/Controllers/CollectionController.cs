@@ -1,21 +1,38 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Nostromo.Server.Database;
 using Nostromo.Server.Services;
 using Nostromo.Server.API.Models;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CollectionController : ControllerBase
+public class  CollectionController : ControllerBase
 {
     private readonly IDatabaseService _databaseService;
+    private readonly SelectedProfileService _selectedProfileService;
+    private readonly NostromoDbContext _context;
 
-    public CollectionController(IDatabaseService databaseService)
+    public CollectionController(IDatabaseService databaseService, SelectedProfileService selectedProfileService, NostromoDbContext context)
     {
         _databaseService = databaseService;
+        _selectedProfileService = selectedProfileService;
+        _context = context;
     }
+    
+    private async Task<int?> GetLoggedInUserIdAsync()
+    {
+        var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        if (string.IsNullOrWhiteSpace(token))
+            return null;
 
+        return await _context.AuthTokens
+            .Where(t => t.Token == token)
+            .Select(t => (int?)t.UserId)
+            .FirstOrDefaultAsync();
+    }
+    
     [HttpGet("all")]
     public async Task<IActionResult> GetAllCollections()
     {
@@ -35,8 +52,11 @@ public class CollectionController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(request.Name))
             return BadRequest("Name is required.");
-
-        var collection = await _databaseService.CreateCollectionAsync(request.Name);
+        
+        var userId = await GetLoggedInUserIdAsync();
+        var profileId = _selectedProfileService.GetSelectedProfileId();
+        
+        var collection = await _databaseService.CreateCollectionAsync(request.Name, userId, profileId);
         return Ok(collection);
     }
 
