@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Nostromo.Server.Services;
 using db = Nostromo.Server.Database;
+using FluentNHibernate.Conventions.Inspections;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -59,13 +60,13 @@ public class WatchListController : ControllerBase
         var watchList = await _context.WatchLists.FindAsync(watchListId);
         if (watchList == null)
             return NotFound("Watch list not found.");
-        
+
         var tvShow = await _context.TvShows.FindAsync(tvShowId);
-        
+
         if (tvShow == null)
             return NotFound("Tv show not found.");
-        
-        
+
+
         var existingItem = await _context.WatchListItems.FirstOrDefaultAsync(tvi => tvi.WatchListID == watchListId && tvi.TvShowID == tvShowId);
 
         if (existingItem == null)
@@ -79,21 +80,21 @@ public class WatchListController : ControllerBase
             _context.WatchListItems.Add(item);
             await _context.SaveChangesAsync();
         }
-        
+
         return Ok("Show added to watch list.");
     }
-    
+
     [HttpPost("{watchListId}/add/{movieId}")]
     public async Task<IActionResult> AddMoviesToWatchList(int watchListId, int movieId)
     {
         var watchList = await _context.WatchLists.FindAsync(watchListId);
         if (watchList == null)
             return NotFound("Watch list not found.");
-        
+
         var movie = await _context.Movies.FindAsync(movieId);
         if (movie == null)
             return NotFound("Movie not found.");
-        
+
         var existingItem = await _context.WatchListItems
             .FirstOrDefaultAsync(wli => wli.WatchListID == watchListId && wli.MovieID == movieId);
 
@@ -108,8 +109,8 @@ public class WatchListController : ControllerBase
             _context.WatchListItems.Add(item);
             await _context.SaveChangesAsync();
         }
-        
-        
+
+
         return Ok("Movies added to watch list.");
     }
 
@@ -147,9 +148,9 @@ public class WatchListController : ControllerBase
         var userId = await GetLoggedInUserIdAsync();
         if (userId == null)
             return Unauthorized("Missing or invalid token.");
-        
+
         var profileId = _selectedProfileService.GetSelectedProfileId();
-        
+
         var watchLists = await _context.WatchLists
             .Where(w => w.UserID == userId && w.ProfileID == profileId)
             .ToListAsync();

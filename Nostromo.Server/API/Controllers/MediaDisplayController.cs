@@ -61,6 +61,7 @@ namespace Nostromo.Server.API.Controllers
                     voteCount = movie.VoteCount,
                     voteAverage = Convert.ToSingle(movie.VoteAverage),
                     runtime = movie.Runtime,
+                    certification = movie.Certification,
                     genreIds = movie.Genres?
                                         .Select(g => new TmdbGenre { id = g.GenreID, name = g.Name })
                                         .ToList() ?? new List<TmdbGenre>()
@@ -106,11 +107,10 @@ namespace Nostromo.Server.API.Controllers
                     voteCount = movie.VoteCount,
                     voteAverage = Convert.ToSingle(movie.VoteAverage),
                     runtime = movie.Runtime,
+                    certification = movie.Certification,
                     genreIds = movie.Genres?
-
-                            .Select(g => new TmdbGenre { id = g.GenreID, name = g.Name })
-                            .ToList() ?? new List<TmdbGenre>()
-
+                        .Select(g => new TmdbGenre { id = g.GenreID, name = g.Name })
+                        .ToList() ?? new List<TmdbGenre>()
                 };
 
                 return ApiResults.Success(result);
@@ -121,7 +121,7 @@ namespace Nostromo.Server.API.Controllers
                 return ApiResults.ServerError("An error occurred while retrieving the movie");
             }
         }
-   
+
         [HttpGet("filtered-genre")]
         public async Task<ActionResult<List<TmdbMovieResponse>>> GetFilteredGenre([FromQuery] List<int> genres)
         {
@@ -149,6 +149,7 @@ namespace Nostromo.Server.API.Controllers
                         voteCount = movie.VoteCount,
                         voteAverage = Convert.ToSingle(movie.VoteAverage),
                         runtime = movie.Runtime,
+                        certification = movie.Certification,
                         genreIds = movie.Genres?
                             .Select(g => new TmdbGenre { id = g.GenreID, name = g.Name })
                             .ToList() ?? new List<TmdbGenre>()

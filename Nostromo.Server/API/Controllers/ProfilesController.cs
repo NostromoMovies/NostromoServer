@@ -56,23 +56,23 @@ public class ProfilesController : ControllerBase
         {
             return Unauthorized("You are not logged in");
         }
-        
-        
+
+
         var profile = new Profile
         {
             Name = request.Name,
             Age = request.Age,
             Adult = request.Age >= 18 ? true : false,
-            posterPath = request.PosterPath, 
+            posterPath = request.PosterPath,
             UserId = userId.Value,
         };
-        
-        
-        
+
+
+
         _context.Profiles.Add(profile);
-        
+
         await _context.SaveChangesAsync();
-        return Ok(new {profileId = profile.ProfileID});
+        return Ok(new { profileId = profile.ProfileID });
     }
 
     [HttpPost("update")]
@@ -83,7 +83,7 @@ public class ProfilesController : ControllerBase
         {
             return Unauthorized("You are not logged in");
         }
-        
+
         var profileToUpdate = await _context.Profiles.FirstOrDefaultAsync(
             p => p.ProfileID == request.ProfileId && p.UserId == userId);
 
@@ -91,14 +91,14 @@ public class ProfilesController : ControllerBase
         {
             return NotFound("Profile not found");
         }
-        
+
         profileToUpdate.Name = request.Name;
         profileToUpdate.Age = request.Age;
         profileToUpdate.Adult = request.Age >= 18 ? true : false;
         profileToUpdate.posterPath = request.PosterPath;
-        
+
         await _context.SaveChangesAsync();
-        return Ok(new {profileId = profileToUpdate.ProfileID});
+        return Ok(new { profileId = profileToUpdate.ProfileID });
     }
 
     [HttpDelete("delete/{profileId}")]
@@ -109,7 +109,7 @@ public class ProfilesController : ControllerBase
         {
             return Unauthorized("You are not logged in");
         }
-        
+
         var profileToDelete = await _context.Profiles.FirstOrDefaultAsync(
             p => p.ProfileID == profileId && p.UserId == userId);
 
@@ -117,7 +117,7 @@ public class ProfilesController : ControllerBase
         {
             return NotFound("Profile not found");
         }
-        
+
         _context.Profiles.Remove(profileToDelete);
         await _context.SaveChangesAsync();
         return Ok("Profile deleted");
@@ -131,7 +131,7 @@ public class ProfilesController : ControllerBase
         {
             return Unauthorized("You are not logged in");
         }
-        
+
         var selectedProfile = await _context.Profiles.FirstOrDefaultAsync(
             p => p.ProfileID == profileId && p.UserId == userId);
 
@@ -139,7 +139,7 @@ public class ProfilesController : ControllerBase
         {
             return NotFound("Profile not found");
         }
-        
+
         _selectedProfileService.SetSelectedProfileId(selectedProfile.ProfileID);
 
         return Ok(new
@@ -159,16 +159,16 @@ public class ProfilesController : ControllerBase
         {
             return Unauthorized("You are not logged in");
         }
-        
-        var profiles = await _context.Profiles.Where(p => p.UserId == userId).Select(p => 
+
+        var profiles = await _context.Profiles.Where(p => p.UserId == userId).Select(p =>
             new {
-                    id = p.ProfileID,
-                    name = p.Name,
-                    age = p.Age,
-                    posterPath = p.posterPath
-                }).ToListAsync();
-        
+                id = p.ProfileID,
+                name = p.Name,
+                age = p.Age,
+                posterPath = p.posterPath
+            }).ToListAsync();
+
         return Ok(profiles);
-        
+
     }
 }

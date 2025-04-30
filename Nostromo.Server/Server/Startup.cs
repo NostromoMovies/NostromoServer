@@ -67,6 +67,7 @@ namespace Nostromo.Server.Server
             services.AddHttpContextAccessor();
             services.AddHttpClient();
             services.AddSingleton<SelectedProfileService>();
+
             // add authentication
             services.AddAuthentication("ApiKey")
                 .AddScheme<AuthenticationSchemeOptions, CustomAuthHandler>("ApiKey", null);

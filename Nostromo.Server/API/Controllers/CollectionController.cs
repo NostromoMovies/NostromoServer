@@ -8,7 +8,7 @@ using Nostromo.Server.API.Models;
 
 [ApiController]
 [Route("api/[controller]")]
-public class  CollectionController : ControllerBase
+public class CollectionController : ControllerBase
 {
     private readonly IDatabaseService _databaseService;
     private readonly SelectedProfileService _selectedProfileService;
@@ -20,7 +20,7 @@ public class  CollectionController : ControllerBase
         _selectedProfileService = selectedProfileService;
         _context = context;
     }
-    
+
     private async Task<int?> GetLoggedInUserIdAsync()
     {
         var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -32,7 +32,7 @@ public class  CollectionController : ControllerBase
             .Select(t => (int?)t.UserId)
             .FirstOrDefaultAsync();
     }
-    
+
     [HttpGet("all")]
     public async Task<IActionResult> GetAllCollections()
     {
@@ -52,10 +52,10 @@ public class  CollectionController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(request.Name))
             return BadRequest("Name is required.");
-        
+
         var userId = await GetLoggedInUserIdAsync();
         var profileId = _selectedProfileService.GetSelectedProfileId();
-        
+
         var collection = await _databaseService.CreateCollectionAsync(request.Name, userId, profileId);
         return Ok(collection);
     }

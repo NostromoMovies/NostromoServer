@@ -4,7 +4,6 @@ using Nostromo.Server.Utilities;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using FluentNHibernate.Conventions.Inspections;
 using Nostromo.Models;
 using Nostromo.Server.API.Models;
 using Nostromo.Server.Services;
@@ -456,6 +455,146 @@ namespace Nostromo.Server.Database
                         Title = "Total Recall",
                         TmdbId = 861,
                         ED2K = "c0c717a4f8fad3366520d47c702ab5ad"
+                    },
+                    new ExampleHash
+                    {
+                        Id = 22,
+                        Title = "Altered States",
+                        TmdbId = 11542,
+                        ED2K = "d68b4df74882553d70ddf8b1bfa4c510"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 23,
+                    Title = "Con Air",
+                    TmdbId = 1701,
+                    ED2K = "da7b55d4b775b92635a34b10ef30ec88"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 24,
+                    Title = "Dracula's Daughter",
+                    TmdbId = 22440,
+                    ED2K = "e0dbd16993d8305df99162d76d196942"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 25,
+                    Title = "Drunken Master",
+                    TmdbId = 11230,
+                    ED2K = "d66e8ed433fbadb4dd7a2563e07e5133"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 26,
+                    Title = "I Stand Alone",
+                    TmdbId = 1567,
+                    ED2K = "07321dbd990d80af952132132f3aaba7"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 27,
+                    Title = "Mad God",
+                    TmdbId = 846867,
+                    ED2K = "a41745e62f6b2f0c9908ce278e817e77"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 28,
+                    Title = "Journey To The Center Of The Earth",
+                    TmdbId = 88751,
+                    ED2K = "bb8dcf1c11c68c414631bf1b2e861a25"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 29,
+                    Title = "Paprika",
+                    TmdbId = 4977,
+                    ED2K = "8dac63001e29e8e9410f1d22ccd5eedc"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 30,
+                    Title = "Q - The Winged Serpent",
+                    TmdbId = 29780,
+                    ED2K = "50cb41f65ff732f40d1f52e7758cff15"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 31,
+                    Title = "Little Big Man",
+                    TmdbId = 11040,
+                    ED2K = "b11eabf34f194c2429247bd699918d73"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 32,
+                    Title = "Harakiri",
+                    TmdbId = 14537,
+                    ED2K = "14e1ec9339fcc1a2b0754a288acee7ce"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 33,
+                    Title = "Rons Gone Wrong",
+                    TmdbId = 482321,
+                    ED2K = "bf80cbaadf242c4043d44385de75638d"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 34,
+                    Title = "Strangers on a Train",
+                    TmdbId = 845,
+                    ED2K = "a915eb32bff0604eec9afc47806b7a09"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 35,
+                    Title = "Rio Bravo",
+                    TmdbId = 301,
+                    ED2K = "bbd17e2e0e39f177fb42ba12fbc3a397"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 36,
+                    Title = "The Omega Man",
+                    TmdbId = 1450,
+                    ED2K = "ff4864650ec980159573479b67151859"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 37,
+                    Title = "The Pink Panther",
+                    TmdbId = 936,
+                    ED2K = "53b3060dde08445467d73e8e07976f83"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 38,
+                    Title = "Tremors",
+                    TmdbId = 9362,
+                    ED2K = "47c1596a0d6c657cc0f030593156eb9d"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 39,
+                    Title = "The Skin I Live In",
+                    TmdbId = 63311,
+                    ED2K = "7b76844584faec9599909bf10113d9cf"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 40,
+                    Title = "The Talented Mr. Ripley",
+                    TmdbId = 1213,
+                    ED2K = "10d831b6f8db5f6eaaa35d485d9b38e5"
+                    },
+                    new ExampleHash
+                    {
+                    Id = 41,
+                    Title = "Young Frankenstein",
+                    TmdbId = 3034,
+                    ED2K = "548e716ce84608f6aabe0aaeb23ad855"
                     }
                 );
             });
@@ -628,7 +767,12 @@ namespace Nostromo.Server.Database
                 entity.HasOne(e => e.Movie)
                       .WithMany()
                       .HasForeignKey(e => e.TMDBMovieID)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(wl => wl.Profile)
+                        .WithMany()
+                        .HasForeignKey(wl => wl.ProfileID)
+                        .OnDelete(DeleteBehavior.SetNull);
 
                 entity.HasMany(r => r.Genres)
                       .WithMany()
@@ -740,12 +884,7 @@ namespace Nostromo.Server.Database
                 entity.HasOne(wl => wl.User)
                     .WithMany()
                     .HasForeignKey(wl => wl.UserID)
-                    .OnDelete(DeleteBehavior.SetNull);
-                
-                entity.HasOne(wl => wl.Profile)
-                    .WithMany()
-                    .HasForeignKey(wl => wl.ProfileID)
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<WatchListItem>(entity =>
@@ -761,14 +900,14 @@ namespace Nostromo.Server.Database
                     .HasForeignKey(wli => wli.MovieID)
                     .IsRequired(false)
                     .OnDelete(DeleteBehavior.Restrict);
-                
+
                 entity.HasOne(wli => wli.TvShow)
                     .WithMany()
                     .HasForeignKey(wli => wli.TvShowID)
                     .IsRequired(false)
                     .OnDelete(DeleteBehavior.Restrict);
-                
-                entity.HasCheckConstraint("CK_WatchListItem_MovieOrTvShow", 
+
+                entity.HasCheckConstraint("CK_WatchListItem_MovieOrTvShow",
                     "(MovieID IS NOT NULL AND TvShowID IS NULL) OR (MovieID IS NULL AND TvShowID IS NOT NULL)");
             });
 
@@ -777,12 +916,11 @@ namespace Nostromo.Server.Database
                 entity.HasKey(c => c.CollectionID);
                 entity.Property(c => c.Name).IsRequired();
                 entity.Property(c => c.PosterPath);
-                
                 entity.HasOne(c => c.Profile)
                     .WithMany()
                     .HasForeignKey(c => c.ProfileID)
                     .OnDelete(DeleteBehavior.SetNull);
-                
+
                 entity.HasOne(c => c.User)
                     .WithMany()
                     .HasForeignKey(c => c.UserID)
@@ -1172,6 +1310,8 @@ namespace Nostromo.Server.Database
         public bool Video { get; set; }
         public double VoteAverage { get; set; }
         public int VoteCount { get; set; }
+        public virtual Profile? Profile { get; set; }
+        public int? ProfileID { get; set; }
 
         public virtual ICollection<Genre> Genres { get; set; } = new List<Genre>();
         public virtual TMDBMovie Movie { get; set; }
@@ -1203,7 +1343,7 @@ namespace Nostromo.Server.Database
 
         public int? UserID { get; set; }
         public virtual User? User { get; set; }
-        
+
         public int? ProfileID { get; set; }
         public virtual Profile? Profile { get; set; }
 
@@ -1220,15 +1360,14 @@ namespace Nostromo.Server.Database
 
         public int? MovieID { get; set; }
         public virtual TMDBMovie Movie { get; set; }
-        
+
         public int? TvShowID { get; set; }
-        
+
         public virtual TvShow TvShow { get; set; }
 
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;
     }
 
-    
     public class TvShow
      {
          public TvShow(TmdbTvResponse api)
@@ -1453,7 +1592,7 @@ namespace Nostromo.Server.Database
         public int CollectionID { get; set; }
         public string Name { get; set; }
         public string? PosterPath { get; set; }
-        
+
         public int? UserID { get; set; }
         public virtual User? User { get; set; }
         public int? ProfileID { get; set; }

@@ -11,8 +11,8 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    [Migration("20250430052600_WatchlistF")]
-    partial class WatchlistF
+    [Migration("20250430081604_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -403,6 +403,146 @@ namespace Nostromo.Server.Migrations
                             ED2K = "c0c717a4f8fad3366520d47c702ab5ad",
                             Title = "Total Recall",
                             TmdbId = 861
+                        },
+                        new
+                        {
+                            Id = 22,
+                            ED2K = "d68b4df74882553d70ddf8b1bfa4c510",
+                            Title = "Altered States",
+                            TmdbId = 11542
+                        },
+                        new
+                        {
+                            Id = 23,
+                            ED2K = "da7b55d4b775b92635a34b10ef30ec88",
+                            Title = "Con Air",
+                            TmdbId = 1701
+                        },
+                        new
+                        {
+                            Id = 24,
+                            ED2K = "e0dbd16993d8305df99162d76d196942",
+                            Title = "Dracula's Daughter",
+                            TmdbId = 22440
+                        },
+                        new
+                        {
+                            Id = 25,
+                            ED2K = "d66e8ed433fbadb4dd7a2563e07e5133",
+                            Title = "Drunken Master",
+                            TmdbId = 11230
+                        },
+                        new
+                        {
+                            Id = 26,
+                            ED2K = "07321dbd990d80af952132132f3aaba7",
+                            Title = "I Stand Alone",
+                            TmdbId = 1567
+                        },
+                        new
+                        {
+                            Id = 27,
+                            ED2K = "a41745e62f6b2f0c9908ce278e817e77",
+                            Title = "Mad God",
+                            TmdbId = 846867
+                        },
+                        new
+                        {
+                            Id = 28,
+                            ED2K = "bb8dcf1c11c68c414631bf1b2e861a25",
+                            Title = "Journey To The Center Of The Earth",
+                            TmdbId = 88751
+                        },
+                        new
+                        {
+                            Id = 29,
+                            ED2K = "8dac63001e29e8e9410f1d22ccd5eedc",
+                            Title = "Paprika",
+                            TmdbId = 4977
+                        },
+                        new
+                        {
+                            Id = 30,
+                            ED2K = "50cb41f65ff732f40d1f52e7758cff15",
+                            Title = "Q - The Winged Serpent",
+                            TmdbId = 29780
+                        },
+                        new
+                        {
+                            Id = 31,
+                            ED2K = "b11eabf34f194c2429247bd699918d73",
+                            Title = "Little Big Man",
+                            TmdbId = 11040
+                        },
+                        new
+                        {
+                            Id = 32,
+                            ED2K = "14e1ec9339fcc1a2b0754a288acee7ce",
+                            Title = "Harakiri",
+                            TmdbId = 14537
+                        },
+                        new
+                        {
+                            Id = 33,
+                            ED2K = "bf80cbaadf242c4043d44385de75638d",
+                            Title = "Rons Gone Wrong",
+                            TmdbId = 482321
+                        },
+                        new
+                        {
+                            Id = 34,
+                            ED2K = "a915eb32bff0604eec9afc47806b7a09",
+                            Title = "Strangers on a Train",
+                            TmdbId = 845
+                        },
+                        new
+                        {
+                            Id = 35,
+                            ED2K = "bbd17e2e0e39f177fb42ba12fbc3a397",
+                            Title = "Rio Bravo",
+                            TmdbId = 301
+                        },
+                        new
+                        {
+                            Id = 36,
+                            ED2K = "ff4864650ec980159573479b67151859",
+                            Title = "The Omega Man",
+                            TmdbId = 1450
+                        },
+                        new
+                        {
+                            Id = 37,
+                            ED2K = "53b3060dde08445467d73e8e07976f83",
+                            Title = "The Pink Panther",
+                            TmdbId = 936
+                        },
+                        new
+                        {
+                            Id = 38,
+                            ED2K = "47c1596a0d6c657cc0f030593156eb9d",
+                            Title = "Tremors",
+                            TmdbId = 9362
+                        },
+                        new
+                        {
+                            Id = 39,
+                            ED2K = "7b76844584faec9599909bf10113d9cf",
+                            Title = "The Skin I Live In",
+                            TmdbId = 63311
+                        },
+                        new
+                        {
+                            Id = 40,
+                            ED2K = "10d831b6f8db5f6eaaa35d485d9b38e5",
+                            Title = "The Talented Mr. Ripley",
+                            TmdbId = 1213
+                        },
+                        new
+                        {
+                            Id = 41,
+                            ED2K = "548e716ce84608f6aabe0aaeb23ad855",
+                            Title = "Young Frankenstein",
+                            TmdbId = 3034
                         });
                 });
 
@@ -854,6 +994,9 @@ namespace Nostromo.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("ProfileID")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("ReleaseDate")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -875,6 +1018,8 @@ namespace Nostromo.Server.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("RecommendationID");
+
+                    b.HasIndex("ProfileID");
 
                     b.HasIndex("TMDBMovieID", "Id");
 
@@ -1645,13 +1790,20 @@ namespace Nostromo.Server.Migrations
 
             modelBuilder.Entity("Nostromo.Server.Database.TMDBRecommendation", b =>
                 {
+                    b.HasOne("Nostromo.Server.Database.Profile", "Profile")
+                        .WithMany()
+                        .HasForeignKey("ProfileID")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Nostromo.Server.Database.TMDBMovie", "Movie")
                         .WithMany()
                         .HasForeignKey("TMDBMovieID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.Navigation("Movie");
+
+                    b.Navigation("Profile");
                 });
 
             modelBuilder.Entity("Nostromo.Server.Database.TvGenre", b =>
@@ -1718,13 +1870,12 @@ namespace Nostromo.Server.Migrations
                 {
                     b.HasOne("Nostromo.Server.Database.Profile", "Profile")
                         .WithMany()
-                        .HasForeignKey("ProfileID")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ProfileID");
 
                     b.HasOne("Nostromo.Server.Database.User", "User")
                         .WithMany()
                         .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Profile");
 

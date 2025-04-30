@@ -35,4 +35,6 @@ public class TmdbMovieResponse{
     public float voteAverage{get; set;}
     // runtime not available through json
     public int? runtime { get; set; }
+    [JsonPropertyName("certification")]
+    public string? certification { get; set; }
 }
