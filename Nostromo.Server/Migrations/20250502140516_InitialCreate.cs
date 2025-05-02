@@ -253,7 +253,9 @@ namespace Nostromo.Server.Migrations
                     FileSize = table.Column<long>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    IsRecognized = table.Column<bool>(type: "INTEGER", nullable: false)
+                    IsRecognized = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IsMovie = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IsTv = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -874,7 +876,7 @@ namespace Nostromo.Server.Migrations
                     { 27, "a41745e62f6b2f0c9908ce278e817e77", "Mad God", 846867 },
                     { 28, "bb8dcf1c11c68c414631bf1b2e861a25", "Journey To The Center Of The Earth", 88751 },
                     { 29, "8dac63001e29e8e9410f1d22ccd5eedc", "Paprika", 4977 },
-                    { 30, "50cb41f65ff732f40d1f52e7758cff15", "Q - The Winged Serpent", 29780 },
+                    { 30, "50cb41f65ff732f40d1f52e7758cff15", "Q - The Winged Serpent", 27726 },
                     { 31, "b11eabf34f194c2429247bd699918d73", "Little Big Man", 11040 },
                     { 32, "14e1ec9339fcc1a2b0754a288acee7ce", "Harakiri", 14537 },
                     { 33, "bf80cbaadf242c4043d44385de75638d", "Rons Gone Wrong", 482321 },

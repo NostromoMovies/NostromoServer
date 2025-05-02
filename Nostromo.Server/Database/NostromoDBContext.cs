@@ -516,7 +516,7 @@ namespace Nostromo.Server.Database
                     {
                     Id = 30,
                     Title = "Q - The Winged Serpent",
-                    TmdbId = 29780,
+                    TmdbId = 27726,
                     ED2K = "50cb41f65ff732f40d1f52e7758cff15"
                     },
                     new ExampleHash
@@ -1117,7 +1117,9 @@ namespace Nostromo.Server.Database
         public long FileSize { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public bool IsRecognized { get; set; } = true;
+        public bool IsRecognized { get; set; } = false;
+        public bool IsMovie { get; set; } = false;
+        public bool IsTv { get; set; } = false;
     }
 
     public class VideoPlace

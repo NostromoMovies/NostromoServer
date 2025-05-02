@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 using Nostromo.Server.API.Enums;
+using Nostromo.Server.Utilities;
 
 namespace Nostromo.Server.Services
 {
@@ -43,7 +44,9 @@ namespace Nostromo.Server.Services
         Task<Video?> GetVideoByIdAsync(int videoId);
         Task MarkVideoAsUnrecognizedAsync(int? videoId);
         Task MarkVideoAsRecognizedAsync(int? videoId);
-        Task<List<Video>> GetAllUnrecognizedVideosAsync();
+        Task<List<Video>> GetAllUnrecognizedMoviesAsync();
+        Task<List<Video>> GetAllUnrecognizedTvAsync();
+
         Task InsertExampleHashAsync(string ed2kHash, int tmdbId, string title);
         Task StoreTmdbRecommendationsAsync(int movieId, TmdbRecommendation recommendation);
         Task StoreTvRecommendationsAsync(int showId, TvRecommendationResponse recommendation, Dictionary<int, string> GenreDict);
@@ -74,6 +77,7 @@ namespace Nostromo.Server.Services
         Task<List<CollectionItemDto>> GetCollectionItemsAsync(int collectionId);
         Task RemoveItemFromCollectionAsync(int collectionId, int mediaId, string mediaType);
         Task<bool> IsMovieAsync(int mediaId);
+        Task InsertTvExampleHashAsync(string ed2kHash, int tvShowId, string title, int seasonNumber, int episodeNumber);
     }
 
     public class DatabaseService : IDatabaseService
@@ -763,29 +767,60 @@ namespace Nostromo.Server.Services
         public async Task MarkVideoAsUnrecognizedAsync(int? videoId)
         {
             var video = await _context.Videos.FindAsync(videoId);
-            if (video != null && video.IsRecognized)
+            if (video != null)
             {
+                var filePath = await _context.VideoPlaces
+                    .Where(vp => vp.VideoID == videoId)
+                    .Select(vp => vp.FilePath)
+                    .FirstOrDefaultAsync();
+
+                string? inferredType = !string.IsNullOrEmpty(filePath)
+                    ? Utils.GetMediaTypeFromFileName(filePath)
+                    : null;
+
                 video.IsRecognized = false;
+                video.IsMovie = inferredType == "Movie";
+                video.IsTv = inferredType == "TV";
+
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("Updated VideoID {VideoID} as unrecognized.", videoId);
+                _logger.LogInformation("VideoID {VideoID} marked as unrecognized. Inferred Type: {Type}", videoId, inferredType ?? "Unknown");
             }
         }
 
         public async Task MarkVideoAsRecognizedAsync(int? videoId)
         {
             var video = await _context.Videos.FindAsync(videoId);
-            if (video != null && !video.IsRecognized)
+            if (video != null)
             {
+                var filePath = await _context.VideoPlaces
+                    .Where(vp => vp.VideoID == videoId)
+                    .Select(vp => vp.FilePath)
+                    .FirstOrDefaultAsync();
+
+                string? inferredType = !string.IsNullOrEmpty(filePath)
+                    ? Utils.GetMediaTypeFromFileName(filePath)
+                    : null;
+
                 video.IsRecognized = true;
+                video.IsMovie = inferredType == "Movie";
+                video.IsTv = inferredType == "TV";
+
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("Updated VideoID {VideoID} as recognized.", videoId);
+                _logger.LogInformation("VideoID {VideoID} marked as recognized. Type: {Type}", videoId, inferredType ?? "Unknown");
             }
         }
 
-        public async Task<List<Video>> GetAllUnrecognizedVideosAsync()
+        public async Task<List<Video>> GetAllUnrecognizedMoviesAsync()
         {
             return await _context.Videos
-                .Where(v => !v.IsRecognized)
+                .Where(v => !v.IsRecognized && v.IsMovie)
+                .ToListAsync();
+        }
+
+        public async Task<List<Video>> GetAllUnrecognizedTvAsync()
+        {
+            return await _context.Videos
+                .Where(v => !v.IsRecognized && v.IsTv)
                 .ToListAsync();
         }
 
@@ -1661,6 +1696,32 @@ namespace Nostromo.Server.Services
         {
             var GenreDict = await _context.Genres.ToDictionaryAsync(g => g.GenreID, g => g.Name);
             return GenreDict;
+        }
+
+        public async Task InsertTvExampleHashAsync(string ed2kHash, int tvShowId, string title, int seasonNumber, int episodeNumber)
+        {
+            try
+            {
+                var tvExampleHash = new TvExampleHash
+                {
+                    ED2K = ed2kHash,
+                    TvShowId = tvShowId,
+                    Title = title,
+                    SeasonNumber = seasonNumber,
+                    EpisodeNumber = episodeNumber
+                };
+
+                await _context.TvExampleHashes.AddAsync(tvExampleHash);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Inserted TvExampleHash for ED2K {ED2K}, TV Show {TvShowId}, Season {SeasonNumber}, Episode {EpisodeNumber}",
+                    ed2kHash, tvShowId, seasonNumber, episodeNumber);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error inserting TvExampleHash entry");
+                throw;
+            }
         }
     }
 }

@@ -197,19 +197,40 @@ namespace Nostromo.Server.API.Controllers
         {
             try
             {
-                var unrecognizedVideos = await _databaseService.  GetAllUnrecognizedVideosAsync();
+                var unrecognizedMovies = await _databaseService.GetAllUnrecognizedMoviesAsync();
 
-                if (!unrecognizedVideos.Any())
+                if (!unrecognizedMovies.Any())
                 {
                     return NotFound(new { Message = "No unrecognized movies found" });
                 }
 
-                return Ok(unrecognizedVideos);
+                return Ok(unrecognizedMovies);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving unrecognized movies");
                 return StatusCode(500, new { Message = "An error occurred while retrieving unrecognized movies" });
+            }
+        }
+
+        [HttpGet("unrecognized-tv")]
+        public async Task<ActionResult<List<Video>>> GetUnrecognizedTv()
+        {
+            try
+            {
+                var unrecognizedTv = await _databaseService.GetAllUnrecognizedTvAsync();
+
+                if (!unrecognizedTv.Any())
+                {
+                    return NotFound(new { Message = "No unrecognized TV shows found" });
+                }
+
+                return Ok(unrecognizedTv);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving unrecognized TV shows");
+                return StatusCode(500, new { Message = "An error occurred while retrieving unrecognized TV shows" });
             }
         }
 
@@ -304,6 +325,74 @@ namespace Nostromo.Server.API.Controllers
                     StackTrace = ex.StackTrace
                 });
             }
+        }
+
+        [HttpPost("linkTv")]
+        public async Task<IActionResult> LinkTv([FromBody] LinkTvRequest request)
+        {
+            if (request == null)
+                return BadRequest("Request cannot be null.");
+
+            if (request.VideoID <= 0 || request.TMDBTvID <= 0)
+                return BadRequest("VideoID and TMDBTvID must be greater than 0.");
+
+            var video = await _databaseService.GetVideoByIdAsync(request.VideoID);
+            if (video == null)
+                return NotFound($"Video with ID {request.VideoID} not found.");
+
+            var fetchJobKey = new JobKey(Guid.NewGuid().ToString(), "MetadataGroup");
+            var fetchJob = JobBuilder.Create<DownloadTvMetadataJob>()
+                .UsingJobData("TV_ID", request.TMDBTvID)
+                .WithIdentity(fetchJobKey)
+                .Build();
+
+            var fetchTrigger = TriggerBuilder.Create()
+                .StartNow()
+                .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "MetadataGroup"))
+                .Build();
+
+            await _scheduler.ScheduleJob(fetchJob, fetchTrigger);
+
+            TvShow? tvDetails = null;
+            int retryCount = 0;
+            while (tvDetails == null && retryCount < 60)
+            {
+                await Task.Delay(1000);
+                tvDetails = await _databaseService.GetTvShowAsync(request.TMDBTvID);
+                retryCount++;
+            }
+
+            if (tvDetails == null)
+            {
+                _logger.LogWarning("Could not fetch TMDB metadata for TV Show ID: {TV_ID}", request.TMDBTvID);
+                return BadRequest("Failed to retrieve TMDB TV metadata.");
+            }
+
+            var metadataJobId = Guid.NewGuid().ToString();
+            var metadataJobKey = new JobKey(metadataJobId, "ConsolidateGroup");
+
+            var metadataJob = JobBuilder.Create<DownloadDirectTvMetadataJob>()
+                .UsingJobData(DownloadDirectTvMetadataJob.HASH_KEY, video.ED2K)
+                .UsingJobData(DownloadDirectTvMetadataJob.SHOW_ID_KEY, request.TMDBTvID)
+                .UsingJobData(DownloadDirectTvMetadataJob.SEASON_NUM_KEY, request.SeasonNumber)
+                .UsingJobData(DownloadDirectTvMetadataJob.EPISODE_NUM_KEY, request.EpisodeNumber)
+                .WithIdentity(metadataJobKey)
+                .Build();
+
+            var metadataTrigger = TriggerBuilder.Create()
+                .StartNow()
+                .WithIdentity(new TriggerKey(Guid.NewGuid().ToString(), "ConsolidateGroup"))
+                .Build();
+
+            await _scheduler.ScheduleJob(metadataJob, metadataTrigger);
+
+            _logger.LogInformation("Successfully scheduled TV metadata jobs for Video {VideoID} and TMDBTvID {TMDBTvID}.",
+                request.VideoID, request.TMDBTvID);
+
+            return Ok(new
+            {
+                Message = $"Metadata jobs scheduled for Video {request.VideoID} and TMDB TV Show {request.TMDBTvID}."
+            });
         }
 
         [HttpGet("movie/{id}/recommendations")]

@@ -11,7 +11,7 @@ using Nostromo.Server.Database;
 namespace Nostromo.Server.Migrations
 {
     [DbContext(typeof(NostromoDbContext))]
-    [Migration("20250430081604_InitialCreate")]
+    [Migration("20250502140516_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -465,7 +465,7 @@ namespace Nostromo.Server.Migrations
                             Id = 30,
                             ED2K = "50cb41f65ff732f40d1f52e7758cff15",
                             Title = "Q - The Winged Serpent",
-                            TmdbId = 29780
+                            TmdbId = 27726
                         },
                         new
                         {
@@ -1463,7 +1463,13 @@ namespace Nostromo.Server.Migrations
                     b.Property<long>("FileSize")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsMovie")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsRecognized")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsTv")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("MD5")
